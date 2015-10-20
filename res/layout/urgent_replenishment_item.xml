@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="60dip"
+    android:orientation="horizontal" >
+
+    <TextView
+        android:id="@+id/channle_number"
+        android:layout_width="100dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_vertical|center_horizontal"
+        android:maxLines="2"
+        android:textSize="25sp" />
+
+    <LinearLayout
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@+id/channle_number"
+        android:background="@color/head_bg"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/sku_name"
+        android:layout_width="340dp"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@+id/channle_number"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:textSize="25sp" 
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"/>
+
+    <LinearLayout
+        android:layout_width="1dip"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@+id/sku_name"
+        android:background="@color/head_bg"
+        android:orientation="vertical" >
+    </LinearLayout>
+	<RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@+id/sku_name"
+        android:orientation="vertical" >
+
+		<Button
+		    android:id="@+id/btn_sub"
+		    android:layout_width="50dp"
+		    android:layout_height="50dp"
+		    android:onClick="subClicked"
+		    android:layout_marginLeft="10dp"
+		    android:layout_alignParentLeft="true"
+		    android:layout_centerVertical="true"
+		    android:text="-" />
+		<ImageView
+		    android:layout_width="58dp"
+		    android:layout_height="46dp"
+		    android:layout_centerHorizontal="true"
+		    android:layout_centerVertical="true"
+		    android:src="@drawable/yuanjiao_btn_white" />
+		<EditText
+		    android:id="@+id/replenishment_number"
+		    android:layout_width="50dp"
+		    android:layout_height="40dp"
+		    android:layout_centerHorizontal="true"
+		    android:layout_centerVertical="true"
+		    android:gravity="center"
+		    android:background="@null"
+		    android:enabled="false"/>
+		<Button
+		    android:id="@+id/btn_sum"
+		    android:layout_width="50dp"
+		    android:layout_height="50dp"
+		    android:onClick="sumClicked"
+		    android:layout_marginRight="10dp"
+		    android:layout_alignParentRight="true"
+		    android:layout_centerVertical="true"
+		    android:text="+" />
+    </RelativeLayout>
+</RelativeLayout>
