@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+            android:id="@+id/layout_top"
+            android:layout_width="match_parent"
+            android:layout_height="500dp" >
+
+            <ImageView
+                android:id="@+id/iv_sku"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitXY"
+                android:background="@android:color/darker_gray"
+                android:src="@drawable/default_home" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_bottom"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/layout_top"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp" >
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/input_bg" />
+
+            <RelativeLayout
+                android:id="@+id/layout_step1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/imageView1"
+                android:layout_alignLeft="@+id/imageView1"
+                android:layout_alignRight="@+id/imageView1"
+                android:layout_alignTop="@+id/imageView1"
+                android:layout_marginBottom="100dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical"
+                android:visibility="visible" >
+
+                <ImageView
+                    android:id="@+id/iv_step1"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/icon_channle"/>
+
+                <TextView
+                    android:id="@+id/tv_channel_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toRightOf="@+id/iv_step1"
+                    android:text="@string/channle_number"
+                    android:textAlignment="gravity"
+                    android:textSize="30sp" />
+
+                <ImageView
+                    android:id="@+id/iv_channle_number_bg"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step1"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginTop="30dp"
+                    android:src="@drawable/yuanjiao_btn_white" />
+
+                <EditText
+                    android:id="@+id/et_channle_number"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step1"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@null"
+                    android:textSize="45sp"
+                    android:focusable="false"
+                    android:editable="false"
+                    android:hint="@string/placeholder_channle_number" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_step2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/imageView1"
+                android:layout_alignLeft="@+id/imageView1"
+                android:layout_alignRight="@+id/imageView1"
+                android:layout_alignTop="@+id/imageView1"
+                android:layout_marginBottom="100dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical" 
+                android:visibility="invisible">
+
+                <ImageView
+                    android:id="@+id/iv_step2"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/icon_pick" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toRightOf="@+id/iv_step2"
+                    android:text="@string/pick_number"
+                    android:textAlignment="gravity"
+                    android:textSize="30sp" />
+
+                <ImageView
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step2"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginTop="30dp"
+                    android:src="@drawable/yuanjiao_btn_white" />
+
+                <EditText
+                    android:id="@+id/et_pick_number"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step2"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@null"
+					android:editable="false"
+                    android:textSize="45sp"
+                    android:focusable="false"
+                    android:hint="@string/placeholder_pick_number" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_step3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/imageView1"
+                android:layout_alignLeft="@+id/imageView1"
+                android:layout_alignRight="@+id/imageView1"
+                android:layout_alignTop="@+id/imageView1"
+                android:layout_marginBottom="100dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical" 
+                android:visibility="invisible">
+
+                <ImageView
+                    android:id="@+id/iv_step3"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/icon_password" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toRightOf="@+id/iv_step3"
+                    android:text="@string/card_pwd"
+                    android:textAlignment="gravity"
+                    android:textSize="30sp" />
+
+                <ImageView
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step3"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginTop="30dp"
+                    android:src="@drawable/yuanjiao_btn_white" />
+
+                <EditText
+                    android:id="@+id/et_card_password"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step3"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@null"
+                    android:editable="false"
+                    android:password="true"
+                    android:textSize="45sp"
+                    android:focusable="false"
+                    android:hint="@string/placeholder_card_pwd" />
+            </RelativeLayout>
+            
+            <RelativeLayout
+                android:id="@+id/layout_step_set"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/imageView1"
+                android:layout_alignLeft="@+id/imageView1"
+                android:layout_alignRight="@+id/imageView1"
+                android:layout_alignTop="@+id/imageView1"
+                android:layout_marginBottom="100dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical"
+                android:visibility="invisible" >
+
+                <ImageView
+                    android:id="@+id/iv_step_set"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/icon_password" />
+
+			
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/imageView2"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toRightOf="@+id/iv_step_set"
+                    android:text="@string/card_pwd_set"
+                    android:textAlignment="gravity"
+                    android:textSize="30sp" />
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step_set"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginTop="30dp"
+                    android:src="@drawable/yuanjiao_btn_white" />
+
+                <EditText
+                    android:id="@+id/et_card_password_set"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/iv_step_set"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@null"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:hint="@string/placeholder_card_pwd"
+                    android:password="true"
+                    android:textSize="45sp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/alert_msg_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/imageView1"
+                android:layout_alignLeft="@+id/layout_step1"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="200dp"
+                android:text="@string/PUBLIC_MSG_TITLE"
+                android:textSize="25sp"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/alert_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/alert_msg_title"
+                android:layout_alignBottom="@+id/alert_msg_title"
+                android:layout_alignRight="@+id/layout_step1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="40dp"
+                android:layout_toRightOf="@+id/alert_msg_title"
+                android:maxLines="5"
+                android:textSize="25sp"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/btn_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:longClickable="true"
+                android:background="@null" />
+            <Button
+                android:id="@+id/btn_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:longClickable="true"
+                android:text="版本更新"
+                android:background="@null" />
+
+        </RelativeLayout>
+
+</LinearLayout>
