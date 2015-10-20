@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- public -->
+    <string name="app_name">Vending</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="init_server_url">系统初始化，请输入服务器地址</string>
+    <string name="placeholder_server_url">请输入服务器地址</string>
+    <string name="placeholder_vend_code">请输入售货机编号</string>
+    <string name="placeholder_vend_db">请输入数据库路径</string>
+    
+    <string name="btn_init_system">确定初始化系统</string>
+    
+    <string name="alert_msg_title">系统提示</string>
+    <string name="PUBLIC_NETWORK_ERROR">网络链接失败，请检查网络链接！</string>
+    <string name="PUBLIC_REQUEST_SERVER_ERROR">链接服务器失败</string>
+    <string name="PUBLIC_LOADING">程序加载中，请稍后...</string>
+    <string name="PUBLIC_UPDATE_NEW_VERSION">发现新版本，是否更新？</string>
+    <string name="PUBLIC_UPDATE_NEW_VERSION_UPDATE">更新</string>
+    <string name="PUBLIC_UPDATE_NEW_VERSION_CANCEL">稍后</string>
+    <string name="PUBLIC_DATA_PARSE_ERROR">数据解析错误！</string>
+    <string name="PUBLIC_EXIST_TITLE">是否退出应用？</string>
+    <string name="PUBLIC_EXIST">退出</string>
+    <string name="PUBLIC_CANCEL">取消</string>
+    <string name="PUBLIC_OK">确定</string>
+    <string name="PUBLIC_SAVE">保存</string>
+    <string name="PUBLIC_BACK">返回</string>
+    <string name="PUBLIC_UPDATE_NEW_VERSION_TEXT1">发现新版本 </string>
+    <string name="PUBLIC_UPDATE_NEW_VERSION_TEXT2">,更新中...</string>
+    <string name="PUBLIC_MSG_TITLE">提示信息：</string>
+    
+    <string name="alert_init_msg">是否进行程序初始化？</string>
+    <string name="BTN_INIT">初始化</string>
+    
+    <!-- 一般领料 -->
+    <string name="channle_number">货道号</string>
+    <string name="pick_number">领料数</string>
+    <string name="card_pwd">刷卡/密码</string>
+    <string name="card_pwd_set">操作员 刷卡/密码</string>
+    <string name="placeholder_channle_number">请输入货道号</string>
+    <string name="placeholder_pick_number">请输入领料数量</string>
+    <string name="placeholder_card_pwd">刷卡或输入密码</string>
+    
+    <!--组合领料 -->
+    <string name="combination_pick">组合领料</string>
+    <string name="sku_name">产品名称</string>
+    <string name="sku_number">数量</string>
+    <string name="sku_number_title">组合编号：</string>
+    <string name="placeholder_combination_number">请输入组合编号</string>
+    
+    
+    
+    <!--组合领料 -->
+    <string name="operate_borrow">借料</string>
+    <string name="operate_back">还料</string>
+    
+    <!--设置 -->
+    <string name="set_vending_number">售货机编号：</string>
+    <string name="set_replenishment">一键补货</string>
+    <string name="set_difference_replenishment">差异补货</string>
+    <string name="set_urgent_replenishment">紧急补货</string>
+    <string name="set_inventory">盘点</string>
+    <string name="set_returns_forward">退货（正向）</string>
+    <string name="set_returns_forward_list">正向退货列表</string>
+    <string name="set_returns_reverse">退货（反向）</string>
+    <string name="set_pick_test">领料测试</string>
+    <string name="set_synchronous_stock">库存同步</string>
+    <string name="set_synchronous">数据同步</string>
+    <string name="set_init">初始化</string>
+    <string name="set_finish">退出程序</string>
+    
+    <!--领料测试 -->
+    <string name="btn_test">测试</string>
+    
+    <!--差异补货 -->
+    <string name="replenishment_number">补货</string>
+    <string name="replenishment_number1">补货数量</string>
+    <string name="inventory_order_id">盘点单号：</string>
+    <string name="urgent_replenishment_order_id">紧急补货单号：</string>
+    <string name="replenishment_order_id">补货单号：</string>
+    <string name="returns_order_id">退货单号：</string>
+    <string name="returns_number">退货数量</string>
+    <!--盘点 -->
+    <string name="inventory_number">实盘数量</string>
+    
+
+</resources>
