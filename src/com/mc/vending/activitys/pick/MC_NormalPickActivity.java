@@ -1,5 +1,7 @@
 package com.mc.vending.activitys.pick;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +38,8 @@ import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.CardData;
 import com.mc.vending.data.ConversionData;
+import com.mc.vending.data.ProductCardPowerData;
+import com.mc.vending.data.ProductMaterialPowerData;
 import com.mc.vending.data.ProductPictureData;
 import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
@@ -43,13 +47,16 @@ import com.mc.vending.data.VendingChnData;
 import com.mc.vending.data.VendingData;
 import com.mc.vending.data.VendingPasswordData;
 import com.mc.vending.data.VendingPictureData;
+import com.mc.vending.data.VendingProLinkData;
 import com.mc.vending.data.VersionData;
 import com.mc.vending.db.ConversionDbOper;
+import com.mc.vending.db.ProductCardPowerDbOper;
 import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.db.UsedRecordDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.db.VendingPasswordDbOper;
 import com.mc.vending.db.VendingPictureDbOper;
+import com.mc.vending.db.VendingProLinkDbOper;
 import com.mc.vending.parse.VersionDataParse;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
@@ -59,7 +66,9 @@ import com.mc.vending.service.GeneralMaterialService;
 import com.mc.vending.service.ReplenishmentService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
+import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
@@ -134,23 +143,133 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	
 	private void yjjtestfoo()
 	{
-		String cardId = "";
-		int transQtyTotal = 0;// 个人已领用数
+		String cardId = "8874d922-a9e8-4cba-8d90-a4de009ba09d";
+		String vendingId = "12";
+		int inputQty = 1;
 		String skuId = "b83ebde2-fa9f-451b-8757-3cd8a9d6f692";
 		String proportion = "1";// 换算比例
 		String operation = "个";// 操作方式
-		ConversionDbOper conversionDbOper = new ConversionDbOper();
-		ConversionData conversionData = conversionDbOper
-				.findConversionByCpid(skuId);// 根据"关联产品ID"查询"单位换算关系表"中有无该产品的换算关系
-		if (conversionData != null) {
-			proportion = conversionData.getCn1Proportion();
-			operation = conversionData.getCn1Operation();
-		} 
-		UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-		transQtyTotal = usedRecordDbOper.getTransQtyCount(
-				cardId, skuId);
-		transQtyTotal = transQtyTotal * -1;
+		ProductCardPowerDbOper dbOper = new ProductCardPowerDbOper();
+
+        VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(
+                vendingId, skuId);
+        if (vendingProLink == null) {
+            throw new BusinessException("售货机产品 不存在!");
+        }
+        String vp1Id = vendingProLink.getVp1Id();
+
+        ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, vp1Id);
+
+        if (powerData != null) {
+            String pm1Power = powerData.getPc1Power();
+            if (ProductMaterialPowerData.MATERIAL_POWER_NO.equals(pm1Power)) {
+                throw new BusinessException("输入的卡号或密码无产品领料权限,请重新输入!");
+            }
+
+            int onceQty = Integer.valueOf(powerData.getPc1OnceQty());
+            String period = powerData.getPc1Period();
+            String intervalStart = powerData.getPc1IntervalStart();
+            String intervalFinish = powerData.getPc1IntervalFinish();
+            String startDate = powerData.getPc1StartDate();
+//            String cardId = powerData.getPc1CD1_ID();
+            int periodQty = Double.valueOf(powerData.getPc1PeriodQty()).intValue();
+
+            if (onceQty == 0 || inputQty <= onceQty) {
+                if (!StringHelper.isEmpty(period, true)) {
+                    UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
+                    Date date = this.getDate(period, intervalStart, intervalFinish, startDate);
+                    int transQtyTotal = 0;// 个人已领用数
+                    if (date != null) {
+                        try {
+                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId);
+                        } catch (Exception e) {
+                            // L.e(e.getMessage());
+                            // e.printStackTrace();
+                            throw new BusinessException("产品领料权限检查错误,卡产品领用数：" + transQtyTotal);
+                        }
+                    }
+
+                    int total = transQtyTotal * (-1);
+                    if (inputQty > periodQty) {
+                        throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "，不允许超领！");
+                    }
+                    if (total + inputQty > periodQty) {
+                        throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
+                    }
+                }
+            } else {
+                throw new BusinessException("一次最多领取 " + onceQty + " 数量,请重新输入!");
+            }
+        }
 	}
+	
+	/**
+     * 根据期间设置，间隔开始，间隔结束，起始时间确定查询时间
+     * Temp, added by junjie.you
+     * @param periodStr
+     * @param intervalStartStr
+     * @param intervalFinishStr
+     * @param startDateStr
+     * @return
+     */
+    public Date getDate(String periodStr, String intervalStartStr, String intervalFinishStr,
+            String startDateStr) {
+        if (StringHelper.isEmpty(startDateStr, true))
+            return null;
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        Date startDate = DateHelper.parse(startDateStr, pattern);
+        int period = ConvertHelper.toInt(periodStr, 0);
+        if (period >= Constant.YEAR && period <= Constant.HOUR) {
+            Date date = null;
+            Date tmpDate = new Date();
+            // 期间设置为年时
+            int intervalStart = ConvertHelper.toInt(intervalStartStr, 0);
+            switch (period) {
+            case Constant.YEAR:
+                date = DateHelper.add(tmpDate, Calendar.YEAR, -intervalStart); // date减intervalStart
+                break;
+            case Constant.MONTH:
+                // 期间设置为月时
+                date = DateHelper.add(tmpDate, Calendar.MONTH, -intervalStart); // month减intervalStart
+                break;
+            case Constant.DAY:
+                // 期间设置为日时
+                date = DateHelper.add(tmpDate, Calendar.DAY_OF_MONTH, -intervalStart); // date减intervalStart
+
+                // 更改设置为当天的零点，不再是24小时之前 forever add
+                date = DateHelper.getDateZero(DateHelper.add(date, Calendar.DAY_OF_MONTH, 1));
+
+                break;
+            case Constant.HOUR:
+                // 期间设置为小时时
+                date = DateHelper.add(tmpDate, Calendar.HOUR, -intervalStart); // hour减intervalStart
+                break;
+            default:
+                break;
+            }
+            if (date.before(startDate)) {
+                return startDate;
+            } else {
+                return date;
+            }
+        } else if (period == Constant.TIME) {
+            // 期间设置为时间段时
+            Date currentDate = new Date();
+            if (currentDate.before(startDate)) {
+                return null;
+            }
+            String startYMD = DateHelper.format(currentDate, "yyyy-MM-dd");
+            Date intervalStart = DateHelper.parse(startYMD + " " + intervalStartStr, "yyyy-MM-dd HH:mm:ss");
+            Date intervalFinish = DateHelper.parse(startYMD + " " + intervalFinishStr, "yyyy-MM-dd HH:mm:ss");
+            // 如果当前时间在起始时间之前或者在结束时间之后，忽略，否则取起始时间
+            if (currentDate.before(intervalStart) || currentDate.after(intervalFinish)) {
+                return null;
+            } else {
+                return intervalStart;
+            }
+        }
+        return null;
+    }
 
 	private void requestGetClientVersionServer() {
 		btn_version = (Button) this.findViewById(R.id.btn_version);

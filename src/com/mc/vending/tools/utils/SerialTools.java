@@ -430,11 +430,9 @@ public class SerialTools {
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
-				// mFw.setCheckA(a);
-				// mFw.setCheckB(b);
 				mFw.setRequestMethod(SerialTools.MESSAGE_LOG_mFw);
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				// sendPortData(mFw, MyFunc.cmdOpenStoreDoor(a, b, c), true); //
+				 sendPortData(mFw, MyFunc.cmdOpenFW(pId), true); //
 				// 参数:设备类型，编号，门号
 				// ZillionLog.i("sendPortData", MyFunc.cmdOpenStoreDoor(a, b,
 				// c));

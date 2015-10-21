@@ -202,6 +202,21 @@ public class MyFunc {
         //        cmdString += String.format("%02x", col) + String.format("%02x", row) + "00 00 00";
         return getVenderCommand(cmdString);
     }
+    
+  //生成打开称重模块指令，参数为模块ID
+    /**
+     * 生成打开称重模块指令
+     * @author junjie.you
+     * @param pId 模块ID号
+     * @return
+     */
+    public static String cmdOpenFW(int pId) {
+        String cmdString = "53"; //开始,层高固定为000000
+//        cmdString += String.format("%02x%02x000000", col + 0x30, row + 0x30);
+//
+//        //        cmdString += String.format("%02x", col + 48) + String.format("%02x", row + 48) + "00 00 00";
+        return getVenderCommand(cmdString);
+    }
 
     //计算累加和值
     public static int getSum(String cmd) {
