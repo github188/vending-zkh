@@ -121,7 +121,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	boolean isOperating = false; // 是否再操作中
 	private boolean isStoreChecked; // 格子机验证返回
 
-	private enum OPERATE_STEP {
+	public enum OPERATE_STEP {
 		OPERATE_STEP_1, OPERATE_STEP_2, OPERATE_STEP_3, OPERATE_STEP_SET
 	}
 
