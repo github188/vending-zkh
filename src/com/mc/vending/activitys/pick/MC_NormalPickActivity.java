@@ -139,6 +139,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		resetViews();
 		startService();
 		//yjjtestfoo();
+		yjjtestfoo2();
 	}
 	
 	private void yjjtestfoo()
@@ -201,6 +202,11 @@ public class MC_NormalPickActivity extends BaseActivity implements
                 throw new BusinessException("一次最多领取 " + onceQty + " 数量,请重新输入!");
             }
         }
+	}
+	
+	private void yjjtestfoo2()
+	{
+		SerialTools.getInstance().openFW(02);
 	}
 	
 	/**

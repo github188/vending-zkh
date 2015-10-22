@@ -18,13 +18,13 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
-        android:name="com.mc.vending.application.CustomApplication"
+        android:name=".application.CustomApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.mc.vending.activitys.MainActivity"
+            android:name=".activitys.MainActivity"
             android:label="@string/app_name"
             android:noHistory="true"
             android:screenOrientation="portrait" >
@@ -32,9 +32,9 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-<!--                 <category android:name="android.intent.category.HOME" /> -->
-<!--                 <category android:name="android.intent.category.DEFAULT" /> -->
-<!--                 <category android:name="android.intent.category.MONKEY" /> -->
+                <!-- <category android:name="android.intent.category.HOME" /> -->
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+                <!-- <category android:name="android.intent.category.MONKEY" /> -->
             </intent-filter>
         </activity>
         <activity
@@ -115,6 +115,11 @@
         <service
             android:name=".service.TaskService"
             android:enabled="true" />
+
+        <activity
+            android:name="com.mc.vending.activitys.pick.MC_WeightPickactivity"
+            android:label="@string/title_activity_mc__weight_pickactivity" >
+        </activity>
     </application>
 
 </manifest>
