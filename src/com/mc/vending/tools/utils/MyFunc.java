@@ -98,6 +98,20 @@ public class MyFunc {
 		return bcc;
 	}
 
+	/**
+	 * 获得异或校验位
+	 * 
+	 * @author junjie.you
+	 * 
+	 * @param cmd
+	 * @return
+	 */
+	public static int getBCCForFW(String cmd) {
+		int bcc = 0;
+
+		return bcc;
+	}
+
 	// 校验返回值
 	public static boolean checkBCC(byte[] inBytArr) {
 		int bcc = 0;
@@ -207,9 +221,9 @@ public class MyFunc {
 
 	// 生成称重模块控制指令，参数为命令字加数据包
 	public static String getFWCommand(String cmd) {
-		String cmdString = cmd.replaceAll("\\s*", "");
-		// String bcc = Integer.toHexString(getBCC(cmdString));
-		return ("FF" + cmdString + "AA").toUpperCase();
+		String cmdString = "FF" + cmd;
+		String bcc = Integer.toHexString(getBCC(cmdString));
+		return (cmdString + bcc).toUpperCase();
 	}
 
 	/**
@@ -222,14 +236,16 @@ public class MyFunc {
 	 */
 	public static String cmdOpenFW(int pId) {
 		String cmdString = "57";
-		cmdString += String.format("%02x", pId);
+		cmdString = cmdString + String.format("%02x", pId);
 		return getFWCommand(cmdString);
 	}
-	
+
 	/**
 	 * 生成去皮称重模块指令
+	 * 
 	 * @author junjie.you
-	 * @param pId 模块ID号
+	 * @param pId
+	 *            模块ID号
 	 * @return
 	 */
 	public static String cmdNetWeightFW(int pId) {
@@ -237,11 +253,13 @@ public class MyFunc {
 		cmdString += String.format("%02x", pId);
 		return getFWCommand(cmdString);
 	}
-	
+
 	/**
 	 * 生成置零称重模块指令
+	 * 
 	 * @author junjie.you
-	 * @param pId 模块ID号
+	 * @param pId
+	 *            模块ID号
 	 * @return
 	 */
 	public static String cmdSetZeroFW(int pId) {

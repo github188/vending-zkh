@@ -83,9 +83,8 @@ import com.zillionstar.tools.ZillionLog;
  * @author apple
  * 
  */
-public class MC_NormalPickActivity extends BaseActivity implements
-		MC_SerialToolsListener, RequestDataFinishListener,
-		DataParseRequestListener {
+public class MC_NormalPickActivity extends BaseActivity
+		implements MC_SerialToolsListener, RequestDataFinishListener, DataParseRequestListener {
 	public DataServices dataServices;
 	private ImageView iv_sku; // 商品图片
 	private RelativeLayout layout_step1; // 步骤1布局
@@ -138,12 +137,12 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		initObject();
 		resetViews();
 		startService();
-		//yjjtestfoo();
-		yjjtestfoo2();
+		// yjjtestfoo();
+		// yjjtestfoo2();
+		yjjtestfoo3();
 	}
-	
-	private void yjjtestfoo()
-	{
+
+	private void yjjtestfoo() {
 		String cardId = "8874d922-a9e8-4cba-8d90-a4de009ba09d";
 		String vendingId = "12";
 		int inputQty = 1;
@@ -152,130 +151,135 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		String operation = "个";// 操作方式
 		ProductCardPowerDbOper dbOper = new ProductCardPowerDbOper();
 
-        VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(
-                vendingId, skuId);
-        if (vendingProLink == null) {
-            throw new BusinessException("售货机产品 不存在!");
-        }
-        String vp1Id = vendingProLink.getVp1Id();
+		VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(vendingId, skuId);
+		if (vendingProLink == null) {
+			throw new BusinessException("售货机产品 不存在!");
+		}
+		String vp1Id = vendingProLink.getVp1Id();
 
-        ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, vp1Id);
+		ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, vp1Id);
 
-        if (powerData != null) {
-            String pm1Power = powerData.getPc1Power();
-            if (ProductMaterialPowerData.MATERIAL_POWER_NO.equals(pm1Power)) {
-                throw new BusinessException("输入的卡号或密码无产品领料权限,请重新输入!");
-            }
+		if (powerData != null) {
+			String pm1Power = powerData.getPc1Power();
+			if (ProductMaterialPowerData.MATERIAL_POWER_NO.equals(pm1Power)) {
+				throw new BusinessException("输入的卡号或密码无产品领料权限,请重新输入!");
+			}
 
-            int onceQty = Integer.valueOf(powerData.getPc1OnceQty());
-            String period = powerData.getPc1Period();
-            String intervalStart = powerData.getPc1IntervalStart();
-            String intervalFinish = powerData.getPc1IntervalFinish();
-            String startDate = powerData.getPc1StartDate();
-//            String cardId = powerData.getPc1CD1_ID();
-            int periodQty = Double.valueOf(powerData.getPc1PeriodQty()).intValue();
+			int onceQty = Integer.valueOf(powerData.getPc1OnceQty());
+			String period = powerData.getPc1Period();
+			String intervalStart = powerData.getPc1IntervalStart();
+			String intervalFinish = powerData.getPc1IntervalFinish();
+			String startDate = powerData.getPc1StartDate();
+			// String cardId = powerData.getPc1CD1_ID();
+			int periodQty = Double.valueOf(powerData.getPc1PeriodQty()).intValue();
 
-            if (onceQty == 0 || inputQty <= onceQty) {
-                if (!StringHelper.isEmpty(period, true)) {
-                    UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-                    Date date = this.getDate(period, intervalStart, intervalFinish, startDate);
-                    int transQtyTotal = 0;// 个人已领用数
-                    if (date != null) {
-                        try {
-                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId);
-                        } catch (Exception e) {
-                            // L.e(e.getMessage());
-                            // e.printStackTrace();
-                            throw new BusinessException("产品领料权限检查错误,卡产品领用数：" + transQtyTotal);
-                        }
-                    }
+			if (onceQty == 0 || inputQty <= onceQty) {
+				if (!StringHelper.isEmpty(period, true)) {
+					UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
+					Date date = this.getDate(period, intervalStart, intervalFinish, startDate);
+					int transQtyTotal = 0;// 个人已领用数
+					if (date != null) {
+						try {
+							transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId);
+						} catch (Exception e) {
+							// L.e(e.getMessage());
+							// e.printStackTrace();
+							throw new BusinessException("产品领料权限检查错误,卡产品领用数：" + transQtyTotal);
+						}
+					}
 
-                    int total = transQtyTotal * (-1);
-                    if (inputQty > periodQty) {
-                        throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "，不允许超领！");
-                    }
-                    if (total + inputQty > periodQty) {
-                        throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
-                    }
-                }
-            } else {
-                throw new BusinessException("一次最多领取 " + onceQty + " 数量,请重新输入!");
-            }
-        }
+					int total = transQtyTotal * (-1);
+					if (inputQty > periodQty) {
+						throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "，不允许超领！");
+					}
+					if (total + inputQty > periodQty) {
+						throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
+					}
+				}
+			} else {
+				throw new BusinessException("一次最多领取 " + onceQty + " 数量,请重新输入!");
+			}
+		}
 	}
-	
-	private void yjjtestfoo2()
-	{
+
+	private void yjjtestfoo2() {
 		SerialTools.getInstance().openFW(02);
 	}
-	
+
+	private void yjjtestfoo3() {
+		Intent intent = new Intent();
+
+		intent.setClass(MC_NormalPickActivity.this, MC_WeightPickActivity.class);
+		startActivity(intent);
+		finish();
+	}
+
 	/**
-     * 根据期间设置，间隔开始，间隔结束，起始时间确定查询时间
-     * Temp, added by junjie.you
-     * @param periodStr
-     * @param intervalStartStr
-     * @param intervalFinishStr
-     * @param startDateStr
-     * @return
-     */
-    public Date getDate(String periodStr, String intervalStartStr, String intervalFinishStr,
-            String startDateStr) {
-        if (StringHelper.isEmpty(startDateStr, true))
-            return null;
-        String pattern = "yyyy-MM-dd HH:mm:ss";
-        Date startDate = DateHelper.parse(startDateStr, pattern);
-        int period = ConvertHelper.toInt(periodStr, 0);
-        if (period >= Constant.YEAR && period <= Constant.HOUR) {
-            Date date = null;
-            Date tmpDate = new Date();
-            // 期间设置为年时
-            int intervalStart = ConvertHelper.toInt(intervalStartStr, 0);
-            switch (period) {
-            case Constant.YEAR:
-                date = DateHelper.add(tmpDate, Calendar.YEAR, -intervalStart); // date减intervalStart
-                break;
-            case Constant.MONTH:
-                // 期间设置为月时
-                date = DateHelper.add(tmpDate, Calendar.MONTH, -intervalStart); // month减intervalStart
-                break;
-            case Constant.DAY:
-                // 期间设置为日时
-                date = DateHelper.add(tmpDate, Calendar.DAY_OF_MONTH, -intervalStart); // date减intervalStart
+	 * 根据期间设置，间隔开始，间隔结束，起始时间确定查询时间 Temp, added by junjie.you
+	 * 
+	 * @param periodStr
+	 * @param intervalStartStr
+	 * @param intervalFinishStr
+	 * @param startDateStr
+	 * @return
+	 */
+	public Date getDate(String periodStr, String intervalStartStr, String intervalFinishStr, String startDateStr) {
+		if (StringHelper.isEmpty(startDateStr, true))
+			return null;
+		String pattern = "yyyy-MM-dd HH:mm:ss";
+		Date startDate = DateHelper.parse(startDateStr, pattern);
+		int period = ConvertHelper.toInt(periodStr, 0);
+		if (period >= Constant.YEAR && period <= Constant.HOUR) {
+			Date date = null;
+			Date tmpDate = new Date();
+			// 期间设置为年时
+			int intervalStart = ConvertHelper.toInt(intervalStartStr, 0);
+			switch (period) {
+			case Constant.YEAR:
+				date = DateHelper.add(tmpDate, Calendar.YEAR, -intervalStart); // date减intervalStart
+				break;
+			case Constant.MONTH:
+				// 期间设置为月时
+				date = DateHelper.add(tmpDate, Calendar.MONTH, -intervalStart); // month减intervalStart
+				break;
+			case Constant.DAY:
+				// 期间设置为日时
+				date = DateHelper.add(tmpDate, Calendar.DAY_OF_MONTH, -intervalStart); // date减intervalStart
 
-                // 更改设置为当天的零点，不再是24小时之前 forever add
-                date = DateHelper.getDateZero(DateHelper.add(date, Calendar.DAY_OF_MONTH, 1));
+				// 更改设置为当天的零点，不再是24小时之前 forever add
+				date = DateHelper.getDateZero(DateHelper.add(date, Calendar.DAY_OF_MONTH, 1));
 
-                break;
-            case Constant.HOUR:
-                // 期间设置为小时时
-                date = DateHelper.add(tmpDate, Calendar.HOUR, -intervalStart); // hour减intervalStart
-                break;
-            default:
-                break;
-            }
-            if (date.before(startDate)) {
-                return startDate;
-            } else {
-                return date;
-            }
-        } else if (period == Constant.TIME) {
-            // 期间设置为时间段时
-            Date currentDate = new Date();
-            if (currentDate.before(startDate)) {
-                return null;
-            }
-            String startYMD = DateHelper.format(currentDate, "yyyy-MM-dd");
-            Date intervalStart = DateHelper.parse(startYMD + " " + intervalStartStr, "yyyy-MM-dd HH:mm:ss");
-            Date intervalFinish = DateHelper.parse(startYMD + " " + intervalFinishStr, "yyyy-MM-dd HH:mm:ss");
-            // 如果当前时间在起始时间之前或者在结束时间之后，忽略，否则取起始时间
-            if (currentDate.before(intervalStart) || currentDate.after(intervalFinish)) {
-                return null;
-            } else {
-                return intervalStart;
-            }
-        }
-        return null;
-    }
+				break;
+			case Constant.HOUR:
+				// 期间设置为小时时
+				date = DateHelper.add(tmpDate, Calendar.HOUR, -intervalStart); // hour减intervalStart
+				break;
+			default:
+				break;
+			}
+			if (date.before(startDate)) {
+				return startDate;
+			} else {
+				return date;
+			}
+		} else if (period == Constant.TIME) {
+			// 期间设置为时间段时
+			Date currentDate = new Date();
+			if (currentDate.before(startDate)) {
+				return null;
+			}
+			String startYMD = DateHelper.format(currentDate, "yyyy-MM-dd");
+			Date intervalStart = DateHelper.parse(startYMD + " " + intervalStartStr, "yyyy-MM-dd HH:mm:ss");
+			Date intervalFinish = DateHelper.parse(startYMD + " " + intervalFinishStr, "yyyy-MM-dd HH:mm:ss");
+			// 如果当前时间在起始时间之前或者在结束时间之后，忽略，否则取起始时间
+			if (currentDate.before(intervalStart) || currentDate.after(intervalFinish)) {
+				return null;
+			} else {
+				return intervalStart;
+			}
+		}
+		return null;
+	}
 
 	private void requestGetClientVersionServer() {
 		btn_version = (Button) this.findViewById(R.id.btn_version);
@@ -283,8 +287,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 
 		VersionDataParse parse = new VersionDataParse();
 		parse.setListener(this);
-		parse.requestVersionData(Constant.HTTP_OPERATE_TYPE_GETDATA,
-				Constant.METHOD_WSID_VERSION);
+		parse.requestVersionData(Constant.HTTP_OPERATE_TYPE_GETDATA, Constant.METHOD_WSID_VERSION);
 	}
 
 	private VersionData versionData = new VersionData();
@@ -295,12 +298,10 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			if (Constant.METHOD_WSID_VERSION.equals(baseData.getRequestURL())) {
 				versionData = (VersionData) baseData.getUserObject();
 				String version = versionData.getVersion().replace(".", "");
-				String locaVersion = Constant.HEADER_VALUE_CLIENTVER.replace(
-						".", "");
+				String locaVersion = Constant.HEADER_VALUE_CLIENTVER.replace(".", "");
 				if (Integer.parseInt(version) > Integer.parseInt(locaVersion)) {
 					// resetAlertMsg("有新版本，请更新！");
-					Intent intent = new Intent(MC_NormalPickActivity.this,
-							VersionActivity.class);
+					Intent intent = new Intent(MC_NormalPickActivity.this, VersionActivity.class);
 					intent.putExtra("url", versionData.getDownloadURL());
 					intent.putExtra("vermsg", versionData.getVersion() + "");
 					startActivity(intent);
@@ -331,8 +332,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	@Override
 	public void parseRequestFailure(BaseData baseData) {
 
-		ZillionLog.e("normal parseRequestFailure" + "==>"
-				+ Constant.WSIDNAMEMAP.get(baseData.getRequestURL()));
+		ZillionLog.e("normal parseRequestFailure" + "==>" + Constant.WSIDNAMEMAP.get(baseData.getRequestURL()));
 	}
 
 	/**
@@ -399,14 +399,11 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		layout_step1 = (RelativeLayout) this.findViewById(R.id.layout_step1);
 		layout_step2 = (RelativeLayout) this.findViewById(R.id.layout_step2);
 		layout_step3 = (RelativeLayout) this.findViewById(R.id.layout_step3);
-		layout_step_set = (RelativeLayout) this
-				.findViewById(R.id.layout_step_set);
-		et_channle_number = (EditText) this
-				.findViewById(R.id.et_channle_number);
+		layout_step_set = (RelativeLayout) this.findViewById(R.id.layout_step_set);
+		et_channle_number = (EditText) this.findViewById(R.id.et_channle_number);
 		et_pick_number = (EditText) this.findViewById(R.id.et_pick_number);
 		et_card_password = (EditText) this.findViewById(R.id.et_card_password);
-		et_card_password_set = (EditText) this
-				.findViewById(R.id.et_card_password_set);
+		et_card_password_set = (EditText) this.findViewById(R.id.et_card_password_set);
 		alert_msg_title = (TextView) this.findViewById(R.id.alert_msg_title);
 		alert_msg = (TextView) this.findViewById(R.id.alert_msg);
 		btn_out = (Button) this.findViewById(R.id.btn_out);
@@ -422,35 +419,24 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			@Override
 			public boolean onLongClick(View arg0) {
 				password = new EditText(MC_NormalPickActivity.this);
-				password.setInputType(InputType.TYPE_CLASS_TEXT
-						| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-				final Builder dialog = new AlertDialog.Builder(
-						MC_NormalPickActivity.this)
-						.setTitle("请输入密码")
-						.setView(password)
-						.setCancelable(false)
-						.setPositiveButton("确定",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										if (!StringHelper.isEmpty(password
-												.getText().toString(), true)) {
-											VendingPasswordData data = new VendingPasswordDbOper()
-													.getVendingPasswordByPassword(password
-															.getText()
-															.toString());
-											if (data == null) {
-												resetAlertMsg("密码错误");
-											} else {
-												ActivityManagerTool
-														.getActivityManager()
-														.exit();
-												finish();
-											}
-										}
-									}
-								}).setNegativeButton("取消", null);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				final Builder dialog = new AlertDialog.Builder(MC_NormalPickActivity.this).setTitle("请输入密码")
+						.setView(password).setCancelable(false)
+						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!StringHelper.isEmpty(password.getText().toString(), true)) {
+							VendingPasswordData data = new VendingPasswordDbOper()
+									.getVendingPasswordByPassword(password.getText().toString());
+							if (data == null) {
+								resetAlertMsg("密码错误");
+							} else {
+								ActivityManagerTool.getActivityManager().exit();
+								finish();
+							}
+						}
+					}
+				}).setNegativeButton("取消", null);
 				dialog.show();
 
 				return false;
@@ -482,8 +468,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 
 	private void resetSKUImage() {
 		iv_sku.setImageResource(R.drawable.default_home);
-		VendingPictureData data = new VendingPictureDbOper()
-				.getDefaultVendingPicture();
+		VendingPictureData data = new VendingPictureDbOper().getDefaultVendingPicture();
 		if (data != null) {
 			String imageURL = data.getVp2FilePath();
 			loadImage(imageURL);
@@ -541,8 +526,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		List<VendingPictureData> pictrueList = db.findVendingPicture();
 		if (pictrueList.size() > 0) {
 			Intent intent = new Intent();
-			intent.setClass(MC_NormalPickActivity.this,
-					MC_ImagePlayerActivity.class);
+			intent.setClass(MC_NormalPickActivity.this, MC_ImagePlayerActivity.class);
 			startActivity(intent);
 		}
 	}
@@ -757,8 +741,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			// 功能键－－组合
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
 				// 判断售货机状态
-				ServiceResult<VendingData> result = CompositeMaterialService
-						.getInstance().checkVending();
+				ServiceResult<VendingData> result = CompositeMaterialService.getInstance().checkVending();
 				if (!result.isSuccess()) {
 					resetAlertMsg(result.getMessage());
 					return;
@@ -766,8 +749,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				vendData = result.getResult();
 				Intent intent = new Intent();
 				intent.putExtra("vendData", vendData);
-				intent.setClass(MC_NormalPickActivity.this,
-						MC_CombinationPickActivity.class);
+				intent.setClass(MC_NormalPickActivity.this, MC_CombinationPickActivity.class);
 				startActivity(intent);
 				// overridePendingTransition(R.anim.anim_from_right,
 				// R.anim.anim_to_left);
@@ -776,8 +758,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			// 功能键－－借
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
 
-				ServiceResult<VendingData> result = CompositeMaterialService
-						.getInstance().checkVending();
+				ServiceResult<VendingData> result = CompositeMaterialService.getInstance().checkVending();
 				if (!result.isSuccess()) {
 					resetAlertMsg(result.getMessage());
 					return;
@@ -785,11 +766,9 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				vendData = result.getResult();
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putInt("operateType",
-						MC_BorrowBackAcitvity.OPERATE_BORROW); // 0为借，1为还
+				bundle.putInt("operateType", MC_BorrowBackAcitvity.OPERATE_BORROW); // 0为借，1为还
 				intent.putExtras(bundle);
-				intent.setClass(MC_NormalPickActivity.this,
-						MC_BorrowBackAcitvity.class);
+				intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
 				startActivity(intent);
 
 				// overridePendingTransition(R.anim.anim_from_right,
@@ -798,8 +777,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 		} else if (SerialTools.FUNCTION_KEY_BACK.equals(value)) {
 			// 功能键－－还
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
-				ServiceResult<VendingData> result = CompositeMaterialService
-						.getInstance().checkVending();
+				ServiceResult<VendingData> result = CompositeMaterialService.getInstance().checkVending();
 				if (!result.isSuccess()) {
 					resetAlertMsg(result.getMessage());
 					return;
@@ -809,8 +787,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				Bundle bundle = new Bundle();
 				bundle.putInt("operateType", MC_BorrowBackAcitvity.OPERATE_BACK); // 0为借，1为还
 				intent.putExtras(bundle);
-				intent.setClass(MC_NormalPickActivity.this,
-						MC_BorrowBackAcitvity.class);
+				intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
 				startActivity(intent);
 			}
 		} else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
@@ -825,21 +802,18 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			hiddenAlertMsg();
 			switch (operateStep) {
 			case OPERATE_STEP_1:
-				if (!StringHelper.isEmpty(et_channle_number.getText()
-						.toString(), true)) {
+				if (!StringHelper.isEmpty(et_channle_number.getText().toString(), true)) {
 					et_channle_number.setText("");
 				}
 				break;
 			case OPERATE_STEP_2:
 
-				if (vendingChn.getVc1Type().equals(
-						VendingChnData.VENDINGCHN_TYPE_CELL)) {
+				if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
 					// 如果货到类型为格子机，点击取消，直接返回上一步
 					operateStep = OPERATE_STEP.OPERATE_STEP_1;
 					resetViews();
 				} else {
-					if (!StringHelper.isEmpty(et_pick_number.getText()
-							.toString(), true)) {
+					if (!StringHelper.isEmpty(et_pick_number.getText().toString(), true)) {
 						et_pick_number.setText("");
 					} else {
 						operateStep = OPERATE_STEP.OPERATE_STEP_1;
@@ -849,8 +823,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 
 				break;
 			case OPERATE_STEP_3:
-				if (!StringHelper.isEmpty(
-						et_card_password.getText().toString(), true)) {
+				if (!StringHelper.isEmpty(et_card_password.getText().toString(), true)) {
 					et_card_password.setText("");
 					openRFID(); // 进入步骤3，打开rfid
 				} else {
@@ -860,8 +833,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				}
 				break;
 			case OPERATE_STEP_SET:
-				if (!StringHelper.isEmpty(et_card_password_set.getText()
-						.toString(), true)) {
+				if (!StringHelper.isEmpty(et_card_password_set.getText().toString(), true)) {
 					et_card_password_set.setText("");
 					openRFID(); // 进入步骤3，打开rfid
 				} else {
@@ -895,8 +867,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				break;
 			}
 		} else {
-			resetTextView(SerialTools.getInstance().getKeyValue(value),
-					serialType);
+			resetTextView(SerialTools.getInstance().getKeyValue(value), serialType);
 		}
 
 	}
@@ -909,53 +880,44 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	private void channelValidate() {
 		et_pick_number.setText("");
 		if (StringHelper.isEmpty(et_channle_number.getText().toString(), true)) {
-			resetAlertMsg(getResources().getString(
-					R.string.placeholder_channle_number));
+			resetAlertMsg(getResources().getString(R.string.placeholder_channle_number));
 		} else {
 			// 判断输入是否为客服电话，如果输入为特殊字符－－客服电话责进入同步页面
-			if (et_channle_number.getText().toString()
-					.equals(Constant.SERVICE_TEL)) {
+			if (et_channle_number.getText().toString().equals(Constant.SERVICE_TEL)) {
 				startSynData();
 			} else {
-				ServiceResult<VendingData> result = GeneralMaterialService
-						.getInstance().checkVending();
+				ServiceResult<VendingData> result = GeneralMaterialService.getInstance().checkVending();
 				// 判断售货机状态－－验证是否可用
 				if (!result.isSuccess()) {
 					resetAlertMsg(result.getMessage());
 					return;
 				}
 				// 判断货到状态－类型，返回商品id，货道id
-				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService
-						.getInstance().checkVendingChn(
-								et_channle_number.getText().toString(),
-								VendingChnData.VENDINGCHN_METHOD_GENERAL);
+				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService.getInstance().checkVendingChn(
+						et_channle_number.getText().toString(), VendingChnData.VENDINGCHN_METHOD_GENERAL);
 				if (!vendingResult.isSuccess()) {
 					resetAlertMsg(vendingResult.getMessage());
 					return;
 				}
 				vendingChn = vendingResult.getResult();
 				// 查询商品图片
-				ProductPictureData picData = GeneralMaterialService
-						.getInstance().getPictureBySkuId(
-								vendingChn.getVc1Pd1Id());
+				ProductPictureData picData = GeneralMaterialService.getInstance()
+						.getPictureBySkuId(vendingChn.getVc1Pd1Id());
 				if (picData != null) {
 					// 加载图片
-					Log.i(this.getClass().getName().toString(),
-							"pp1_filePath===" + picData.getPp1FilePath());
+					Log.i(this.getClass().getName().toString(), "pp1_filePath===" + picData.getPp1FilePath());
 					loadImage(picData.getPp1FilePath());
 					// todo...
 				}
 
-				stockCount = GeneralMaterialService.getInstance()
-						.getVendingChnStock(vendingChn.getVc1Vd1Id(),
-								vendingChn.getVc1Code());
+				stockCount = GeneralMaterialService.getInstance().getVendingChnStock(vendingChn.getVc1Vd1Id(),
+						vendingChn.getVc1Code());
 				if (stockCount <= 0) {
 					resetAlertMsg("库存为：" + stockCount + ",库存量不足,不能领料");
 					return;
 				}
 
-				if (vendingChn.getVc1Type().equals(
-						VendingChnData.VENDINGCHN_TYPE_CELL)) {
+				if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
 					// 格子机,查询货到对应库存，显示再界面，此时，键盘输入不可修改数量
 					et_pick_number.setText(String.valueOf(stockCount));
 					resetAlertMsg("格子机器库存数量：" + stockCount + ", 格子机默认全部领取");
@@ -979,17 +941,13 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	 */
 	private void pickNumberValidate() {
 		if (StringHelper.isEmpty(et_pick_number.getText().toString(), true)) {
-			resetAlertMsg(getResources().getString(
-					R.string.placeholder_pick_number));
+			resetAlertMsg(getResources().getString(R.string.placeholder_pick_number));
 		} else {
-			if (vendingChn.getVc1Type().equals(
-					VendingChnData.VENDINGCHN_TYPE_VENDING)) {
+			if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_VENDING)) {
 				// 如果售货机货道类型＝＝售货机，责判断领料数量
-				int inputCount = ConvertHelper.toInt(et_pick_number.getText()
-						.toString(), 0);
+				int inputCount = ConvertHelper.toInt(et_pick_number.getText().toString(), 0);
 				if (!(inputCount != 0 && inputCount <= stockCount)) {
-					resetAlertMsg("货道号" + vendingChn.getVc1Code() + "的库存数量="
-							+ stockCount + "，库存不足，请重新输入！");
+					resetAlertMsg("货道号" + vendingChn.getVc1Code() + "的库存数量=" + stockCount + "，库存不足，请重新输入！");
 					return;
 				}
 			}
@@ -1008,45 +966,29 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	private void cardPasswordValidate() {
 		closeRFID();
 		if (StringHelper.isEmpty(et_card_password.getText().toString(), true)) {
-			resetAlertMsg(getResources().getString(
-					R.string.placeholder_card_pwd));
+			resetAlertMsg(getResources().getString(R.string.placeholder_card_pwd));
 		} else {
 			// 检查卡/密码-权限
-			ServiceResult<VendingCardPowerWrapperData> result = GeneralMaterialService
-					.getInstance().checkCardPowerOut(
-							isRFID ? CardData.CARD_SERIALNO_PARAM
-									: CardData.CARD_PASSWORD_PARAM,
-							et_card_password.getText().toString(),
-							vendingChn.getVc1Vd1Id());
+			ServiceResult<VendingCardPowerWrapperData> result = GeneralMaterialService.getInstance().checkCardPowerOut(
+					isRFID ? CardData.CARD_SERIALNO_PARAM : CardData.CARD_PASSWORD_PARAM,
+					et_card_password.getText().toString(), vendingChn.getVc1Vd1Id());
 			if (!result.isSuccess()) {
 				resetAlertMsg(result.getMessage());
 				return;
 			}
 			wrapperData = result.getResult();
-			resetAlertMsg(vendingChn.getVc1Vd1Id()
-					+ "+"
-					+ vendingChn.getVc1Pd1Id()
-					+ ","
-					+ wrapperData.getVendingCardPowerData().getVc2Cu1Id()
-					+ ","
-					+ wrapperData.getVendingCardPowerData().getVc2Id()
-					+ ","
-					+ ConvertHelper.toInt(et_pick_number.getText().toString(),
-							0) + "," + vendingChn.getVc1Code() + ","
-					+ wrapperData.getCardPuductPowerType() + ","
-					+ wrapperData.getVendingCardPowerData().getVc2Cd1Id());
+			resetAlertMsg(vendingChn.getVc1Vd1Id() + "+" + vendingChn.getVc1Pd1Id() + ","
+					+ wrapperData.getVendingCardPowerData().getVc2Cu1Id() + ","
+					+ wrapperData.getVendingCardPowerData().getVc2Id() + ","
+					+ ConvertHelper.toInt(et_pick_number.getText().toString(), 0) + "," + vendingChn.getVc1Code() + ","
+					+ wrapperData.getCardPuductPowerType() + "," + wrapperData.getVendingCardPowerData().getVc2Cd1Id());
 			// 查询领料权限
-			ServiceResult<Boolean> materialResult = GeneralMaterialService
-					.getInstance()
-					.checkProductMaterialPower(
-							vendingChn.getVc1Vd1Id(),
-							vendingChn.getVc1Pd1Id(),
-							wrapperData.getVendingCardPowerData().getVc2Cu1Id(),
-							wrapperData.getVendingCardPowerData().getVc2Id(),
-							ConvertHelper.toInt(et_pick_number.getText()
-									.toString(), 0), vendingChn.getVc1Code(),
-							wrapperData.getCardPuductPowerType(),
-							wrapperData.getVendingCardPowerData().getVc2Cd1Id());
+			ServiceResult<Boolean> materialResult = GeneralMaterialService.getInstance().checkProductMaterialPower(
+					vendingChn.getVc1Vd1Id(), vendingChn.getVc1Pd1Id(),
+					wrapperData.getVendingCardPowerData().getVc2Cu1Id(),
+					wrapperData.getVendingCardPowerData().getVc2Id(),
+					ConvertHelper.toInt(et_pick_number.getText().toString(), 0), vendingChn.getVc1Code(),
+					wrapperData.getCardPuductPowerType(), wrapperData.getVendingCardPowerData().getVc2Cd1Id());
 			if (!materialResult.isSuccess()) {
 				resetAlertMsg(materialResult.getMessage());
 				return;
@@ -1055,11 +997,9 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			hiddenAlertMsg();
 			// 步骤三确认，进行后续判断,发起领料动作，
 
-			if (vendingChn.getVc1Type().equals(
-					VendingChnData.VENDINGCHN_TYPE_VENDING)) {
+			if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_VENDING)) {
 				// 售货机
-				vendingChn.setInputQty(ConvertHelper.toInt(et_pick_number
-						.getText().toString(), 0));
+				vendingChn.setInputQty(ConvertHelper.toInt(et_pick_number.getText().toString(), 0));
 				isOperating = true;
 				openVender(null);
 
@@ -1067,8 +1007,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 				// 格子机器
 				isStoreChecked = false;
 				SerialTools.getInstance().addToolsListener(this);
-				SerialTools.getInstance().openStore(
-						ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
+				SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
 						ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
 						ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
 				// SerialTools.getInstance().openStore(2, 1, 1);
@@ -1084,8 +1023,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	 */
 	private void openVender(String status) {
 		if (status == null || status.contains("31") || status.contains("32")) {
-			if (status != null
-					&& (status.contains("31") || status.contains("32"))) {
+			if (status != null && (status.contains("31") || status.contains("32"))) {
 				if (status.contains("31")) {
 					pickSuccess(1, vendingChn);// 每次成功－1
 				} else {
@@ -1097,8 +1035,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 					closeVender();
 					resetInputStatus();
 					if (vendingChn.getFailureQty() > 0) {
-						resetAlertMsg("货道状态错误,失败数量："
-								+ vendingChn.getFailureQty());
+						resetAlertMsg("货道状态错误,失败数量：" + vendingChn.getFailureQty());
 					} else {
 						resetAlertMsg("领料成功！");
 					}
@@ -1112,8 +1049,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 					return;
 				}
 			}
-			SerialTools.getInstance().openVender(
-					ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
+			SerialTools.getInstance().openVender(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0));
 			try {
 				Thread.sleep(Constant.TIME_INTERNAL);
@@ -1156,18 +1092,14 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	private void openedStore(String input) {
 		if (input != null && !isStoreChecked) {
 			String[] array = input.split(" ");
-			if (array.length > 7
-					&& array.length >= ConvertHelper.toInt(
-							vendingChn.getVc1Height(), 0) + 7) {
-				if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4]
-						.equals("00")) {
+			if (array.length > 7 && array.length >= ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7) {
+				if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
 					pickSuccess(stockCount, vendingChn);
 					resetInputStatus();
 					resetAlertMsg("领料成功！");
 					stockCount = 0;
 					isStoreChecked = true;
-				} else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(),
-						0) + 4].equals("01")) {
+				} else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
 					resetInputStatus();
 					resetAlertMsg("领料失败！");
 				}
@@ -1182,13 +1114,10 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	 */
 	private void setValidate() {
 		closeRFID();
-		if (StringHelper.isEmpty(et_card_password_set.getText().toString(),
-				true)) {
-			resetAlertMsg(getResources().getString(
-					R.string.placeholder_card_pwd));
+		if (StringHelper.isEmpty(et_card_password_set.getText().toString(), true)) {
+			resetAlertMsg(getResources().getString(R.string.placeholder_card_pwd));
 		} else {
-			ServiceResult<VendingData> vendResult = GeneralMaterialService
-					.getInstance().checkVending();
+			ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance().checkVending();
 			// 判断售货机状态－－验证是否可用
 			if (!vendResult.isSuccess()) {
 				resetAlertMsg(vendResult.getMessage());
@@ -1196,10 +1125,8 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			}
 			vendData = vendResult.getResult();
 			// 检查卡/密码-权限,进入设置只能刷卡
-			ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService
-					.getInstance().checkCardPowerInner(
-							et_card_password_set.getText().toString(),
-							vendData.getVd1Id());
+			ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService.getInstance()
+					.checkCardPowerInner(et_card_password_set.getText().toString(), vendData.getVd1Id());
 			if (!result.isSuccess()) {
 				resetAlertMsg(result.getMessage());
 				return;
@@ -1215,8 +1142,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			intent.putExtra("vendData", vendData);
 
 			intent.putExtras(bundle);
-			intent.setClass(MC_NormalPickActivity.this,
-					MC_SettingActivity.class);
+			intent.setClass(MC_NormalPickActivity.this, MC_SettingActivity.class);
 			startActivityForResult(intent, 1000);
 			// startActivity(intent);
 
@@ -1229,8 +1155,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	private void pickSuccess(int count, VendingChnData vendingChn) {
 		// 保存领料数据
 		isStoreChecked = false;
-		GeneralMaterialService.getInstance().saveStockTransaction(count,
-				vendingChn, wrapperData);
+		GeneralMaterialService.getInstance().saveStockTransaction(count, vendingChn, wrapperData);
 		// 恢复默认状态
 	}
 
@@ -1245,14 +1170,12 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	 */
 	private void loadImage(String imageURL) {
 		asyncImageLoader = new AsyncImageLoader();
-		Drawable cachedImage = asyncImageLoader.loadDrawable(imageURL,
-				new AsyncImageLoader.ImageCallback() {
-					@Override
-					public void imageLoaded(final Drawable imageDrawable,
-							final String imageUrl, String tag) {
-						iv_sku.setImageDrawable(imageDrawable);
-					}
-				});
+		Drawable cachedImage = asyncImageLoader.loadDrawable(imageURL, new AsyncImageLoader.ImageCallback() {
+			@Override
+			public void imageLoaded(final Drawable imageDrawable, final String imageUrl, String tag) {
+				iv_sku.setImageDrawable(imageDrawable);
+			}
+		});
 		if (cachedImage != null) {
 			iv_sku.setImageDrawable(cachedImage);
 		}
@@ -1267,22 +1190,18 @@ public class MC_NormalPickActivity extends BaseActivity implements
 	private void resetTextView(String value, int serialType) {
 		switch (operateStep) {
 		case OPERATE_STEP_1:
-			et_channle_number.setText(et_channle_number.getText().toString()
-					+ value);
+			et_channle_number.setText(et_channle_number.getText().toString() + value);
 			break;
 		case OPERATE_STEP_2:
-			if (vendingChn.getVc1Type().equals(
-					VendingChnData.VENDINGCHN_TYPE_VENDING)) {
+			if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_VENDING)) {
 				// 如果货到类型是售货机，才接受输入
-				et_pick_number.setText(et_pick_number.getText().toString()
-						+ value);
+				et_pick_number.setText(et_pick_number.getText().toString() + value);
 			}
 
 			break;
 		case OPERATE_STEP_3:
 			if (SerialTools.MESSAGE_LOG_mKeyBoard == serialType) {
-				et_card_password.setText(et_card_password.getText().toString()
-						+ value);
+				et_card_password.setText(et_card_password.getText().toString() + value);
 			} else if (SerialTools.MESSAGE_LOG_mRFIDReader == serialType) {
 				if (!StringHelper.isEmpty(value, true)) {
 					et_card_password.setText(value);
@@ -1291,8 +1210,7 @@ public class MC_NormalPickActivity extends BaseActivity implements
 			break;
 		case OPERATE_STEP_SET:
 			if (SerialTools.MESSAGE_LOG_mKeyBoard == serialType) {
-				et_card_password_set.setText(et_card_password_set.getText()
-						.toString() + value);
+				et_card_password_set.setText(et_card_password_set.getText().toString() + value);
 			} else if (SerialTools.MESSAGE_LOG_mRFIDReader == serialType) {
 				if (!StringHelper.isEmpty(value, true)) {
 					et_card_password_set.setText(value);
