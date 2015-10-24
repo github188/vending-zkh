@@ -1,0 +1,133 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  Internal Error (javaClasses.cpp:136), pid=10916, tid=2940
+#  fatal error: Invalid layout of preloaded class
+#
+# JRE version:  (7.0_79-b15) (build )
+# Java VM: Java HotSpot(TM) Client VM (24.79-b02 mixed mode windows-x86 )
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x019ac800):  JavaThread "Unknown thread" [_thread_in_vm, id=2940, stack(0x01a10000,0x01a60000)]
+
+Stack: [0x01a10000,0x01a60000],  sp=0x01a5f7b4,  free space=317k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x191db4]
+V  [jvm.dll+0x18b436]
+V  [jvm.dll+0x35d20]
+V  [jvm.dll+0x35da6]
+V  [jvm.dll+0x4468d]
+V  [jvm.dll+0x4494e]
+V  [jvm.dll+0x9397a]
+V  [jvm.dll+0x93d2b]
+V  [jvm.dll+0x140c91]
+V  [jvm.dll+0x1638bc]
+V  [jvm.dll+0xca8bf]
+C  [javaw.exe+0x13ce]
+C  [javaw.exe+0x1e40]
+C  [javaw.exe+0xa601]
+C  [javaw.exe+0xa68b]
+C  [kernel32.dll+0x51194]
+C  [ntdll.dll+0x5b299]
+C  [ntdll.dll+0x5b26c]
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x019ac800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=2940, stack(0x01a10000,0x01a60000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (10 events):
+Event: 0.013 loading class 0x018c9a90 done
+Event: 0.014 loading class 0x018c9500 done
+Event: 0.014 loading class 0x018c94e0
+Event: 0.014 loading class 0x018d0870
+Event: 0.014 loading class 0x018d0870 done
+Event: 0.014 loading class 0x018d08a0
+Event: 0.014 loading class 0x018d08a0 done
+Event: 0.014 loading class 0x018d08d0
+Event: 0.014 loading class 0x018d08d0 done
+Event: 0.014 loading class 0x018c94e0 done
+
+
+Dynamic libraries:
+0x00100000 - 0x0012f000 	C:\Program Files\Java\jdk1.7.0_79\bin\javaw.exe
+0x778b0000 - 0x779ec000 	C:\Windows\SYSTEM32\ntdll.dll
+0x77160000 - 0x77234000 	C:\Windows\system32\kernel32.dll
+0x75bf0000 - 0x75c3a000 	C:\Windows\system32\KERNELBASE.dll
+0x77020000 - 0x770c0000 	C:\Windows\system32\ADVAPI32.dll
+0x75eb0000 - 0x75f5c000 	C:\Windows\system32\msvcrt.dll
+0x76ca0000 - 0x76cb9000 	C:\Windows\SYSTEM32\sechost.dll
+0x76cf0000 - 0x76d91000 	C:\Windows\system32\RPCRT4.dll
+0x75d50000 - 0x75e19000 	C:\Windows\system32\USER32.dll
+0x75d00000 - 0x75d4e000 	C:\Windows\system32\GDI32.dll
+0x76c10000 - 0x76c1a000 	C:\Windows\system32\LPK.dll
+0x770c0000 - 0x7715d000 	C:\Windows\system32\USP10.dll
+0x74250000 - 0x743ee000 	C:\Windows\WinSxS\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7600.16661_none_420fe3fa2b8113bd\COMCTL32.dll
+0x75f60000 - 0x75fb7000 	C:\Windows\system32\SHLWAPI.dll
+0x77ac0000 - 0x77adf000 	C:\Windows\system32\IMM32.DLL
+0x76f00000 - 0x76fcc000 	C:\Windows\system32\MSCTF.dll
+0x78230000 - 0x782ef000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\msvcr100.dll
+0x6e1c0000 - 0x6e549000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\client\jvm.dll
+0x6ef30000 - 0x6ef37000 	C:\Windows\system32\WSOCK32.dll
+0x77a20000 - 0x77a55000 	C:\Windows\system32\WS2_32.dll
+0x77a10000 - 0x77a16000 	C:\Windows\system32\NSI.dll
+0x73860000 - 0x73892000 	C:\Windows\system32\WINMM.dll
+0x77a00000 - 0x77a05000 	C:\Windows\system32\PSAPI.DLL
+0x6d390000 - 0x6d39c000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\verify.dll
+0x5e6a0000 - 0x5e6c0000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\java.dll
+0x65ce0000 - 0x65d0a000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\jdwp.dll
+0x6a6a0000 - 0x6a6a7000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\npt.dll
+0x5e670000 - 0x5e683000 	C:\Program Files\Java\jdk1.7.0_79\jre\bin\zip.dll
+0x72a80000 - 0x72b6b000 	C:\Windows\system32\dbghelp.dll
+
+VM Arguments:
+jvm_args: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:26173 -Dfile.encoding=UTF-8 -Xbootclasspath:E:\sdk\platforms\android-19\android.jar 
+java_command: com.mc.vending.tools.utils.MyFunc
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk1.7.0_79
+CLASSPATH=.;C:\Program Files\Java\jdk1.7.0_79\lib\tools.jar
+PATH=C:\Program Files\Java\jdk1.7.0_79\jre\bin;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin/client;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/lib/i386;C:\Program Files\Java\jdk1.7.0_79\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Microsoft SQL Server\100\Tools\Binn\;C:\Program Files\Microsoft SQL Server\100\DTS\Binn\;C:\Program Files\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\;C:\Program Files\Windows Kits\8.0\Windows Performance Toolkit\;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;C:\Program Files\Microsoft\Web Platform Installer\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\Android\android-sdk\tools;C:\Program Files\TortoiseGit\bin;;D:\eclipse;
+USERNAME=junjie.you
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=x86 Family 6 Model 69 Stepping 1, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 Build 7600 
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 69 stepping 1, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, aes, erms, ht, tsc, tscinvbit
+
+Memory: 4k page, physical 3397616k(514732k free), swap 6793468k(1351792k free)
+
+vm_info: Java HotSpot(TM) Client VM (24.79-b02) for windows-x86 JRE (1.7.0_79-b15), built on Apr 10 2015 16:49:13 by "java_re" with unknown MS VC++:1600
+
+time: Wed Oct 21 17:44:41 2015
+elapsed time: 0 seconds
+
