@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.activitys.pick.MC_NormalPickActivity;
+import com.mc.vending.activitys.pick.MC_WeightPickActivity;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.VersionData;
@@ -233,8 +234,8 @@ public class MainActivity extends Activity implements DataParseRequestListener {
     private void goNormalPickAcitivity() {
         Intent intent = new Intent();
         intent.putExtra("vendCode", vendCode);
-
-        intent.setClass(MainActivity.this, MC_NormalPickActivity.class);
+//        intent.setClass(MainActivity.this,MC_NormalPickActivity.class);
+        intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
         startActivity(intent);
         finish();
     }
