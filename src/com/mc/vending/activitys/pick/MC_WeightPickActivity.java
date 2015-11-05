@@ -62,8 +62,8 @@ public class MC_WeightPickActivity extends BaseActivity
 	public EditText txt_weight_b;
 	public TextView tv_weight_c;
 	public EditText txt_weight_c;
-	public Button btn_setting_ok;
-	private Button btn_setting_back;
+	public Button btn_setting_lock;
+	private Button btn_setting_unlock;
 
 	private ImageView iv_sku; // 商品图片
 	public RelativeLayout layout_setting; // 步骤1布局
@@ -320,7 +320,6 @@ public class MC_WeightPickActivity extends BaseActivity
 	 * 初始化对象
 	 */
 	private void initComponents() {
-		layout_setting = (RelativeLayout) this.findViewById(R.id.relout_weight_setting);
 		layout_show = (RelativeLayout) this.findViewById(R.id.relout_weight_show);
 		weight_datalist = (ListView) this.findViewById(R.id.weight_listview_datalist);
 		btn_noSkin = (Button) this.findViewById(R.id.btn_noSkin);
@@ -333,8 +332,8 @@ public class MC_WeightPickActivity extends BaseActivity
 		txt_weight_b = (EditText) this.findViewById(R.id.txt_weight_b);
 		tv_weight_c = (TextView) this.findViewById(R.id.tv_weight_c);
 		txt_weight_c = (EditText) this.findViewById(R.id.txt_weight_c);
-		btn_setting_back = (Button) this.findViewById(R.id.btn_setting_back);
-		btn_setting_ok = (Button) this.findViewById(R.id.btn_setting_ok);
+		btn_setting_unlock = (Button) this.findViewById(R.id.btn_setting_unlock);
+		btn_setting_lock = (Button) this.findViewById(R.id.btn_setting_lock);
 	}
 
 	/**
@@ -359,7 +358,7 @@ public class MC_WeightPickActivity extends BaseActivity
 
 			}
 		});
-		btn_setting_back.setOnClickListener(new View.OnClickListener() {
+		btn_setting_unlock.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {

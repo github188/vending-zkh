@@ -8,8 +8,7 @@
         android:name="@+id/relout_weight_show"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
-        >
+        android:visibility="visible" >
 
         <ListView
             android:id="@+id/weight_listview_datalist"
@@ -51,70 +50,68 @@
             android:layout_below="@id/btn_setZero"
             android:text="获取重量" />
 
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:name="@+id/relout_weight_setting"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-         >
-        <TextView 
+        <TextView
             android:id="@+id/tv_weight_a"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="托盘A"
-            />
-        <EditText 
+            android:layout_below="@id/btn_setting"
+            android:text="托盘A" />
+
+        <EditText
             android:id="@+id/txt_weight_a"
-            android:inputType="text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView 
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/btn_getWeight"
+            android:inputType="text" />
+
+        <TextView
             android:id="@+id/tv_weight_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_weight_a"
-            android:text="托盘B"
-            />
-        <EditText 
+            android:text="托盘B" />
+
+        <EditText
             android:id="@+id/txt_weight_b"
-            android:inputType="text"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_below="@id/txt_weight_a"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView 
+            android:inputType="text" />
+
+        <TextView
             android:id="@+id/tv_weight_c"
-            android:layout_below="@id/tv_weight_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="托盘C"
-            />
-        <EditText 
+            android:layout_below="@id/tv_weight_b"
+            android:text="托盘C" />
+
+        <EditText
             android:id="@+id/txt_weight_c"
-            android:inputType="text"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_below="@id/txt_weight_b"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:inputType="text" />
+
         <Button
-            android:id="@+id/btn_setting_back"
+            android:id="@+id/btn_setting_unlock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_weight_c"
-            android:text="返回" />
+            android:text="解锁" />
 
         <Button
-            android:id="@+id/btn_setting_ok"
+            android:id="@+id/btn_setting_lock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/txt_weight_c"
-            android:text="保存" />
+            android:text="锁定单位重量" />
     </RelativeLayout>
 
 </LinearLayout>
