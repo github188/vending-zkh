@@ -1,5 +1,8 @@
 package com.mc.vending.service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,13 +40,10 @@ import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.SystemException;
-import com.zillionstar.tools.L;
+import com.mc.vending.tools.Tools;
+import com.mc.vending.tools.ZillionLog;
 
 public class BasicService {
-
-    static {
-        L.logLevel = Constant.LOGLEVEL;
-    }
 
     /**
      * 检查售货机是否可用
@@ -59,11 +59,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vending);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().getName(), "======>>>>检查售货机是否可用发生异常1", be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            L.e("======>>>>检查售货机是否可用发生异常" + e.getMessage());
+            ZillionLog.e(this.getClass().getName(), "======>>>>检查售货机是否可用发生异常0", e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障!>>检查售货机是否可用发生异常");
@@ -89,11 +90,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vendingChn);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().getName(), "======>>>>检查售货机货道发生异常!", be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            L.e("======>>>>检查售货机货道发生异常!" + e.getMessage());
+            ZillionLog.e(this.getClass().getName(), "======>>>>检查售货机货道发生异常!", e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障!>>检查售货机货道发生异常!");
@@ -123,11 +125,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vendingCardPowerWrapper);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(),be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage());
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(),e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障!>>检查检查卡/密码权限发生异常!");
@@ -153,11 +156,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vendingCardPowerWrapper);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(),be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage());
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(),e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>检查检查卡/密码权限发生异常!");
@@ -445,7 +449,30 @@ public class BasicService {
         }
         return null;
     }
-    
+
+    public static void main(String[] args) {
+        try {
+
+            List<String> a = new ArrayList<String>();
+            System.out.println(a.get(1));
+        } catch (Exception e) {
+            
+            for (Object string : e.getStackTrace()) {
+//                System.out.println(string);
+            }
+        }
+//        BasicService bs = new BasicService();
+//        System.out.println(bs.getDate2("3", "1", "", "2012-8-10 01:00:00"));
+//        System.out.println(bs.getDate2("2", "2", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "3", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "4", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "5", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "6", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "7", "", "2015-09-14 00:00:00"));
+//        System.out.println(bs.getDate2("2", "28", "", "2015-09-14 00:00:00"));
+
+    }
+
     /**
      * 根据期间设置，间隔开始，间隔结束，起始时间确定查询时间
      * 查询时间为分段制，例如天，即每n天为一个查询时间段
@@ -471,36 +498,48 @@ public class BasicService {
             case Constant.YEAR:
                 long cha = DateHelper.cha(tmpDate, startDate, Calendar.YEAR);
                 int yu = (int) (cha % intervalStart);
-                
-                date = DateHelper.add(tmpDate, Calendar.YEAR, -yu); // date减intervalStart
+
+                date = DateHelper.add(tmpDate, Calendar.YEAR, yu); // date减intervalStart
+
+                date = DateHelper.parse(DateHelper.format(date, "yyyy-01-01") + " 00:00:00",
+                        "yyyy-MM-dd HH:mm:ss");
+
                 break;
             case Constant.MONTH:
 
                 cha = DateHelper.cha(tmpDate, startDate, Calendar.MONTH);
                 yu = (int) (cha % intervalStart);
-                
+
                 // 期间设置为月时
-                date = DateHelper.add(tmpDate, Calendar.MONTH, -yu); // month减intervalStart
+                date = DateHelper.add(tmpDate, Calendar.MONTH, yu); // month减intervalStart
+
+                date = DateHelper.parse(DateHelper.format(date, "yyyy-MM-01") + " 00:00:00",
+                        "yyyy-MM-dd HH:mm:ss");
+
                 break;
             case Constant.DAY:
 
                 cha = DateHelper.cha(tmpDate, startDate, Calendar.DATE);
                 yu = (int) (cha % intervalStart);
-                
+
                 // 期间设置为日时
-                date = DateHelper.add(tmpDate, Calendar.DAY_OF_MONTH, -yu); // date减intervalStart
-                
+                date = DateHelper.add(tmpDate, Calendar.DAY_OF_MONTH, yu); // date减intervalStart
+
                 // 更改设置为当天的零点，不再是24小时之前 forever add
                 date = DateHelper.getDateZero(date);
-                
+
                 break;
             case Constant.HOUR:
 
                 cha = DateHelper.cha(tmpDate, startDate, Calendar.HOUR);
                 yu = (int) (cha % intervalStart);
-                
+
                 // 期间设置为小时时
-                date = DateHelper.add(tmpDate, Calendar.HOUR, -yu); // hour减intervalStart
+                date = DateHelper.add(tmpDate, Calendar.HOUR, yu); // hour减intervalStart
+
+                date = DateHelper.parse(DateHelper.format(date, "yyyy-MM-dd HH") + ":00:00",
+                        "yyyy-MM-dd HH:mm:ss");
+
                 break;
             default:
                 break;

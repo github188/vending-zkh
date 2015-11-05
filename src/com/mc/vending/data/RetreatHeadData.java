@@ -129,7 +129,6 @@ public class RetreatHeadData extends BaseParseData implements Serializable {
 
     private String             rt1Id;
 
-   
     public String getRt1Id() {
         return this.rt1Id;
     }

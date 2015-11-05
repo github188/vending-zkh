@@ -30,6 +30,7 @@ import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.ConvertHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.MyFunc;
 import com.mc.vending.tools.utils.SerialTools;
@@ -151,6 +152,7 @@ public class MC_CombinationPickDetailActivity extends BaseActivity implements MC
         try {
             SerialTools.getInstance().closeRFIDReader();
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -159,6 +161,7 @@ public class MC_CombinationPickDetailActivity extends BaseActivity implements MC
         try {
             SerialTools.getInstance().closeVender();
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -360,6 +363,7 @@ public class MC_CombinationPickDetailActivity extends BaseActivity implements MC
             try {
                 Thread.sleep(Constant.TIME_INTERNAL);
             } catch (InterruptedException e) {
+                ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
                 e.printStackTrace();
             }
         }
@@ -391,6 +395,7 @@ public class MC_CombinationPickDetailActivity extends BaseActivity implements MC
                     try {
                         Thread.sleep(Constant.TIME_INTERNAL);
                     } catch (InterruptedException e) {
+                        ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
                         e.printStackTrace();
                     }
                     flag = true;
@@ -438,6 +443,7 @@ public class MC_CombinationPickDetailActivity extends BaseActivity implements MC
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
+                    ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
                     e.printStackTrace();
                 }
                 closeMe();

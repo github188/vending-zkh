@@ -15,6 +15,7 @@ import com.mc.vending.data.SupplierData;
 import com.mc.vending.db.SupplierDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class SupplierDataParse implements DataParseListener {
     private static SupplierDataParse instance = null;
@@ -50,7 +51,7 @@ public class SupplierDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>供应商网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>供应商网络请求数据异常!");
         }
     }
 
@@ -61,6 +62,12 @@ public class SupplierDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 增量
         List<SupplierData> list = parse(baseData.getData());
@@ -93,7 +100,7 @@ public class SupplierDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[supplier]:", "==========>>>>供应商批量增加失败!");
+                ZillionLog.e("[supplier]:", "==========>>>>供应商批量增加失败!");
             }
         } else if (!updateList.isEmpty()) {
             boolean flag_ = supplierDbOper.batchUpdateSupplier(updateList);
@@ -102,7 +109,7 @@ public class SupplierDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[supplier]:", "==========>>>>>供应商批量更新失败!");
+                ZillionLog.e("[supplier]:", "==========>>>>>供应商批量更新失败!");
             }
         } else {
             DataParseHelper parseHelper = new DataParseHelper(this);
@@ -153,7 +160,7 @@ public class SupplierDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>供应商解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>供应商解析数据异常!");
         }
         return list;
     }

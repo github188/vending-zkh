@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import android.util.Log;
-
 import com.mc.vending.data.RetreatHeadData;
 import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
@@ -21,6 +19,7 @@ import com.mc.vending.db.VendingChnStockDbOper;
 import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class ReturnProductService extends BasicService {
     private static ReturnProductService instance;
@@ -51,11 +50,12 @@ public class ReturnProductService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>正向退货 发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>正向退货 发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>正向退货 发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>正向退货 发生异常!");
@@ -135,11 +135,12 @@ public class ReturnProductService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>反向退货 发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>反向退货 发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>反向退货 发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>反向退货 发生异常!");
@@ -193,11 +194,12 @@ public class ReturnProductService extends BasicService {
             result.setSuccess(true);
             result.setResult(replenishmentHeadList);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询补化主表记录发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>查询补化主表记录发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询补化主表记录发生异常",e);
             e.printStackTrace();
             result.setSuccess(false);
             result.setCode("0");

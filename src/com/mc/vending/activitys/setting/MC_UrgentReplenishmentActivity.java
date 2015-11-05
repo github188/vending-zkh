@@ -27,6 +27,7 @@ import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.MyFunc;
 import com.mc.vending.tools.utils.SerialTools;
@@ -303,6 +304,7 @@ public class MC_UrgentReplenishmentActivity extends BaseActivity implements MC_S
             SerialTools.getInstance().addToolsListener(this);
             SerialTools.getInstance().closeKeyBoard();
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -419,6 +421,7 @@ public class MC_UrgentReplenishmentActivity extends BaseActivity implements MC_S
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
+                    ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
                     e.printStackTrace();
                 }
                 closeMe();

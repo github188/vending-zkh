@@ -16,7 +16,7 @@ import android.os.IBinder;
 import com.mc.vending.db.ReplenishmentHeadDbOper;
 import com.mc.vending.db.RetreatHeadDbOper;
 import com.mc.vending.db.StockTransactionDbOper;
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 public class TaskService extends Service {
     private Context             context;
@@ -179,7 +179,7 @@ public class TaskService extends Service {
 //                                             reboot();
 
                                          } catch (Exception e) {
-                                             ZillionLog.e(e.getMessage());
+                                             ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
 //                                             e.printStackTrace();
                                          }
                                      }

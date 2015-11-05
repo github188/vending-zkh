@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
+import android.R.integer;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -30,11 +31,14 @@ import com.mc.vending.adapter.MC_SetAdapter;
 import com.mc.vending.config.Constant;
 import com.mc.vending.config.MC_Config;
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.data.VendingData;
 import com.mc.vending.db.AssetsDatabaseManager;
+import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.parse.InitDataParse;
+import com.mc.vending.parse.StockTransactionDataParse;
 import com.mc.vending.parse.VendingChnStockDataParse;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
@@ -42,6 +46,7 @@ import com.mc.vending.service.DataServices;
 import com.mc.vending.service.ReplenishmentService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.ServiceResult;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.SerialTools;
 
@@ -53,31 +58,31 @@ import com.mc.vending.tools.utils.SerialTools;
  */
 public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsListener,
         RequestDataFinishListener, DataParseRequestListener {
-    private TextView                    tv_public_title;                  // 公共头部标题
-    private ListView                    listView;                         // 列表
-    private Button                      back;
-    private VendingCardPowerWrapperData wrapperData;                      // 卡密码权限对象
-    private VendingData                 vendData;                         // 售货机对象
-    private List<String>                dataList;
-    private MC_SetAdapter               adapter;
-    private TextView                    alert_msg_title;                  // 提示标题
-    private TextView                    alert_msg;                        // 提示内容
+    private TextView tv_public_title; // 公共头部标题
+    private ListView listView; // 列表
+    private Button back;
+    private VendingCardPowerWrapperData wrapperData; // 卡密码权限对象
+    private VendingData vendData; // 售货机对象
+    private List<String> dataList;
+    private MC_SetAdapter adapter;
+    private TextView alert_msg_title; // 提示标题
+    private TextView alert_msg; // 提示内容
 
-    public static final int             SET_SUCCESS                 = 999;
-    public static final int             SET_SELECT                  = 998;
-    public static final int             SET_ERROR                   = 0;
-    public static final int             SET_replenishment           = 1;
-    public static final int             SET_DifferenceReplenishment = 2;
-    public static final int             SET_UrgentReplenishment     = 3;
-    public static final int             SET_Inventory               = 4;
-    public static final int             SET_ReturnsForward          = 5;
-    public static final int             SET_ReturnsReverse          = 6;
-    public static final int             SET_PickTest                = 7;
-    public static final int             SET_SynchronousStock        = 8;
-    public static final int             SET_Synchronous             = 9;
-    public static final int             SET_START_LOADING           = 10;
-    private TimerTask                   task;
-    private DataServices                dataServices;
+    public static final int SET_SUCCESS = 999;
+    public static final int SET_SELECT = 998;
+    public static final int SET_ERROR = 0;
+    public static final int SET_replenishment = 1;
+    public static final int SET_DifferenceReplenishment = 2;
+    public static final int SET_UrgentReplenishment = 3;
+    public static final int SET_Inventory = 4;
+    public static final int SET_ReturnsForward = 5;
+    public static final int SET_ReturnsReverse = 6;
+    public static final int SET_PickTest = 7;
+    public static final int SET_SynchronousStock = 8;
+    public static final int SET_Synchronous = 9;
+    public static final int SET_START_LOADING = 10;
+    private TimerTask task;
+    private DataServices dataServices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +132,10 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         dataList.add(getResources().getString(R.string.set_returns_forward_list));
         dataList.add(getResources().getString(R.string.set_returns_reverse));
         dataList.add(getResources().getString(R.string.set_pick_test));
-        dataList.add(getResources().getString(R.string.set_synchronous_stock));
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+        } else {
+            dataList.add(getResources().getString(R.string.set_synchronous_stock));
+        }
         dataList.add(getResources().getString(R.string.set_synchronous));
         dataList.add(getResources().getString(R.string.set_init));
         dataList.add(getResources().getString(R.string.set_finish));
@@ -141,6 +149,7 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 // System.out.println(position);
                 hiddenAlertMsg();
+                
                 switch (position) {
                 case 0:
                     setReplenishment();
@@ -165,16 +174,31 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                     setPickTest();
                     break;
                 case 7:
-                    setSynchronousStock();
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                        setSynchronous();
+                    }else {
+                        setSynchronousStock();
+                    }
                     break;
                 case 8:
-                    setSynchronous();
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                        setInit();
+                    }else {
+                        setSynchronous();
+                    }
                     break;
                 case 9:
-                    setInit();
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                        setFinishApp();
+                    }else {
+                        setInit();
+                    }
                     break;
                 case 10:
-                    setFinishApp();
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    }else {
+                        setFinishApp();
+                    }
                     break;
 //                case 11:
 //                    setReturnForwardList();
@@ -244,33 +268,33 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
      */
     private Handler handler = new Handler() {
 
-                                @Override
-                                public void handleMessage(Message msg) {
-                                    switch (msg.what) {
-                                    case SET_ERROR:
-                                        stopLoading();
-                                        resetAlertMsg((String) msg.obj);
-                                        break;
-                                    case SET_replenishment:
-                                        stopLoading();
-                                        resetAlertMsg((String) msg.obj);
-                                        break;
-                                    case SET_Synchronous:
-                                        startService();
-                                        break;
-                                    case SET_SynchronousStock:
-                                        break;
-                                    case SET_START_LOADING:
-                                        stopLoading();
-                                        resetAlertMsg("数据同步完成");
-                                        break;
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case SET_ERROR:
+                stopLoading();
+                resetAlertMsg((String) msg.obj);
+                break;
+            case SET_replenishment:
+                stopLoading();
+                resetAlertMsg((String) msg.obj);
+                break;
+            case SET_Synchronous:
+                startService();
+                break;
+            case SET_SynchronousStock:
+                break;
+            case SET_START_LOADING:
+                stopLoading();
+                resetAlertMsg("数据同步完成");
+                break;
 
-                                    default:
-                                        break;
-                                    }
+            default:
+                break;
+            }
 
-                                }
-                            };
+        }
+    };
 
     /**
      * 差异补货方法
@@ -353,12 +377,49 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
             return;
         }
         startLoading();
-        VendingData vending = new VendingDbOper().getVending();
-        VendingChnStockDataParse parse = new VendingChnStockDataParse();
-        parse.setListener(this);
-        parse.requestVendingChnStockData(Constant.HTTP_OPERATE_TYPE_GETDATA, Constant.METHOD_WSID_SYN_STOCK,
-                vending.getVd1Id());
+        synchronousStock();
 
+//        StockTransactionDataParse.getInstance().isSync = true;
+//
+//
+//        VendingData vending = new VendingDbOper().getVending();
+//        VendingChnStockDataParse parse = new VendingChnStockDataParse();
+//        parse.setListener(this);
+//        parse.requestVendingChnStockData(Constant.HTTP_OPERATE_TYPE_GETDATA, Constant.METHOD_WSID_SYN_STOCK,
+//                vending.getVd1Id());
+
+    }
+
+    private void synchronousStock() {
+//        VendingData vending = new VendingDbOper().getVending();
+        ZillionLog.i("上传交易记录--同步库存："+StockTransactionDataParse.getInstance().isSync);
+        if (!StockTransactionDataParse.getInstance().isSync) { //没有上传交易记录任务在跑
+            //上传交易记录
+            List<StockTransactionData> datas = new StockTransactionDbOper()
+                    .findStockTransactionDataToUpload();
+            if (datas == null || datas.size() == 0) {
+                ZillionLog.i("没有交易记录，直接同步库存");
+                //上传完之后同步库存
+                VendingChnStockDataParse parse = new VendingChnStockDataParse();
+                parse.setListener(this);
+                parse.requestVendingChnStockData(Constant.HTTP_OPERATE_TYPE_GETDATA,
+                        Constant.METHOD_WSID_SYN_STOCK, vendData.getVd1Id());
+            } else {
+                ZillionLog.i("有交易记录，先同步交易记录");
+                StockTransactionDataParse stockTransactionDataParse = StockTransactionDataParse.getInstance();
+                stockTransactionDataParse.setListener(this);
+                stockTransactionDataParse.requestStockTransactionData(Constant.HTTP_OPERATE_TYPE_INSERT,
+                        Constant.METHOD_WSID_STOCKTRANSACTION, vendData.getVd1Id(), datas);
+            }
+        } else {//有的话等会儿再检查一下
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (InterruptedException e) {
+            }
+            ZillionLog.i("再次同步库存");
+            //再次同步库存
+            synchronousStock();
+        }
     }
 
     /**
@@ -546,20 +607,20 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
     }
 
     private ServiceConnection conn = new ServiceConnection() {
-                                       /** 获取服务对象时的操作 */
-                                       @Override
-                                       public void onServiceConnected(ComponentName name, IBinder service) {
-                                           dataServices = ((DataServices.ServiceBinder) service).getService();
-                                           startSynData();
-                                       }
+        /** 获取服务对象时的操作 */
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            dataServices = ((DataServices.ServiceBinder) service).getService();
+            startSynData();
+        }
 
-                                       /** 无法获取到服务对象时的操作 */
-                                       @Override
-                                       public void onServiceDisconnected(ComponentName name) {
-                                           dataServices = null;
-                                       }
+        /** 无法获取到服务对象时的操作 */
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            dataServices = null;
+        }
 
-                                   };
+    };
 
     /**
      * 数据同步方法
@@ -623,6 +684,15 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
             dialog.show();
         } else if (Constant.METHOD_WSID_SYN_STOCK.equals(baseData.getRequestURL())) {
             resetAlertMsg("库存同步成功！");
+        } else if (Constant.METHOD_WSID_STOCKTRANSACTION.equals(baseData.getRequestURL())) {
+
+//            startLoading();
+//            ZillionLog.i("上传完之后同步库存");
+            //上传完之后同步库存
+            VendingChnStockDataParse parse = new VendingChnStockDataParse();
+            parse.setListener(this);
+            parse.requestVendingChnStockData(Constant.HTTP_OPERATE_TYPE_GETDATA,
+                    Constant.METHOD_WSID_SYN_STOCK, vendData.getVd1Id());
         }
 
     }
@@ -639,7 +709,12 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         if (Constant.METHOD_WSID_CHECK_INIT.equals(baseData.getRequestURL())) {
             resetAlertMsg("请求初始化权限失败！");
         } else if (Constant.METHOD_WSID_SYN_STOCK.equals(baseData.getRequestURL())) {
-            resetAlertMsg("同步库存操作失败！");
+            String message = baseData.getReturnMessage();
+            if (message != null && !message.equals("")) {
+                resetAlertMsg(message);
+            } else {
+                resetAlertMsg("同步库存操作失败！");
+            }
         }
 
     }

@@ -18,14 +18,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.mc.vending.R;
-import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.db.AssetsDatabaseManager;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.HttpHelper;
 import com.mc.vending.tools.SystemUiHider;
 import com.mc.vending.tools.Tools;
-import com.zillionstar.tools.L;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * activity父类
@@ -34,11 +33,6 @@ import com.zillionstar.tools.L;
  *
  */
 public class BaseActivity extends Activity {
-
-    static {
-        L.logLevel = Constant.LOGLEVEL;
-    }
-
     private AlertDialog.Builder     adb;                     // 对话框控件
     protected boolean               isSuccessRequest;        // 请求是否成功
     private Thread                  downLoadData;
@@ -85,6 +79,7 @@ public class BaseActivity extends Activity {
             });
             adb.show();
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -111,7 +106,7 @@ public class BaseActivity extends Activity {
             }
 
         } catch (Exception e) {
-
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
         }
 
         try {
@@ -123,6 +118,7 @@ public class BaseActivity extends Activity {
             progressDialog.setCancelable(true);// 设置进度条是否可以按退回键取消
             progressDialog.show();
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
 
@@ -137,6 +133,7 @@ public class BaseActivity extends Activity {
                 progressDialog.dismiss();
             }
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
 
@@ -278,6 +275,7 @@ public class BaseActivity extends Activity {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
+                    ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
                     e.printStackTrace();
                 }
                 mSystemUiHider.hide();

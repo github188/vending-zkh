@@ -3,20 +3,23 @@ package com.mc.vending.parse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.mc.vending.application.CustomApplication;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.tools.HttpHelper;
-import com.zillionstar.tools.L;
+import com.mc.vending.tools.ZillionLog;
 
 public class DataParseHelper {
 
-    private Thread            downLoadData;
-    private BaseData          baseData;
+    private Thread downLoadData;
+    private BaseData baseData;
     private DataParseListener listener;
 
     /**
@@ -27,6 +30,18 @@ public class DataParseHelper {
     public DataParseHelper(DataParseListener pListener) {
         baseData = new BaseData();
         listener = pListener;
+    }
+
+    /**
+     * 读取本地VEND_CODE
+     * 
+     * @return
+     */
+    private static String getVendCode() {
+        Context context = CustomApplication.getContext();
+        final SharedPreferences shared = context.getSharedPreferences(Constant.SHARED_VEND_CODE_KEY,
+                Context.MODE_PRIVATE);
+        return shared.getString(Constant.SHARED_VEND_CODE, "");
     }
 
     /**
@@ -49,7 +64,15 @@ public class DataParseHelper {
 
                     JSONArray rows = new JSONArray();
                     for (int i = 0; i < objArray.length(); i++) {
-                        rows.put(objArray.get(i));
+                        JSONObject aa = (JSONObject) objArray.get(i);
+
+                        String vd = getVendCode();
+                        if (vd != null && !vd.equals("")) {
+                            aa.put("VD1_CODE", vd);
+                        }
+                        aa.put("VD1_CurrentVersion", Constant.HEADER_VALUE_CLIENTVER);
+
+                        rows.put(aa);
                     }
                     param.put("rows", rows);
                     // post方式请求,传给服务端
@@ -59,8 +82,8 @@ public class DataParseHelper {
                     baseData.setOptType(optType);
                     HttpHelper.requestToParse(DataParseHelper.class, requestURL, param, baseData);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    L.e("异步网络请求异常!" + e.getMessage());
+//                    e.printStackTrace();
+                    ZillionLog.e(this.getClass().getName(), "异步网络请求异常!", e);
                 }
                 handler.sendEmptyMessage(baseData.HTTP_STATUS);
             }
@@ -86,6 +109,13 @@ public class DataParseHelper {
                     param.put("optype", optType);
                     param.put("tbname", "Value");
                     if (obj != null) {
+
+                        String vd = getVendCode();
+                        if (vd != null && !vd.equals("")) {
+                            obj.put("VD1_CODE", vd);
+                        }
+                        obj.put("VD1_CurrentVersion", Constant.HEADER_VALUE_CLIENTVER);
+
                         JSONArray rows = new JSONArray();
                         rows.put(obj);
                         param.put("rows", rows);
@@ -98,7 +128,7 @@ public class DataParseHelper {
                     HttpHelper.requestToParse(DataParseHelper.class, requestURL, param, baseData);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.i(this.getClass().toString(), "++++++++++++>>>>>异步网络请求异常!");
+                    ZillionLog.e(this.getClass().toString(), "++++++++++++>>>>>异步网络请求异常!", e);
                 }
                 handler.sendEmptyMessage(baseData.HTTP_STATUS);
             }
@@ -127,7 +157,15 @@ public class DataParseHelper {
 
                     JSONArray rows = new JSONArray();
                     for (int i = 0; i < objArray.length(); i++) {
-                        rows.put(objArray.get(i));
+                        JSONObject aa = (JSONObject) objArray.get(i);
+
+                        String vd = getVendCode();
+                        if (vd != null && !vd.equals("")) {
+                            aa.put("VD1_CODE", vd);
+                        }
+                        aa.put("VD1_CurrentVersion", Constant.HEADER_VALUE_CLIENTVER);
+
+                        rows.put(aa);
                     }
                     param.put("rows", rows);
                     // post方式请求,传给服务端
@@ -138,7 +176,7 @@ public class DataParseHelper {
                     HttpHelper.requestToParse(DataParseHelper.class, requestURL, param, baseData);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.i(this.getClass().toString(), "======>>>>>异步网络请求异常!");
+                    ZillionLog.e(this.getClass().toString(), "======>>>>>异步网络请求异常!",e);
                 }
                 handler.sendEmptyMessage(baseData.HTTP_STATUS);
             }
@@ -154,7 +192,7 @@ public class DataParseHelper {
             requestSubmitServer("Update", json, Constant.METHOD_WSID_SYN_LOGVERSION);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>sendLogVersion请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>sendLogVersion请求数据异常!");
         }
     }
 
@@ -177,9 +215,18 @@ public class DataParseHelper {
                     param.put("optype", optType);
                     param.put("tbname", "Value");
 
-                    JSONArray rows = new JSONArray();
-                    rows.put(obj);
-                    param.put("rows", rows);
+                    if (obj != null) {
+                        String vd = getVendCode();
+                        if (vd != null && !vd.equals("")) {
+                            obj.put("VD1_CODE", vd);
+                        }
+                        obj.put("VD1_CurrentVersion", Constant.HEADER_VALUE_CLIENTVER);
+
+                        JSONArray rows = new JSONArray();
+                        rows.put(obj);
+                        param.put("rows", rows);
+                    }
+
                     // post方式请求,传给服务端
                     baseData = new BaseData();
                     baseData.setUserObject(userObject);
@@ -188,7 +235,7 @@ public class DataParseHelper {
                     HttpHelper.requestToParse(DataParseHelper.class, requestURL, param, baseData);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.i(this.getClass().toString(), "-------->>>>>异步网络请求异常!");
+                    ZillionLog.e(this.getClass().toString(), "-------->>>>>异步网络请求异常!",e);
                 }
                 handler.sendEmptyMessage(baseData.HTTP_STATUS);
             }
@@ -198,31 +245,35 @@ public class DataParseHelper {
 
     public Handler handler = new Handler() {
 
-                               @Override
-                               public void handleMessage(Message msg) {
-                                   switch (baseData.HTTP_STATUS) {
-                                   case HttpHelper.HTTP_STATUS_SUCCESS:
-                                       if (listener != null) {
-                                           listener.parseJson(baseData);
-                                       }
-                                       break;
-                                   case HttpHelper.HTTP_STATUS_SERVER_ERROR:
-                                       if (listener != null) {
-                                           listener.parseRequestError(baseData);
-                                       }
-                                       break;
+        @Override
+        public void handleMessage(Message msg) {
+            if (baseData.getReturnCode().equals("1")) {
+                ZillionLog.e(this.getClass().getName(),
+                        baseData.getRequestURL() + ":" + baseData.getReturnMessage());
+            }
+            switch (baseData.HTTP_STATUS) {
+            case HttpHelper.HTTP_STATUS_SUCCESS:
+                if (listener != null) {
+                    listener.parseJson(baseData);
+                }
+                break;
+            case HttpHelper.HTTP_STATUS_SERVER_ERROR:
+                if (listener != null) {
+                    listener.parseRequestError(baseData);
+                }
+                break;
 
-                                   case HttpHelper.HTTP_STATUS_PRASE_ERROR:
-                                       if (listener != null) {
-                                           listener.parseRequestError(baseData);
-                                       }
-                                       break;
+            case HttpHelper.HTTP_STATUS_PRASE_ERROR:
+                if (listener != null) {
+                    listener.parseRequestError(baseData);
+                }
+                break;
 
-                                   default:
-                                       break;
-                                   }
+            default:
+                break;
+            }
 
-                               }
-                           };
+        }
+    };
 
 }

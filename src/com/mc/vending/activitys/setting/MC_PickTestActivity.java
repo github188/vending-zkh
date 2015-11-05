@@ -15,10 +15,10 @@ import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.ConvertHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.SerialTools;
 import com.zillion.evm.jssc.SerialPortException;
-import com.zillionstar.tools.L;
 
 /**
  * 领料测试
@@ -103,6 +103,7 @@ public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsL
             SerialTools.getInstance().closeKeyBoard();
             SerialTools.getInstance().addToolsListener(this);
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -221,14 +222,14 @@ public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsL
         // 步骤三确认，进行后续判断,发起领料动作，
         if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_VENDING)) {
             // 售货机
-            L.i("售货机领料测试" + vendingChn.getVc1Code());
+            ZillionLog.i("售货机领料测试" + vendingChn.getVc1Code());
             SerialTools.getInstance().openVender(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0));
 
             // SerialTools.getInstance().openVender(3, 1);
         } else {
             // 格子机器
-            L.i("格子机领料测试" + vendingChn.getVc1Code());
+            ZillionLog.i("格子机领料测试" + vendingChn.getVc1Code());
             SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1Height(), 0));

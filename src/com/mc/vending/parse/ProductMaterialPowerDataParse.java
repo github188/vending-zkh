@@ -15,6 +15,7 @@ import com.mc.vending.db.ProductMaterialPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class ProductMaterialPowerDataParse implements DataParseListener {
     private static ProductMaterialPowerDataParse instance = null;
@@ -49,7 +50,7 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品领料权限数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品领料权限数据异常!");
         }
     }
 
@@ -60,6 +61,12 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<ProductMaterialPowerData> list = parse(baseData.getData());
@@ -80,7 +87,7 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[productMaterialPower]:", "==========>>>>>产品领料权限批量增加失败!");
+                ZillionLog.e("[productMaterialPower]:", "==========>>>>>产品领料权限批量增加失败!");
             }
         }
 
@@ -136,7 +143,7 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品领料权限解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品领料权限解析数据异常!");
         }
         return list;
     }

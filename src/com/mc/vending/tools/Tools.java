@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
@@ -69,9 +72,9 @@ import android.widget.ListView;
  */
 public class Tools {
 
-    public int                responseValue;  // 1代表正常0代表其它错误2代表服务端相应错误，3代表解析错误
-    private static final char HEX_DIGITS[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            'a', 'b', 'c', 'd', 'e', 'f'  };
+    public int responseValue; // 1代表正常0代表其它错误2代表服务端相应错误，3代表解析错误
+    private static final char HEX_DIGITS[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b',
+            'c', 'd', 'e', 'f' };
 
     public static String removeLine(String val) {
         if (val.startsWith("{&&}")) {
@@ -139,7 +142,7 @@ public class Tools {
         int width = drawable.getIntrinsicWidth(); // 取 drawable 的长宽
         int height = drawable.getIntrinsicHeight();
         Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-            : Bitmap.Config.RGB_565; // 取 drawable 的颜色格式
+                : Bitmap.Config.RGB_565; // 取 drawable 的颜色格式
         Bitmap bitmap = Bitmap.createBitmap(width, height, config); // 建立对应
                                                                     // bitmap
         Canvas canvas = new Canvas(bitmap); // 建立对应 bitmap 的画布
@@ -174,7 +177,7 @@ public class Tools {
 
     public static boolean hasTelphoneMode(Context activityContext) {
         TelephonyManager manager = (TelephonyManager) activityContext
-            .getSystemService(Context.TELEPHONY_SERVICE);
+                .getSystemService(Context.TELEPHONY_SERVICE);
         if (manager.getPhoneType() == TelephonyManager.PHONE_TYPE_NONE) { // it
                                                                           // has
                                                                           // no
@@ -240,8 +243,7 @@ public class Tools {
      * 获取运营商信息
      */
     public static String getCarrier(Context context) {
-        TelephonyManager telephony = (TelephonyManager) context
-            .getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telephony.getSubscriberId();
         if (imsi != null && !"".equals(imsi)) {
             if (imsi.startsWith("46000") || imsi.startsWith("46002")) {
@@ -263,7 +265,7 @@ public class Tools {
      */
     public static String readTelephoneSerialNum(Context con) {
         TelephonyManager telephonyManager = (TelephonyManager) con
-            .getSystemService(Context.TELEPHONY_SERVICE);
+                .getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getDeviceId();
     }
 
@@ -414,8 +416,8 @@ public class Tools {
         }
         Matrix matrix = new Matrix();
         matrix.postScale(bit, bit); // 长和宽放大缩小的比例
-        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
-            matrix, true);
+        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                true);
         BufferedOutputStream bos = null;
         File imageFile = new File(path + "/aa_" + fileName);
         if (imageFile.exists()) {
@@ -621,9 +623,8 @@ public class Tools {
      */
     public static boolean isAccessNetwork(Context context) {
         ConnectivityManager connectivity = (ConnectivityManager) context
-            .getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity.getActiveNetworkInfo() != null
-            && connectivity.getActiveNetworkInfo().isAvailable()) {
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity.getActiveNetworkInfo() != null && connectivity.getActiveNetworkInfo().isAvailable()) {
             return true;
         }
         return false;
@@ -635,7 +636,7 @@ public class Tools {
     public static String getAccessNetworkType(Context context) {
         int type = 0;
         ConnectivityManager connManager = (ConnectivityManager) context
-            .getSystemService(context.CONNECTIVITY_SERVICE);
+                .getSystemService(context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connManager.getActiveNetworkInfo();
         if (info == null) {
             return null;
@@ -810,10 +811,10 @@ public class Tools {
     public static String getLocalIpAddress() {
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
-                .hasMoreElements();) {
+                    .hasMoreElements();) {
                 NetworkInterface intf = en.nextElement();
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
-                    .hasMoreElements();) {
+                        .hasMoreElements();) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         return inetAddress.getHostAddress().toString();
@@ -833,8 +834,7 @@ public class Tools {
      * @return
      */
     public static String getNetType(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-            .getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo info = cm.getActiveNetworkInfo();
         String typeName = info.getTypeName();
@@ -863,8 +863,7 @@ public class Tools {
      * @return
      */
     public static String getLocalMacAddress(Context context) {
-        WifiManager wifi = (WifiManager) ((Activity) context)
-            .getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi = (WifiManager) ((Activity) context).getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifi.getConnectionInfo();
         return info.getMacAddress();
     }
@@ -906,7 +905,7 @@ public class Tools {
         double a = radLat1 - radLat2;
         double b = (lng_a - lng_b) * Math.PI / 180.0;
         double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1)
-                                           * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+                * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
         s = s * EARTH_RADIUS;
         s = Math.round(s * 10000) / 10000;
         return s;
@@ -965,8 +964,7 @@ public class Tools {
      * @return
      */
     public static Bitmap toRoundCorner(Bitmap bitmap, int pixels) {
-        Bitmap output = Bitmap
-            .createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
         final int color = 0xff424242;
         final Paint paint = new Paint();
@@ -1060,8 +1058,7 @@ public class Tools {
         Intent i = new Intent();
         ComponentName cn = null;
         try {
-            cn = new ComponentName("com.google.android.calendar",
-                "com.android.calendar.LaunchActivity");
+            cn = new ComponentName("com.google.android.calendar", "com.android.calendar.LaunchActivity");
             i.setComponent(cn);
             activity.startActivityForResult(i, 0000);
             return;
@@ -1113,4 +1110,25 @@ public class Tools {
         return obj;
     }
 
+    public static String getStackTrace(Throwable aThrowable) {
+        final Writer result = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(result);
+        aThrowable.printStackTrace(printWriter);
+        return result.toString();
+    }
+
+    public static String getCustomStackTrace(Throwable aThrowable) {
+        //add the class name and any message passed to constructor
+        final StringBuilder result = new StringBuilder("BOO-BOO: ");
+        result.append(aThrowable.toString());
+        final String NEW_LINE = System.getProperty("line.separator");
+        result.append(NEW_LINE);
+
+        //add each element of the stack trace
+        for (StackTraceElement element : aThrowable.getStackTrace()) {
+            result.append(element);
+            result.append(NEW_LINE);
+        }
+        return result.toString();
+    }
 }

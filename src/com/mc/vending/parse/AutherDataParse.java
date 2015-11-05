@@ -3,11 +3,10 @@ package com.mc.vending.parse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.mc.vending.data.BaseData;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class AutherDataParse implements DataParseListener {
 
@@ -42,6 +41,12 @@ public class AutherDataParse implements DataParseListener {
             return;
         }
 
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
+        }
         JSONArray jsonArray = baseData.getData();
         try {
             if (jsonArray == null) {
@@ -62,8 +67,8 @@ public class AutherDataParse implements DataParseListener {
                 baseData.setUserObject(key);
             }
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>>接口认证解析数据异常!", e);
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>接口认证解析数据异常!");
         }
         if (listener != null) {
             listener.parseRequestFinised(baseData);
@@ -83,8 +88,8 @@ public class AutherDataParse implements DataParseListener {
             DataParseHelper helper = new DataParseHelper(this);
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>>接口认证网络请求数据异常!",e);
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>接口认证网络请求数据异常!");
         }
     }
 

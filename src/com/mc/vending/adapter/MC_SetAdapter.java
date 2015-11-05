@@ -14,12 +14,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mc.vending.R;
+import com.mc.vending.config.Constant;
 
 public class MC_SetAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
-    private List<String>   dataList;
-    Activity               context;
+    private List<String> dataList;
+    Activity context;
 
     public MC_SetAdapter(Context context, List<String> dataList, ListView lv) {
         super();
@@ -77,14 +78,30 @@ public class MC_SetAdapter extends BaseAdapter {
                     R.drawable.icon_synchronous));
         } else if (position == 8) {
             //数据同步
-            viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
-                    R.drawable.icon_synchronous));
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                viewHodler.set_icon
+                        .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_init));
+            } else {
+                viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
+                        R.drawable.icon_synchronous));
+            }
         } else if (position == 9) {
             //初始化
-            viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_init));
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                viewHodler.set_icon
+                        .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_back));
+            } else {
+                viewHodler.set_icon
+                        .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_init));
+            }
         } else if (position == 10) {
             //退出应用
-            viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_back));
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+            } else {
+                viewHodler.set_icon
+                        .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_back));
+
+            }
 //        } else if (position == 11) {
 //            //退出应用
 //            viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
@@ -115,6 +132,6 @@ public class MC_SetAdapter extends BaseAdapter {
 
     class ViewHodler {
         ImageView set_icon;
-        TextView  set_name;
+        TextView set_name;
     }
 }

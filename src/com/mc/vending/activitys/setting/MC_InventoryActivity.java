@@ -27,6 +27,7 @@ import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.MyFunc;
 import com.mc.vending.tools.utils.SerialTools;
@@ -285,6 +286,7 @@ public class MC_InventoryActivity extends BaseActivity implements MC_SerialTools
             SerialTools.getInstance().addToolsListener(this);
             SerialTools.getInstance().closeKeyBoard();
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }

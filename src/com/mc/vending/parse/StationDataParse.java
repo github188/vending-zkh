@@ -15,6 +15,7 @@ import com.mc.vending.data.StationData;
 import com.mc.vending.db.StationDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class StationDataParse implements DataParseListener {
     private static StationDataParse  instance = null;
@@ -50,7 +51,7 @@ public class StationDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>站点网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>站点网络请求数据异常!");
         }
     }
 
@@ -61,6 +62,12 @@ public class StationDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 增量
         List<StationData> list = parse(baseData.getData());
@@ -93,7 +100,7 @@ public class StationDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[station]:", "==========>>>>>站点批量增加失败!");
+                ZillionLog.e("[station]:", "==========>>>>>站点批量增加失败!");
             }
         } else if (!updateList.isEmpty()) {
             boolean flag_ = stationDbOper.batchUpdateStation(updateList);
@@ -102,7 +109,7 @@ public class StationDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[station]:", "==========>>>>>站点批量更新失败!");
+                ZillionLog.e("[station]:", "==========>>>>>站点批量更新失败!");
             }
         } else {
             DataParseHelper parseHelper = new DataParseHelper(this);
@@ -158,7 +165,7 @@ public class StationDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>站点解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>站点解析数据异常!");
         }
         return list;
     }

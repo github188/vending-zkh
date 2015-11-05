@@ -5,7 +5,7 @@ package com.mc.vending.db;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * @author Forever
@@ -22,7 +22,7 @@ public class VersionDbOper {
             SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
             db.execSQL(sql);
         } catch (Exception e) {
-            ZillionLog.e("VersionDbOper", e.getMessage());
+            ZillionLog.e("VersionDbOper", e.getMessage(), e);
         }
     }
 }

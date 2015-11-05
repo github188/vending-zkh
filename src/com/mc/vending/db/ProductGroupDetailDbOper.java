@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.mc.vending.data.ProductGroupDetailData;
 import com.mc.vending.data.ProductGroupWrapperData;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 产品组合从表　 操作类
@@ -143,6 +144,7 @@ public class ProductGroupDetailDbOper {
             db.endTransaction();
         } catch (SQLException e) {
             //结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
             return;
@@ -165,6 +167,7 @@ public class ProductGroupDetailDbOper {
             flag = true;
         } catch (SQLException e) {
             //结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }

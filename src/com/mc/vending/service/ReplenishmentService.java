@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import android.util.Log;
-
 import com.mc.vending.data.ReplenishmentDetailData;
 import com.mc.vending.data.ReplenishmentDetailWrapperData;
 import com.mc.vending.data.ReplenishmentHeadData;
@@ -23,9 +21,8 @@ import com.mc.vending.db.VendingChnStockDbOper;
 import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.ConvertHelper;
 import com.mc.vending.tools.ServiceResult;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.SerialTools;
-import com.zillionstar.tools.L;
-import com.zillionstar.tools.ZillionLog;
 
 public class ReplenishmentService extends BasicService {
 
@@ -52,7 +49,7 @@ public class ReplenishmentService extends BasicService {
             ReplenishmentHeadData replenishmentHead = new ReplenishmentHeadDbOper()
                     .getReplenishmentHeadByOrderStatus(ReplenishmentHeadData.ORDERSTATUS_CREATED);
             if (replenishmentHead == null) {
-                L.e("oneKeyReplenishment err 不存在未完成的补货单,请与计划员联系!");
+                ZillionLog.e(this.getClass().getName(), "oneKeyReplenishment err 不存在未完成的补货单,请与计划员联系!");
                 throw new BusinessException("不存在未完成的补货单,请与计划员联系!");
             }
 
@@ -123,11 +120,12 @@ public class ReplenishmentService extends BasicService {
             result.setResult(true);
             result.setMessage(rh1Rhcode);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>一键补货发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>一键补货发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>一键补货发生异常",e);
             e.printStackTrace();
             result.setSuccess(false);
             result.setCode("0");
@@ -151,11 +149,12 @@ public class ReplenishmentService extends BasicService {
             result.setSuccess(true);
             result.setResult(replenishmentHeadList);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询补化主表记录发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>查询补化主表记录发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询补化主表记录发生异常",e);
             e.printStackTrace();
             result.setSuccess(false);
             result.setCode("0");
@@ -258,11 +257,12 @@ public class ReplenishmentService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>批量更新保存补货差异发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>批量更新保存补货差异发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>批量更新保存补货差异发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>批量更新保存补货差异发生异常!");
@@ -294,7 +294,7 @@ public class ReplenishmentService extends BasicService {
                 if (actQty != 0) {
 
                     if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
-                        L.i(vendingChn.getVc1Code() + "格子机补货，打开格子机");
+                        ZillionLog.i(this.getClass().getName(), vendingChn.getVc1Code() + "格子机补货，打开格子机");
 
                         SerialTools.getInstance().openStore(
                                 ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
@@ -343,11 +343,12 @@ public class ReplenishmentService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>紧急补货发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>紧急补货发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>紧急补货发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>紧急补货发生异常!");

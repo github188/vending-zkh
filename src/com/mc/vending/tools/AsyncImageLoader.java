@@ -11,8 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 
-import com.zillionstar.tools.ZillionLog;
-
 public class AsyncImageLoader {
     static {
         // L.logLevel = Constant.LOGLEVEL;

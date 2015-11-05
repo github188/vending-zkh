@@ -1,7 +1,5 @@
 package com.mc.vending.service;
 
-import android.util.Log;
-
 import com.mc.vending.data.CustomerEmpLinkData;
 import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.TransactionWrapperData;
@@ -11,6 +9,7 @@ import com.mc.vending.db.CustomerEmpLinkDbOper;
 import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.ServiceResult;
+import com.mc.vending.tools.ZillionLog;
 
 public class BorrowMaterialService extends BasicService {
 
@@ -40,11 +39,12 @@ public class BorrowMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查货道借还状态发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查货道借还状态发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查货道借还状态发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>检查货道借还状态发生异常!");
@@ -69,11 +69,12 @@ public class BorrowMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查是否原借出人归还发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查是否原借出人归还发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查是否原借出人归还发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>检查是否原借出人归还发生异常!");

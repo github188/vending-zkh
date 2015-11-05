@@ -13,6 +13,7 @@ import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.mc.vending.config.MC_Config;
+import com.mc.vending.tools.ZillionLog;
 
 public class AssetsDatabaseManager {
     private static String                tag          = "AssetsDatabase";                     // for LogCat  
@@ -60,6 +61,7 @@ public class AssetsDatabaseManager {
                 file.delete();
             }
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
         }
 
     }
@@ -167,6 +169,7 @@ public class AssetsDatabaseManager {
             istream.close();
             ostream.close();
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
             try {
                 if (istream != null)
@@ -174,6 +177,7 @@ public class AssetsDatabaseManager {
                 if (ostream != null)
                     ostream.close();
             } catch (Exception ee) {
+                ZillionLog.e(this.getClass().getName(),ee.getMessage(),ee);
                 ee.printStackTrace();
             }
             return false;

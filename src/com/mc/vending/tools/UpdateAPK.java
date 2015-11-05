@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.config.Constant;
-import com.zillionstar.tools.ZillionLog;
 
 /**
  * Android AutoUpdate.

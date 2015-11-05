@@ -9,9 +9,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
-import com.mc.vending.data.ConversionData;
 import com.mc.vending.data.StockTransactionData;
-import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class StockTransactionDbOper {
 
@@ -63,6 +62,7 @@ public class StockTransactionDbOper {
             db.endTransaction();
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
@@ -81,7 +81,6 @@ public class StockTransactionDbOper {
      */
     public int getTransQtyCount(String billType, String vendingId, String skuId, String vendingChnCode,
             String startDate, String cardId) {
-    	String proportion = "1";// 换算比例
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         // 删除vendingChnCode条件 wangy
         Cursor c = db.rawQuery(
@@ -93,16 +92,6 @@ public class StockTransactionDbOper {
             int transQty = c.getInt(c.getColumnIndex("TS1_TransQty"));
             transQtyCount += transQty;
         }
-        ConversionDbOper conversionDbOper = new ConversionDbOper();
-		ConversionData conversionData = conversionDbOper.findConversionByCpid(skuId);// 根据"关联产品ID"查询"单位换算关系表"中有无该产品的换算关系
-		if (conversionData != null) {
-			proportion = conversionData.getCn1Proportion();
-			transQtyCount = transQtyCount * ConvertHelper.toInt(proportion, 1);
-			// 最终结果要进行单位换算
-			// modified
-			// by
-			// junjie.you
-		}
         return transQtyCount;
     }
 
@@ -269,6 +258,7 @@ public class StockTransactionDbOper {
             flag = true;
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
@@ -324,6 +314,7 @@ public class StockTransactionDbOper {
             flag = true;
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
@@ -356,6 +347,7 @@ public class StockTransactionDbOper {
             flag = true;
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }

@@ -14,10 +14,10 @@ import com.mc.vending.data.VendingPictureData;
 import com.mc.vending.db.VendingPictureDbOper;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
+import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.SerialTools;
 import com.zillion.evm.jssc.SerialPortException;
-import com.zillionstar.tools.L;
 
 public class MC_ImagePlayerActivity extends BaseActivity implements MC_SerialToolsListener {
 
@@ -62,6 +62,7 @@ public class MC_ImagePlayerActivity extends BaseActivity implements MC_SerialToo
             SerialTools.getInstance().addToolsListener(this);
             SerialTools.getInstance().closeKeyBoard();
         } catch (SerialPortException e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -77,7 +78,6 @@ public class MC_ImagePlayerActivity extends BaseActivity implements MC_SerialToo
      */
     private void showNext() {
 
-        L.v("showNext " + pictrueList.size());
         if (!isStop && pictrueList.size() > 0) {
             VendingPictureData data = pictrueList.get(currentindex);
             loadImage(data.getVp2FilePath());
@@ -99,13 +99,10 @@ public class MC_ImagePlayerActivity extends BaseActivity implements MC_SerialToo
      * @param imageURL
      */
     private void loadImage(String imageURL) {
-        L.v("loadImage " + imageURL);
-
         Drawable cachedImage = asyncImageLoader.loadDrawable(imageURL, new AsyncImageLoader.ImageCallback() {
 
             @Override
             public void imageLoaded(final Drawable imageDrawable, final String imageUrl, String tag) {
-                L.v("loadImage imageLoaded " + imageDrawable);
                 image_player.setImageDrawable(imageDrawable);
             }
         });

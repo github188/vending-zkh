@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
@@ -52,7 +51,7 @@ import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
 import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.StringHelper;
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 @SuppressLint("HandlerLeak")
 public class DataServices extends Service implements DataParseRequestListener, Serializable {
@@ -253,26 +252,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
             + "RowVersion  varchar(100), "
             + "PRIMARY KEY (UR1_ID) );";
     
-    /**
-     * 添加 单位换算关系表
-     * @author junjie.you
-     */
-    private String sql2103 = "CREATE TABLE if not exists "
-            + "Conversion ( "
-    		+ "CN1_ID varchar(100) NOT NULL ,"
-            + "CN1_Upid varchar(100),"
-            + "CN1_Cpid varchar(100),"
-            + "CN1_Proportion varchar(100),"
-            + "CN1_Operation varchar(100),"
-            + "CN1_CreateUser  varchar(100), "
-            + "CN1_CreateTime  varchar(100), "
-            + "CN1_ModifyUser  varchar(100), "
-            + "CN1_ModifyTime  varchar(100), "
-            + "CN1_RowVersion  varchar(100), "
-            + "PRIMARY KEY (CN1_ID) );";
-    
-    //添加测试数据
-    private String sql2104 = "INSERT INTO Conversion(CN1_ID,CN1_Upid,CN1_Cpid,CN1_Proportion,CN1_Operation,CN1_CreateTime) VALUES('1','1b8ff138-f61b-4077-881e-db6e109b9025','b83ebde2-fa9f-451b-8757-3cd8a9d6f692','12','打','20151019');";
 
 //    private String sql202 = "CREATE TABLE if not exists ReturnForward ( id  varchar(100) NOT NULL, RT1_M02_ID  varchar(100), RT1_RTCode  varchar(100), RT1_Type  varchar(10), RT1_CU1_ID  varchar(100), RT1_VD1_ID  varchar(100), RT1_CE1_ID  varchar(100), RT1_Status  varchar(10), CreateUser  varchar(100), CreateTime  varchar(100), ModifyUser  varchar(100), ModifyTime  varchar(100), RowVersion  varchar(100), PRIMARY KEY (id) );";
 
@@ -286,8 +265,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
             VersionDbOper.exec(sql210);
             VersionDbOper.exec(sql2101);
             VersionDbOper.exec(sql2102);
-            VersionDbOper.exec(sql2103);//added by junjie.you from 2015-10-13
-            VersionDbOper.exec(sql2104);//added by junjie.you from 2015-10-19
         }
 
         taskMap = new HashMap<String, String>();
@@ -362,6 +339,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 启动上传定时器
      */
     private void startUploadTimer() {
+        
         cancelUploadTask();
         removeUploadTimer();
         initUploadTask();
@@ -411,12 +389,12 @@ public class DataServices extends Service implements DataParseRequestListener, S
         vendingTask = new TimerTask() {
             @Override
             public void run() {
-                ZillionLog.i("vendingTask", "start...");
+                ZillionLog.i("vendingTask", "vendingTask start...");
                 InterfaceData vendingConfig = configMap.get(Constant.METHOD_WSID_VENDING + "_"
                         + Constant.HTTP_OPERATE_TYPE_GETDATA);
 //                boolean flag = DataServices.isTaskStart(vendingConfig);
                 boolean flag = true;
-                ZillionLog.i("isTaskStart", flag);
+//                ZillionLog.i("isTaskStart", flag);
                 if (flag) {
                     Message message = new Message();
                     message.what = MESSAGE_VENDING;
@@ -426,6 +404,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         };
         if (vendingTimerLength > 0) {
             vendingTimer.schedule(vendingTask, 1, vendingTimerLength);
+            
         }
     }
 
@@ -433,9 +412,9 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 设置Timer时间间隔
      */
     private void resetTimerLength() {
-        
-//        int standardInterval = 1000;//间隔标准-秒
-        int standardInterval = 60 * 1000;//间隔标准-分钟
+
+        int standardInterval = 1000;//间隔标准-秒
+//        int standardInterval = 60 * 1000;//间隔标准-分钟
         InterfaceData vendingConfig = configMap.get(Constant.METHOD_WSID_VENDING + "_"
                 + Constant.HTTP_OPERATE_TYPE_GETDATA);
         vendingTimerLength = vendingConfig != null ? vendingConfig.getM03ExeInterval() * standardInterval
@@ -607,25 +586,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
     }
 
     private void initDownloadTimer() {
-
         vendingTimer = new Timer(); // 初始化定时器
-//        vendingPictureTimer = new Timer();
-//        vendingChnTimer = new Timer();
-//        vendingProLinkTimer = new Timer();
-//        productTimer = new Timer();
-//        productPictureTimer = new Timer();
-//        supplierTimer = new Timer();
-//        stationTimer = new Timer();
-//        vendingCardPowerTimer = new Timer();
-//        productMaterialPowerTimer = new Timer();
-//        cardTimer = new Timer();
-//        cusEmpCardPowerTimer = new Timer();
-//        customerEmpLinkTimer = new Timer();
-//        customerTimer = new Timer();
-//        productGroupTimer = new Timer();
-//        productGroupPowerTimer = new Timer();
-//        replenishmentTimer = new Timer();
-//        vendingPasswordTimer = new Timer();
     }
 
     /**
@@ -670,7 +631,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 移除下载定时器
      */
     private void removeDownTimer() {
-
+        
         if (vendingTimer != null) {
             vendingTimer.cancel();
             vendingTimer = null;
@@ -777,6 +738,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 取消上传任务
      */
     private void cancelUploadTask() {
+
         if (vendingStatusTask != null) {
             vendingStatusTask.cancel();
             vendingStatusTask = null;
@@ -803,6 +765,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 取消下载任务
      */
     private void cancelDownLoadTask() {
+        
         if (vendingTask != null) {
             vendingTask.cancel();
             vendingTask = null;
@@ -911,7 +874,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         vendingStatusTask = new TimerTask() {
             @Override
             public void run() {
-//                ZillionLog.i("vendingStatusTask", "  start..");
+                ZillionLog.i("vendingTask", "vendingStatusTask start..");
                 InterfaceData vendingStatusConfig = configMap.get(Constant.METHOD_WSID_VENDING_STSATUS + "_"
                         + Constant.HTTP_OPERATE_TYPE_UPDATESTATUS);
                 boolean flag = DataServices.isTaskStart(vendingStatusConfig);
@@ -929,6 +892,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         replenishmentStatusTask = new TimerTask() {
             @Override
             public void run() {
+                ZillionLog.i("vendingTask", "replenishmentStatusTask start..");
                 InterfaceData replenishmentStatusConfig = configMap
                         .get(Constant.METHOD_WSID_REPLENISHMENT_STATUS + "_"
                                 + Constant.HTTP_OPERATE_TYPE_UPDATESTATUS);
@@ -947,6 +911,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         replenishmentDiffTask = new TimerTask() {
             @Override
             public void run() {
+                ZillionLog.i("vendingTask", "replenishmentDiffTask start..");
                 InterfaceData replenishmentDiffConfig = configMap.get(Constant.METHOD_WSID_REPLENISHMENT_DIFF
                         + "_" + Constant.HTTP_OPERATE_TYPE_UPDATEDETAILDIFFERENTIAQTY);
                 boolean flag = DataServices.isTaskStart(replenishmentDiffConfig);
@@ -963,6 +928,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         inventoryTask = new TimerTask() {
             @Override
             public void run() {
+                ZillionLog.i("vendingTask", "inventoryTask start..");
                 InterfaceData inventoryConfig = configMap.get(Constant.METHOD_WSID_INVENTORY + "_"
                         + Constant.HTTP_OPERATE_TYPE_INSERT);
                 boolean flag = DataServices.isTaskStart(inventoryConfig);
@@ -973,13 +939,13 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 }
             }
         };
-
         /**
          * 库存交易记录定时任务
          */
         stockTransactionTask = new TimerTask() {
             @Override
             public void run() {
+                ZillionLog.i("vendingTask", "stockTransactionTask start..");
                 InterfaceData stockTransactionConfig = configMap.get(Constant.METHOD_WSID_STOCKTRANSACTION
                         + "_" + Constant.HTTP_OPERATE_TYPE_INSERT);
                 boolean flag = DataServices.isTaskStart(stockTransactionConfig);
@@ -1012,312 +978,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 }
             }
         };
-//
-//        /**
-//         * 待机界面图片定时任务
-//         */
-//        vendingPictureTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################vendingPictureTask  start..");
-//                InterfaceData vendingPictureConfig = configMap.get(Constant.METHOD_WSID_VENDINGPICTURE + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(vendingPictureConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_VENDINGPICTURE;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * /** 售货机货道定时任务
-//         */
-//        vendingChnTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################vendingChnTask  start..");
-//                InterfaceData vendingChnConfig = configMap.get(Constant.METHOD_WSID_VENDINGCHN + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(vendingChnConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_VENDINGCHN;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 售货机产品定时任务
-//         */
-//        vendingProLinkTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################vendingProLinkTask  start..");
-//                InterfaceData vendingProLinkConfig = configMap.get(Constant.METHOD_WSID_VENDINGPROLINK + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(vendingProLinkConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_VENDINGPROLINK;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 产品定时任务
-//         */
-//        productTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################productTask  start..");
-//                InterfaceData productConfig = configMap.get(Constant.METHOD_WSID_PRODUCT + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(productConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_PRODUCT;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-
-//        /**
-//         * 产品图片定时任务
-//         */
-//        productPictureTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################productPictureTask  start..");
-//                InterfaceData productPictureConfig = configMap.get(Constant.METHOD_WSID_PRODUCTPICTURE + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(productPictureConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_PRODUCTPICTURE;
-//                    handler.sendMessage(message);
-//                }
-//            }
-////        };
-//
-//        /**
-//         * 货主定时任务
-//         */
-//        supplierTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################supplierTask  start..");
-//                InterfaceData supplierConfig = configMap.get(Constant.METHOD_WSID_SUPPLIER + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(supplierConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_SUPPLIER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 站点定时任务
-//         */
-//        stationTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################stationTask  start..");
-//                InterfaceData stationConfig = configMap.get(Constant.METHOD_WSID_STATION + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(stationConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_STATION;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 售货机卡/密码权限定时任务
-//         */
-//        vendingCardPowerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################vendingCardPowerTask  start..");
-//                InterfaceData vendingCardPowerConfig = configMap.get(Constant.METHOD_WSID_VENDINGCARDPOWER
-//                        + "_" + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(vendingCardPowerConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_VENDINGCARDPOWER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 产品领料权限定时任务
-//         */
-//        productMaterialPowerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################productMaterialPowerTask  start..");
-//                InterfaceData productMaterialPowerConfig = configMap
-//                        .get(Constant.METHOD_WSID_PRODUCTMATERIAKPOWER + "_"
-//                                + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(productMaterialPowerConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_PRODUCTMATERIAKPOWER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 卡/密码定时任务
-//         */
-//        cardTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################cardTask  start..");
-//                InterfaceData cardConfig = configMap.get(Constant.METHOD_WSID_CARD + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(cardConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_CARD;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 客户员工卡/密码权限定时任务
-//         */
-//        cusEmpCardPowerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################cusEmpCardPowerTask  start..");
-//                InterfaceData cusEmpCardPowerConfig = configMap.get(Constant.METHOD_WSID_CUSEMPCARDPOWER
-//                        + "_" + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(cusEmpCardPowerConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_CUSEMPCARDPOWER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 客户员工定时任务
-//         */
-//        customerEmpLinkTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################customerEmpLinkTask  start..");
-//                InterfaceData customerEmpLinkConfig = configMap.get(Constant.METHOD_WSID_CUSTOMEREMPLINK
-//                        + "_" + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(customerEmpLinkConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_CUSTOMEREMPLINK;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 客户定时任务
-//         */
-//        customerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################customerTask  start..");
-//                InterfaceData customerConfig = configMap.get(Constant.METHOD_WSID_CUSTOMER + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(customerConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_CUSTOMER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 产品组合定时任务
-//         */
-//        productGroupTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################productGroupTask  start..");
-//                InterfaceData productGroupConfig = configMap.get(Constant.METHOD_WSID_PRODUCTGROUP + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(productGroupConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_PRODUCTGROUP;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 产品组合权限定时任务
-//         */
-//        productGroupPowerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################productGroupPowerTask  start..");
-//                InterfaceData productGroupPowerConfig = configMap.get(Constant.METHOD_WSID_PRODUCTGROUPPOWER
-//                        + "_" + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(productGroupPowerConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_PRODUCTGROUPPOWER;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//        /**
-//         * 补货单定时任务
-//         */
-//        replenishmentTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################replenishmentTask  start..");
-//                InterfaceData replenishmentConfig = configMap.get(Constant.METHOD_WSID_REPLENISHMENT + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(replenishmentConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_REPLENISHMENT;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
-//
-//        /**
-//         * 售货机强制密码定时任务
-//         */
-//        vendingPasswordTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                ZillionLog.i("####################vendingPasswordTask  start..");
-//                InterfaceData vendingPasswordConfig = configMap.get(Constant.METHOD_WSID_PASSWORD + "_"
-//                        + Constant.HTTP_OPERATE_TYPE_GETDATA);
-//                boolean flag = DataServices.isTaskStart(vendingPasswordConfig);
-//                if (flag) {
-//                    Message message = new Message();
-//                    message.what = MESSAGE_VENDINGPASSWORD;
-//                    handler.sendMessage(message);
-//                }
-//            }
-//        };
     }
 
     /**
@@ -1346,7 +1006,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
      * 请求售货机数据
      */
     public void requestVendingParse() {
-        ZillionLog.i("requestVendingParse");
         VendingDataParse parse = new VendingDataParse();
         parse.setListener(this);
         parse.requestVendingData(Constant.HTTP_OPERATE_TYPE_GETDATA, Constant.METHOD_WSID_VENDING,
@@ -1555,10 +1214,10 @@ public class DataServices extends Service implements DataParseRequestListener, S
                                 break;
                             case MESSAGE_CONFIG:
                 // 同步下载接口配置数据
+//                              ZillionLog.i(this.getClass().getSimpleName(), "MESSAGE_CONFIG");
                                 requestConfigParse();
                                 break;
                             case MESSAGE_VENDING:
-                                ZillionLog.i("handleMessage", "MESSAGE_VENDING");
                 // 同步下载售货机数据
                                 requestVendingParse();
                                 break;
@@ -1659,9 +1318,12 @@ public class DataServices extends Service implements DataParseRequestListener, S
                                 break;
                             case MESSAGE_STOCKTRANSACTION:
                 // 上传库存交易记录
-                                StockTransactionDataParse.getInstance().requestStockTransactionData(
-                                        Constant.HTTP_OPERATE_TYPE_INSERT,
-                                        Constant.METHOD_WSID_STOCKTRANSACTION, vendingId);
+                                ZillionLog.i("上传交易记录--自动任务："+StockTransactionDataParse.getInstance().isSync);
+                                if (!StockTransactionDataParse.getInstance().isSync) { //没有上传
+                                    StockTransactionDataParse.getInstance().requestStockTransactionData(
+                                            Constant.HTTP_OPERATE_TYPE_INSERT,
+                                            Constant.METHOD_WSID_STOCKTRANSACTION, vendingId);
+                                }
                                 break;
                             default:
                                 break;
@@ -1690,7 +1352,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
         if (current_time >= start_time && current_time <= end_time) {
             flag = true;
         }
-
         return flag;
     }
 
@@ -1709,8 +1370,10 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 }
             } else if (baseData.getRequestURL().equals(Constant.METHOD_WSID_CONFIG)) {
 
+//                ZillionLog.i(this.getClass().getName(),"parseRequestFinised METHOD_WSID_CONFIG");
 //                startConfigTimer();
 //                initParam();
+
             } else if (baseData.getRequestURL().equals(Constant.METHOD_WSID_AUTHER)) {
                 if (taskMap.containsKey(Constant.METHOD_WSID_AUTHER)) {
                     taskMap.remove(Constant.METHOD_WSID_AUTHER);

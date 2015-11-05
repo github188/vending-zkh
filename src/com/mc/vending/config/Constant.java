@@ -15,8 +15,6 @@ package com.mc.vending.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.zillionstar.tools.L;
-
 /**
  * @author wangfang
  * 
@@ -31,8 +29,9 @@ public class Constant {
     public final static String              HEADER_KEY_CONTENT_TYPE                      = "Content-Type";                        // content-type
     public final static String              HEADER_VALUE_CONTENT_TYPE                    = "application/x-www-form-urlencoded";   // content-type
 
-    public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      // client_ver
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.1.5";                               // client_ver
+    public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
+    //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.1.9";                               
 
     public final static String              BODY_KEY_METHOD                              = "wsid";                                // method
     public final static String              BODY_KEY_UDID                                = "deviceid";                            // udid
@@ -52,6 +51,7 @@ public class Constant {
     public static final String              SHARED_PWD                                   = "pwd";                                 // 存放pwdKey
     public static final String              SHARED_PWD_KEY                               = "pwd_key";                             // 存放pwdKey
     public static final String              SHARED_VEND_CODE                             = "vend_code";                           // 存放pwdKey
+    public static final String              SHARED_VEND_DEBUG_STATUS                     = "vend_debug_status";                           // 存放pwdKey
     public static final String              SHARED_VEND_CODE_KEY                         = "vend_code_key";                       // 存放pwdKey
     public static final String              SHARED_CONFIG                                = "config";                              // 存放服务器地址
     public static final String              SHARED_CONFIG_URL                            = "config_url";                          // 存放服务器地址
@@ -127,6 +127,7 @@ public class Constant {
     public final static String              METHOD_WSID_RETURNS_FORWARD                  = "ae0ffec0-8af0-468f-9e11-2ec7bd95cc3c"; // 3.40退货单
     public final static String              METHOD_WSID_PRODUCTCARDPOWER                 = "610cc826-5da6-4d94-83e2-2b839f5a0299"; // 3.41卡产品权限
     public final static String              METHOD_WSID_USEDRECORD                       = "c3d76872-6905-4231-821f-67f575cf0e07"; // 3.42卡产品领用
+    public final static String              METHOD_WSID_VENDINGRUNERROR                  = "564000F1-D704-476B-8E1B-D0218668B712"; // 3.43错误日志
     // APP接口调用返回
     // 接口返回状态
     public final static String              RETURNCODE_SUCCESS                           = "0";                                   // 成功
@@ -137,8 +138,6 @@ public class Constant {
     public static final int                 DAY                                          = 2;                                     // 日
     public static final int                 HOUR                                         = 3;                                     // 小时
     public static final int                 TIME                                         = 4;                                     // 时间段
-
-    public static int                       LOGLEVEL                                     = L.levelE;                              // 日志级别，默认为E
 
     public static final int                 REQUEST_TIMEOUT                              = 30 * 1000;                             //设置请求超时10秒钟  
     public static final int                 SO_TIMEOUT                                   = 30 * 1000;                             //设置等待数据超时时间10秒钟  

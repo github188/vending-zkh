@@ -8,7 +8,6 @@ import com.mc.vending.data.ProductCardPowerData;
 import com.mc.vending.data.ProductMaterialPowerData;
 import com.mc.vending.data.ProductPictureData;
 import com.mc.vending.data.StockTransactionData;
-import com.mc.vending.data.VendingCardPowerData;
 import com.mc.vending.data.VendingChnStockData;
 import com.mc.vending.data.VendingProLinkData;
 import com.mc.vending.db.ProductCardPowerDbOper;
@@ -16,15 +15,13 @@ import com.mc.vending.db.ProductMaterialPowerDbOper;
 import com.mc.vending.db.ProductPictureDbOper;
 import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.db.UsedRecordDbOper;
-import com.mc.vending.db.VendingCardPowerDbOper;
 import com.mc.vending.db.VendingChnStockDbOper;
 import com.mc.vending.db.VendingProLinkDbOper;
 import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
-
-import android.util.Log;
+import com.mc.vending.tools.ZillionLog;
 
 public class GeneralMaterialService extends BasicService {
 
@@ -102,11 +99,12 @@ public class GeneralMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查产品领料权限发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查产品领料权限发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查产品领料权限发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障!>>检查产品领料权限发生异常");
@@ -133,7 +131,16 @@ public class GeneralMaterialService extends BasicService {
     private void handlerMaterialPower(String vendingId, String skuId, String cusId, String vc2Id,
             int inputQty, String vendingChnCode,String cardId) {
 
-        ProductCardPowerDbOper dbOper = new ProductCardPowerDbOper();
+        vc2Id = StringHelper.nullSafeString(vc2Id).trim();
+        // f) 根据”售货机卡/密码权限.ID”查询“产品领料权限“表： 如果记录数＝0，继续跳过
+        ProductMaterialPowerDbOper productMaterialPowerDbOper = new ProductMaterialPowerDbOper();
+        List<String> list = productMaterialPowerDbOper.findVendingProLinkByVcId(vc2Id);
+        if (list.isEmpty()) {
+            return;
+        }
+        if (!list.contains(skuId)) {
+            throw new BusinessException("输入的卡号或密码无权限领料，请重新输入！");
+        }
 
         VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(
                 vendingId, skuId);
@@ -142,34 +149,44 @@ public class GeneralMaterialService extends BasicService {
         }
         String vp1Id = vendingProLink.getVp1Id();
 
-        ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, vp1Id);
+        ProductMaterialPowerData productMaterialPower = productMaterialPowerDbOper
+                .getVendingProLinkByVidAndSkuId(cusId, vc2Id, vp1Id);
 
-        if (powerData != null) {
-            String pm1Power = powerData.getPc1Power();
+        if (productMaterialPower != null) {
+            String pm1Power = productMaterialPower.getPm1Power();
             if (ProductMaterialPowerData.MATERIAL_POWER_NO.equals(pm1Power)) {
-                throw new BusinessException("输入的卡号或密码无产品领料权限,请重新输入!");
+                throw new BusinessException("输入的卡号或密码无权限领料,请重新输入!");
             }
-
-            int onceQty = Integer.valueOf(powerData.getPc1OnceQty());
-            String period = powerData.getPc1Period();
-            String intervalStart = powerData.getPc1IntervalStart();
-            String intervalFinish = powerData.getPc1IntervalFinish();
-            String startDate = powerData.getPc1StartDate();
-//            String cardId = powerData.getPc1CD1_ID();
-            int periodQty = Double.valueOf(powerData.getPc1PeriodQty()).intValue();
+            int onceQty = productMaterialPower.getPm1OnceQty();
+            String period = productMaterialPower.getPm1Period();
+            String intervalStart = productMaterialPower.getPm1IntervalStart();
+            String intervalFinish = productMaterialPower.getPm1IntervalFinish();
+            String startDate = productMaterialPower.getPm1StartDate();
+            int periodQty = productMaterialPower.getPm1PeriodQty();
 
             if (onceQty == 0 || inputQty <= onceQty) {
                 if (!StringHelper.isEmpty(period, true)) {
-                    UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-                    Date date = this.getDate(period, intervalStart, intervalFinish, startDate);
+                    Date date = this.getDate2(period, intervalStart, intervalFinish, startDate);
                     int transQtyTotal = 0;
                     if (date != null) {
+                        String dateStr = DateHelper.format(date, "yyyy-MM-dd HH:mm:ss");
                         try {
-                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId);
+                            UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
+                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId,dateStr);
+                            transQtyTotal = transQtyTotal * -1;
+                            StockTransactionDbOper stockTransactionDb = new StockTransactionDbOper();
+                            int transQtyTotal1 = stockTransactionDb.getTransQtyCount(
+                                    StockTransactionData.BILL_TYPE_GET, vendingId, skuId, vendingChnCode,
+                                    dateStr, cardId);
+                            if (transQtyTotal1 < transQtyTotal) {
+                                transQtyTotal = transQtyTotal1;
+                            }
+                            
                         } catch (Exception e) {
+                            ZillionLog.e(this.getClass().toString(), "产品领料权限检查错误",e);
                             // L.e(e.getMessage());
                             // e.printStackTrace();
-                            throw new BusinessException("产品领料权限检查错误,卡产品领用数：" + transQtyTotal);
+                            throw new BusinessException("产品领料权限检查错误,库存交易记录数：" + transQtyTotal);
                         }
                     }
 
@@ -207,15 +224,23 @@ public class GeneralMaterialService extends BasicService {
             String vendingChnCode) {
 
         ProductCardPowerDbOper dbOper = new ProductCardPowerDbOper();
-
+        
         VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(
                 vendingId, skuId);
         if (vendingProLink == null) {
             throw new BusinessException("售货机产品 不存在!");
         }
-        String vp1Id = vendingProLink.getVp1Id();
+//        String vp1Id = vendingProLink.getVp1Id();
+        
+        List<String> list = dbOper.getVendingProLinkByCid(cardId);
+        if (list.isEmpty()) {
+            return;
+        }
+        if (!list.contains(skuId)) {
+            throw new BusinessException("输入的卡号或密码无权限领料，请重新输入！");
+        }
 
-        ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, vp1Id);
+        ProductCardPowerData powerData = dbOper.getVendingProLinkByVidAndSkuId(cardId, skuId);
 
         if (powerData != null) {
             String pm1Power = powerData.getPc1Power();
@@ -223,7 +248,12 @@ public class GeneralMaterialService extends BasicService {
                 throw new BusinessException("输入的卡号或密码无产品领料权限,请重新输入!");
             }
 
-            int onceQty = Integer.valueOf(powerData.getPc1OnceQty());
+
+            int onceQty = 0;
+            if (powerData.getPc1OnceQty() == null || powerData.getPc1OnceQty().equals("")) {
+            } else {
+                onceQty = Integer.valueOf(powerData.getPc1OnceQty());
+            }
             String period = powerData.getPc1Period();
             String intervalStart = powerData.getPc1IntervalStart();
             String intervalFinish = powerData.getPc1IntervalFinish();
@@ -233,16 +263,27 @@ public class GeneralMaterialService extends BasicService {
 
             if (onceQty == 0 || inputQty <= onceQty) {
                 if (!StringHelper.isEmpty(period, true)) {
-                    UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-                    Date date = this.getDate(period, intervalStart, intervalFinish, startDate);
+                    Date date = this.getDate2(period, intervalStart, intervalFinish, startDate);
                     int transQtyTotal = 0;
                     if (date != null) {
+                        String dateStr = DateHelper.format(date, "yyyy-MM-dd HH:mm:ss");
                         try {
-                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId);
+                            UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
+                            transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId,dateStr);
+                            transQtyTotal = transQtyTotal * -1;
+                            StockTransactionDbOper stockTransactionDb = new StockTransactionDbOper();
+                            int transQtyTotal1 = stockTransactionDb.getTransQtyCount(
+                                    StockTransactionData.BILL_TYPE_GET, vendingId, skuId, vendingChnCode,
+                                    dateStr, cardId);
+                            if (transQtyTotal1 < transQtyTotal) {
+                                transQtyTotal = transQtyTotal1;
+                            }
+
                         } catch (Exception e) {
+                            ZillionLog.e(this.getClass().toString(), "产品领料权限检查错误",e);
                             // L.e(e.getMessage());
-                            // e.printStackTrace();
-                            throw new BusinessException("产品领料权限检查错误,卡产品领用数：" + transQtyTotal);
+                             e.printStackTrace();
+                            throw new BusinessException("产品领料权限检查错误,产品领用数：" + transQtyTotal);
                         }
                     }
 

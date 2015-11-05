@@ -33,7 +33,7 @@ import com.mc.vending.tools.HttpHelper;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.SystemUiHider;
 import com.mc.vending.tools.Tools;
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 public class MainActivity extends Activity implements DataParseRequestListener {
     private RelativeLayout      layout_init;    // 初始化启动layout
@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements DataParseRequestListener {
         try {
             TaskService.getTotalCacheSize(this);
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             e.printStackTrace();
         }
 
@@ -321,7 +322,7 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 
     @Override
     public void parseRequestFinised(BaseData baseData) {
-        ZillionLog.i("parseRequestFinised");
+//        ZillionLog.i(this.getClass().getName(),"parseRequestFinised");
         if (!baseData.isSuccess() && Constant.METHOD_WSID_CHECK_INIT.equals(baseData.getRequestURL())) {
             resetAlertMsg("售货机已经初始化，不允许重复初始化，请与管理员联系！");
             return;
@@ -393,6 +394,7 @@ public class MainActivity extends Activity implements DataParseRequestListener {
                 }
             }, 10);
         } catch (Exception e) {
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             initConfigURL();
         }
 

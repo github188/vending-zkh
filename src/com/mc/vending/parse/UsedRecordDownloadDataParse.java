@@ -14,6 +14,7 @@ import com.mc.vending.data.UsedRecordData;
 import com.mc.vending.db.UsedRecordDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class UsedRecordDownloadDataParse implements DataParseListener {
     private static UsedRecordDownloadDataParse instance = null;
@@ -48,7 +49,7 @@ public class UsedRecordDownloadDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>卡与产品领用网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>卡与产品领用网络请求数据异常!");
         }
     }
 
@@ -59,6 +60,12 @@ public class UsedRecordDownloadDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<UsedRecordData> list = parse(baseData.getData());
@@ -76,14 +83,14 @@ public class UsedRecordDownloadDataParse implements DataParseListener {
         }
         boolean deleteFlag = dbOperbOper.batchDeleteVendingCard(dbPra);
         if (deleteFlag) {
-            Log.i("[UsedRecord]:", "卡与产品领用批量删除成功!" + "======" + dbPra);
+            Log.i("[UsedRecord]:", "卡与产品领用批量删除成功!");
             boolean addFlag = dbOperbOper.batchAddUsedRecord(list);
             if (addFlag) {
                 Log.i("[UsedRecord]:", "卡与产品领用批量增加成功!" + "======" + list.size());
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[UsedRecord]:", "卡与产品领用批量增加失败!");
+                ZillionLog.e("[UsedRecord]:", "卡与产品领用批量增加失败!");
             }
         }
 
@@ -133,7 +140,7 @@ public class UsedRecordDownloadDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>卡与产品领用解析网络数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>卡与产品领用解析网络数据异常!");
         }
         return list;
     }

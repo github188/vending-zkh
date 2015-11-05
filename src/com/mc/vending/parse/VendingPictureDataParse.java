@@ -8,14 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.VendingPictureData;
 import com.mc.vending.db.VendingPictureDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class VendingPictureDataParse implements DataParseListener {
 
@@ -51,7 +50,7 @@ public class VendingPictureDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机待机图片网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机待机图片网络请求数据异常!");
         }
     }
 
@@ -62,6 +61,12 @@ public class VendingPictureDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<VendingPictureData> list = parse(baseData.getData());
@@ -79,13 +84,13 @@ public class VendingPictureDataParse implements DataParseListener {
         if (deleteFlag) {
             boolean addFlag = vendingPictureDbOper.batchAddVendingPicture(list);
             if (addFlag) {
-                Log.i("[vendingPicture]:", "======>>>>>售货机待机图片批量增加成功!" + list.size());
+//                Log.i("[vendingPicture]:", "======>>>>>售货机待机图片批量增加成功!" + list.size());
                 if (list != null && list.size() > 0) {
                     DataParseHelper parseHelper = new DataParseHelper(this);
                     parseHelper.sendLogVersion(list.get(0).getLogVersion());
                 }
             } else {
-                Log.i("[vendingPicture]:", "==========>>>>>售货机待机图片批量增加失败!");
+                ZillionLog.e("[vendingPicture]:", "==========>>>>>售货机待机图片批量增加失败!");
             }
         }
         // System.out.println(vendingPictureDbOper.findVendingPicture());

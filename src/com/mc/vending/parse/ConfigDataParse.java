@@ -15,6 +15,7 @@ import com.mc.vending.db.InterfaceDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class ConfigDataParse implements DataParseListener {
     private DataParseRequestListener listener;
@@ -47,6 +48,12 @@ public class ConfigDataParse implements DataParseListener {
             }
             return;
         }
+        if (baseData.getData()==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return;
+        }
         //全表
         List<InterfaceData> list = parse(baseData.getData());
         //0全表时不需要删除原数据-false。1表示需要删除true
@@ -67,7 +74,7 @@ public class ConfigDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[interface]:", "接口配置批量增加失败!");
+                ZillionLog.e("[interface]:", "接口配置批量增加失败!");
             }
         }
 
@@ -92,7 +99,7 @@ public class ConfigDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>接口配置网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>接口配置网络请求数据异常!");
         }
     }
 
@@ -143,7 +150,7 @@ public class ConfigDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>接口配置解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>接口配置解析数据异常!");
         }
         return list;
     }

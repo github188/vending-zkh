@@ -25,13 +25,8 @@ import org.json.JSONObject;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.tools.utils.DES;
-import com.zillionstar.tools.L;
-import com.zillionstar.tools.ZillionLog;
 
 public class HttpHelper {
-    static {
-        L.logLevel = Constant.LOGLEVEL;
-    }
 
     // 1代表正常0代表其它错误2代表服务端相应错误，3代表解析错误
     public static final int           HTTP_STATUS_SUCCESS      = 0;
@@ -59,11 +54,11 @@ public class HttpHelper {
             return;
         headerMap.put(key, value);
     }
-
+    
     public static BaseData requestToParse(Class className, String method, JSONObject param, BaseData baseData)
             throws JSONException {
         baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_ERROR;
-//        ZillionLog.i("request", Constant.WSIDNAMEMAP.get(method));
+        ZillionLog.i("request", Constant.WSIDNAMEMAP.get(method));
         // 封装传送的数据
         List<BasicNameValuePair> postData = new ArrayList<BasicNameValuePair>();
         JSONObject json = new JSONObject();
@@ -74,6 +69,7 @@ public class HttpHelper {
         json.put(Constant.BODY_KEY_PWD, DES.getEncrypt());
 
         if (param != null) {
+
             JSONArray array = new JSONArray();
             array.put(param);
             json.put(Constant.BODY_PARAM_KEY_DATA, array);
@@ -95,7 +91,6 @@ public class HttpHelper {
         BasicHttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, Constant.REQUEST_TIMEOUT);
         HttpConnectionParams.setSoTimeout(httpParams, Constant.SO_TIMEOUT);
-//        HttpClient client = new DefaultHttpClient(httpParams);  
 
         HttpClient httpClient = new DefaultHttpClient(httpParams);
         HttpResponse response = null;
@@ -121,17 +116,20 @@ public class HttpHelper {
         } catch (UnsupportedEncodingException e) {
             // e.printStackTrace();
             // L.e(e.getMessage());
-            ZillionLog.e(e.getMessage());
+            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+            ZillionLog.e("HttpHelp", e.getMessage(),e);
             baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
         } catch (IOException e) {
             // L.e(e.getMessage());
             // e.printStackTrace();
-            ZillionLog.e(e.getMessage());
+            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+            ZillionLog.e("HttpHelp", e.getMessage(),e);
             baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
         } catch (Exception e) {
             // L.e(e.getMessage());
             // e.printStackTrace();
-            ZillionLog.e(e.getMessage());
+            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+            ZillionLog.e("HttpHelp", e.getMessage(),e);
             baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
         }
 
@@ -166,6 +164,8 @@ public class HttpHelper {
             } catch (Exception e) {
                 // e.printStackTrace();
                 // L.e(e.getMessage());
+                ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+                ZillionLog.e("HttpHelp", e.getMessage(),e);
                 baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_PRASE_ERROR;
             }
         }

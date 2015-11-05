@@ -9,12 +9,14 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.VendingChnStockData;
 import com.mc.vending.db.VendingChnStockDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class VendingChnStockDataParse implements DataParseListener {
     private static VendingChnStockDataParse instance = null;
@@ -49,7 +51,7 @@ public class VendingChnStockDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机货道库存网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机货道库存网络请求数据异常!");
         }
     }
 
@@ -60,6 +62,12 @@ public class VendingChnStockDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (this.listener != null) {
+                this.listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         //全表
         List<VendingChnStockData> list = parse(baseData.getData());
@@ -76,8 +84,14 @@ public class VendingChnStockDataParse implements DataParseListener {
             boolean addflag = vendingChnStockDbOper.batchAddVendingChnStock(list);
             if (addflag) {
                 Log.i("[vendingChnStock]:", "======>>>>>售货机货道库存批量增加成功!" + list.size());
+
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    DataParseHelper parseHelper = new DataParseHelper(this);
+                    parseHelper.sendLogVersion(list.get(0).getLogVersion());
+                }
+                
             } else {
-                Log.i("[vendingChnStock]:", "==========>>>>>售货机货道库存批量增加失败!");
+                ZillionLog.e("[vendingChnStock]:", "==========>>>>>售货机货道库存批量增加失败!");
             }
         }
 
@@ -110,6 +124,10 @@ public class VendingChnStockDataParse implements DataParseListener {
                 data.setVs1Vc1Code(jsonObj.getString("VS1_VC1_CODE"));
                 data.setVs1Pd1Id(jsonObj.getString("VS1_PD1_ID"));
                 data.setVs1Quantity(ConvertHelper.toInt(jsonObj.getString("VS1_Quantity"), 0));
+                
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    data.setLogVersion(jsonObj.getString("LogVision"));
+                }
                 data.setVs1CreateUser(createUser);
                 data.setVs1CreateTime(createTime);
                 data.setVs1ModifyUser(modifyUser);
@@ -119,7 +137,7 @@ public class VendingChnStockDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机货道库存解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机货道库存解析数据异常!");
         }
         return list;
     }

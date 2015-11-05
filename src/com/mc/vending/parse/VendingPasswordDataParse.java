@@ -12,6 +12,7 @@ import com.mc.vending.data.VendingPasswordData;
 import com.mc.vending.db.VendingPasswordDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class VendingPasswordDataParse implements DataParseListener {
     private static VendingPasswordDataParse instance = null;
@@ -46,7 +47,7 @@ public class VendingPasswordDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机强制密码网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机强制密码网络请求数据异常!");
         }
     }
 
@@ -57,6 +58,12 @@ public class VendingPasswordDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         VendingPasswordData vendingPasswordData = parse(baseData.getData());
         // 0全表时不需要删除原数据-false。1表示需要删除true
@@ -77,7 +84,7 @@ public class VendingPasswordDataParse implements DataParseListener {
                     DataParseHelper parseHelper = new DataParseHelper(this);
                     parseHelper.sendLogVersion(vendingPasswordData.getLogVersion());
                 } else {
-                    Log.i("[vendingPassword]:", "==========>>>>>售货机强制密码更新失败!");
+                    ZillionLog.e("[vendingPassword]:", "==========>>>>>售货机强制密码更新失败!");
                 }
             }
         } else {
@@ -87,7 +94,7 @@ public class VendingPasswordDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(vendingPasswordData.getLogVersion());
             } else {
-                Log.i("[vendingPassword]:", "==========>>>>>售货机强制密码增加失败!");
+                ZillionLog.e("[vendingPassword]:", "==========>>>>>售货机强制密码增加失败!");
             }
         }
         if (this.listener != null) {
@@ -132,7 +139,7 @@ public class VendingPasswordDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机强制密码解析网络数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机强制密码解析网络数据异常!");
         }
         return data;
     }

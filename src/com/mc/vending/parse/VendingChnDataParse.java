@@ -15,6 +15,7 @@ import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class VendingChnDataParse implements DataParseListener {
     private static VendingChnDataParse instance = null;
@@ -49,7 +50,7 @@ public class VendingChnDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机货道网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机货道网络请求数据异常!");
         }
     }
 
@@ -60,6 +61,12 @@ public class VendingChnDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<VendingChnData> list = parse(baseData.getData());
@@ -80,7 +87,7 @@ public class VendingChnDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[vendingChn]:", "==========>>>>>售货机货道批量增加失败!");
+                ZillionLog.e("[vendingChn]:", "==========>>>>>售货机货道批量增加失败!");
             }
         }
         // System.out.println(vendingChnDbOper.findAll());
@@ -134,7 +141,7 @@ public class VendingChnDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机货道解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机货道解析数据异常!");
         }
         return list;
     }

@@ -25,7 +25,7 @@ import java.io.Serializable;
  * @date 2015-3-16
  * @email fenghu@mightcloud.com
  */
-public class VendingChnStockData implements Serializable {
+public class VendingChnStockData extends BaseParseData implements Serializable {
     /**
      *Comment for <code>serialVersionUID</code>
      */

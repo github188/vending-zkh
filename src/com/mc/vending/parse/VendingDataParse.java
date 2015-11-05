@@ -10,18 +10,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
 
+import com.mc.vending.application.CustomApplication;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.InterfaceData;
+import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.VendingData;
 import com.mc.vending.db.InterfaceDbOper;
+import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
-import com.zillionstar.tools.L;
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 售货机数据请求与解析
@@ -29,13 +32,10 @@ import com.zillionstar.tools.ZillionLog;
  * @author apple
  *
  */
-public class VendingDataParse implements DataParseListener {
-    static {
-        L.logLevel = Constant.LOGLEVEL;
-    }
+public class VendingDataParse implements DataParseListener, DataParseRequestListener {
 
-    private static VendingDataParse  instance = null;
-    private DataParseRequestListener listener;       // 使用单例模式，不能使用listener，或者使用完成后将listener清空
+    private static VendingDataParse instance = null;
+    private DataParseRequestListener listener; // 使用单例模式，不能使用listener，或者使用完成后将listener清空
 
     public DataParseRequestListener getListener() {
         return listener;
@@ -71,6 +71,12 @@ public class VendingDataParse implements DataParseListener {
             }
             return;
         }
+        if (baseData == null || baseData.getData() == null || baseData.getData().length() == 0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return;
+        }
         VendingData vendingData = parse(baseData.getData());
         // 0全表时不需要删除原数据-false。1表示需要删除true
         if (vendingData == null && !baseData.getDeleteFlag()) {
@@ -87,21 +93,21 @@ public class VendingDataParse implements DataParseListener {
             if (vending.getVd1Id().equals(vendingData.getVd1Id())) {
                 boolean updateFlag = vendingDbOper.updateVending(vendingData);
                 if (updateFlag) {
-                    L.i("======>>>>>售货机更新成功!");
+                    ZillionLog.i("======>>>>>售货机更新成功!");
                     List<String> wsidList = parseWsid(baseData.getWsidData());
                     syncByWsid(wsidList, vendingData.getVd1Id());
                 } else {
-                    L.i("==========>>>>>售货机更新失败!");
+                    ZillionLog.e("==========>>>>>售货机更新失败!");
                 }
             }
         } else {
             boolean insert_flag = vendingDbOper.addVending(vendingData);
             if (insert_flag) {
-                L.i("======>>>>>售货机增加成功!");
+                ZillionLog.i("======>>>>>售货机增加成功!");
                 List<String> wsidList = parseWsid(baseData.getWsidData());
                 syncByWsid(wsidList, vendingData.getVd1Id());
             } else {
-                L.i("==========>>>>>售货机增加失败!");
+                ZillionLog.e("==========>>>>>售货机增加失败!");
             }
         }
         // System.out.println(vendingDbOper.getVending());
@@ -123,7 +129,7 @@ public class VendingDataParse implements DataParseListener {
         if (wsidList == null) {
             return;
         }
-        Log.i(this.getClass().getName(), wsidList.toString());
+        ZillionLog.i(this.getClass().getName(), wsidList);
         for (String wsid : wsidList) {
             if (wsid.equals(Constant.METHOD_WSID_VENDINGCHN)) {
                 VendingChnDataParse parse = new VendingChnDataParse();
@@ -230,7 +236,44 @@ public class VendingDataParse implements DataParseListener {
                 UsedRecordDownloadDataParse parse = new UsedRecordDownloadDataParse();
                 parse.requestUsedRecordData(Constant.HTTP_OPERATE_TYPE_GETDATA,
                         Constant.METHOD_WSID_USEDRECORD, vendingId);
+            } else if (wsid.equals(Constant.METHOD_WSID_SYN_STOCK)) {
+
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    synchronousStock(vendingId);
+                }
             }
+        }
+    }
+
+    private void synchronousStock(String vendingId) {
+//        VendingData vending = new VendingDbOper().getVending();
+        ZillionLog.i("上传交易记录--同步库存：" + StockTransactionDataParse.getInstance().isSync);
+        if (!StockTransactionDataParse.getInstance().isSync) { //没有上传交易记录任务在跑
+            //上传交易记录
+            List<StockTransactionData> datas = new StockTransactionDbOper()
+                    .findStockTransactionDataToUpload();
+            if (datas == null || datas.size() == 0) {
+//                ZillionLog.i("没有交易记录，直接同步库存");
+                //上传完之后同步库存
+                VendingChnStockDataParse parse = new VendingChnStockDataParse();
+//                parse.setListener(this);
+                parse.requestVendingChnStockData(Constant.HTTP_OPERATE_TYPE_GETDATA,
+                        Constant.METHOD_WSID_SYN_STOCK, vendingId);
+            } else {
+//                ZillionLog.i("有交易记录，先同步交易记录");
+                StockTransactionDataParse stockTransactionDataParse = StockTransactionDataParse.getInstance();
+                stockTransactionDataParse.setListener(this);
+                stockTransactionDataParse.requestStockTransactionData(Constant.HTTP_OPERATE_TYPE_INSERT,
+                        Constant.METHOD_WSID_STOCKTRANSACTION, vendingId, datas);
+            }
+        } else {//有的话等会儿再检查一下
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (InterruptedException e) {
+            }
+//            ZillionLog.i("再次同步库存");
+            //再次同步库存
+            synchronousStock(vendingId);
         }
     }
 
@@ -245,8 +288,8 @@ public class VendingDataParse implements DataParseListener {
             DataParseHelper helper = new DataParseHelper(this);
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
-            e.printStackTrace();
-            L.e("======>>>>>售货机网络请求数据异常!" + e.getMessage());
+//            e.printStackTrace();
+            ZillionLog.e(this.getClass().getName(), "======>>>>>售货机网络请求数据异常!" + e.getMessage(), e);
         }
     }
 
@@ -262,8 +305,8 @@ public class VendingDataParse implements DataParseListener {
                 wsidList.add(jsonObj.getString("WSID"));
             }
         } catch (JSONException e) {
-            e.printStackTrace();
-            ZillionLog.e("======>>>>>售货机WSID解析数据异常!" + e.getMessage());
+//            e.printStackTrace();
+            ZillionLog.e(this.getClass().getName(), "======>>>>>售货机WSID解析数据异常!" + e.getMessage(), e);
         }
 
         return wsidList;
@@ -313,6 +356,9 @@ public class VendingDataParse implements DataParseListener {
                 } catch (Exception e) {
                     data.setVd1CardType("1");
                 }
+                if (!jsonObj.isNull("VD1_DubugStatus")) {
+                    saveVendDubugStatus(jsonObj.getString("VD1_DubugStatus"));
+                }
                 data.setLogVersion(jsonObj.getString("LogVision"));
                 data.setVd1CreateUser(createUser);
                 data.setVd1CreateTime(createTime);
@@ -322,10 +368,20 @@ public class VendingDataParse implements DataParseListener {
                 break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            L.e("======>>>>>售货机解析数据异常!" + e.getMessage());
+//            e.printStackTrace();
+            ZillionLog.e(this.getClass().getName(), "======>>>>>售货机解析数据异常!" + e.getMessage(), e);
         }
         return data;
+    }
+
+    private void saveVendDubugStatus(String key) {
+        if (key == null || key.equals("")) {
+            key = "0";
+        }
+        Context context = CustomApplication.getContext();
+        SharedPreferences shared = context.getSharedPreferences(Constant.SHARED_VEND_CODE_KEY,
+                context.MODE_PRIVATE);
+        shared.edit().putString(Constant.SHARED_VEND_DEBUG_STATUS, key).commit();
     }
 
     @Override
@@ -333,6 +389,24 @@ public class VendingDataParse implements DataParseListener {
         if (listener != null) {
             listener.parseRequestFailure(baseData);
         }
+
+    }
+
+    @Override
+    public void parseRequestFinised(BaseData baseData) {
+//        ZillionLog.i(this.getClass().getName(),"parseRequestFinised");
+        if (Constant.METHOD_WSID_STOCKTRANSACTION.equals(baseData.getRequestURL())) {
+            StockTransactionDataParse.getInstance().isSync = false;
+            List<StockTransactionData> datas = (List<StockTransactionData>) baseData.getUserObject();
+            if (datas != null && datas.size() > 0) {
+                String vendingId = datas.get(0).getTs1Vd1Id();
+                synchronousStock(vendingId);
+            }
+        }
+    }
+
+    @Override
+    public void parseRequestFailure(BaseData baseData) {
 
     }
 }

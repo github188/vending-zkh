@@ -14,6 +14,7 @@ import com.mc.vending.data.ProductData;
 import com.mc.vending.db.ProductDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class ProductDataParse implements DataParseListener {
     private static ProductDataParse  instance = null;
@@ -49,7 +50,7 @@ public class ProductDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "==========>>>>>产品网络请求异常!");
+            ZillionLog.e(this.getClass().toString(), "==========>>>>>产品网络请求异常!");
         }
     }
 
@@ -60,6 +61,12 @@ public class ProductDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 增量
         List<ProductData> list = parse(baseData.getData());
@@ -91,7 +98,7 @@ public class ProductDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[product]:", "==========>>>>>产品批量增加失败!");
+                ZillionLog.e("[product]:", "==========>>>>>产品批量增加失败!");
             }
         } else if (!updateList.isEmpty()) {
             boolean flag_ = productDbOper.batchUpdateProduct(updateList);
@@ -100,7 +107,7 @@ public class ProductDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[product]:", "==========>>>>>产品批量更新失败!");
+                ZillionLog.e("[product]:", "==========>>>>>产品批量更新失败!");
             }
         } else {
             DataParseHelper parseHelper = new DataParseHelper(this);
@@ -145,7 +152,7 @@ public class ProductDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "==========>>>>>产品数据解析异常!");
+            ZillionLog.e(this.getClass().toString(), "==========>>>>>产品数据解析异常!");
         }
         return list;
     }

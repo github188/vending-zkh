@@ -2,7 +2,7 @@ package com.mc.vending.tools.utils;
 
 import java.math.BigInteger;
 
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 数据转换工具
@@ -143,7 +143,7 @@ public class MyFunc {
 
         } catch (Exception e) {
             result = null;
-            ZillionLog.e("getRFIDSerialNo", e.getMessage());
+            ZillionLog.e("getRFIDSerialNo", e.getMessage(),e);
         }
         return result;
     }
@@ -164,14 +164,16 @@ public class MyFunc {
             }
             return tmp;
         } catch (Exception e) {
-            ZillionLog.e("getIDSerialNo", e.getMessage());
+            ZillionLog.e("getIDSerialNo", e.getMessage(),e);
         }
         return null;
     }
 
     public static void main(String[] args) {
-        String strHex = "02 30 30 30 36 38 38 30 33 35 38 0D 0A 03";
-        System.out.println(getIDSerialNo("02 30 30 30 36 38 38 30 33 35 38 0D 0A 03"));
+//        String strHex = "02 30 30 30 36 38 38 30 33 35 38 0D 0A 03";
+//        System.out.println(getIDSerialNo("02 30 30 30 36 38 38 30 33 35 38 0D 0A 03"));
+        
+        System.out.println(cmdOpenVender(1, 1));
     }
 
     //生成售货机控制指令，参数为命令字加数据包
@@ -214,7 +216,7 @@ public class MyFunc {
         return sum;
     }
 
-    //生成格子机控制指令
+    //生成格子机控制指令 
     public static String getStoreCommand(String cmd) {
         String cmdString = cmd.replaceAll("\\s*", "");
         return (cmdString + String.format("%04x", getSum(cmdString))).toUpperCase();
@@ -262,7 +264,5 @@ public class MyFunc {
     public static String cmdBeep() {
         return cmdBeep;
     }
-    
-    
 
 }

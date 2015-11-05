@@ -1,11 +1,10 @@
 package com.mc.vending.service;
 
-import android.util.Log;
-
 import com.mc.vending.data.VendingChnData;
 import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.ServiceResult;
+import com.mc.vending.tools.ZillionLog;
 
 public class TestMaterialService extends BasicService {
     private static TestMaterialService instance;
@@ -34,11 +33,12 @@ public class TestMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(vendingChn);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>领料测试 发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>领料测试 发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>领料测试 发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>领料测试 发生异常!");

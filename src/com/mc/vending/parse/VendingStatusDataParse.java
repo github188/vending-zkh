@@ -2,10 +2,9 @@ package com.mc.vending.parse;
 
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.mc.vending.data.BaseData;
 import com.mc.vending.parse.listener.DataParseListener;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 售货机数据请求与解析
@@ -51,7 +50,7 @@ public class VendingStatusDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机联机状态网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机联机状态网络请求数据异常!");
         }
     }
 

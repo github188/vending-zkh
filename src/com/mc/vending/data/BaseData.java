@@ -10,23 +10,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mc.vending.tools.ConvertHelper;
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 public class BaseData {
 
     private JSONObject json;
 
-    public Header[]    responseHeader;
+    public Header[] responseHeader;
 
-    private String     returnCode;
-    private String     returnMessage;
-    private int        total;
-    private String     requestURL;
-    private String     optType;
-    private boolean    deleteFlag;    // 0全表时不需要删除原数据-false。1表示需要删除-true
-    private boolean    isSuccess;
-    public int         HTTP_STATUS;
-    private Object     userObject;
+    private String returnCode;
+    private String returnMessage;
+    private int total;
+    private String requestURL;
+    private String optType;
+    private boolean deleteFlag; // 0全表时不需要删除原数据-false。1表示需要删除-true
+    private boolean isSuccess;
+    public int HTTP_STATUS;
+    private Object userObject;
 
     public String getRequestURL() {
         return requestURL;
@@ -54,8 +54,12 @@ public class BaseData {
 
     public String getReturnCode() {
         try {
+            if (json == null || json.isNull("result")) {
+                return "";
+            }
             returnCode = json.getString("result");
         } catch (JSONException e) {
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
         return returnCode;
@@ -63,8 +67,12 @@ public class BaseData {
 
     public String getReturnMessage() {
         try {
+            if (json == null || json.isNull("message")) {
+                return "";
+            }
             returnMessage = json.getString("message");
         } catch (JSONException e) {
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
         return returnMessage;
@@ -79,8 +87,12 @@ public class BaseData {
 
     public int getTotal() {
         try {
+            if (json == null || json.isNull("total")) {
+                return 0;
+            }
             total = ConvertHelper.toInt(json.getString("total"), 0);
         } catch (JSONException e) {
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
         return total;
@@ -88,6 +100,9 @@ public class BaseData {
 
     public Boolean getDeleteFlag() {
         try {
+            if (json == null || json.isNull("deleteflag")) {
+                return false;
+            }
             String deleteFlagStr = json.getString("deleteflag");
             if ("0".equals(deleteFlagStr)) {
                 deleteFlag = false;
@@ -95,6 +110,7 @@ public class BaseData {
                 deleteFlag = true;
             }
         } catch (JSONException e) {
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
 
@@ -107,7 +123,8 @@ public class BaseData {
 
     public JSONArray getData() {
         try {
-            if (json.get("data") == null) {
+//            ZillionLog.i("json.isNull "+json.isNull("data"));
+            if (json == null || json.isNull("data") || json.get("data") == null) {
                 return null;
             }
             if (json.get("data") instanceof JSONArray) {
@@ -116,15 +133,19 @@ public class BaseData {
             return json.getJSONObject("data").getJSONArray("rows");
         } catch (JSONException e) {
 //            e.printStackTrace();
-            ZillionLog.e(e.getMessage());
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
         }
         return null;
     }
 
     public JSONArray getWsidData() {
         try {
+            if (json == null || json.isNull("data") || json.get("data") == null) {
+                return null;
+            }
             return ((JSONObject) json.getJSONArray("data").get(1)).getJSONArray("rows");
         } catch (JSONException e) {
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
         return null;
@@ -154,6 +175,7 @@ public class BaseData {
             try {
                 json.get(name);
             } catch (Exception ex) {
+                ZillionLog.e("BaseData fromJsonObjectToBean", ex.getMessage(), ex);
                 continue;
             }
             if (json.get(name) != null && !"".equals(json.getString(name))) {

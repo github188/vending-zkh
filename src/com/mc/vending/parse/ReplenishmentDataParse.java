@@ -19,6 +19,7 @@ import com.mc.vending.db.ReplenishmentHeadDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class ReplenishmentDataParse implements DataParseListener {
     private static ReplenishmentDataParse instance = null;
@@ -103,19 +104,23 @@ public class ReplenishmentDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>补货单/补货单状态更新/补化差异网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>补货单/补货单状态更新/补化差异网络请求数据异常!");
         }
 
     }
 
     @Override
     public void parseJson(BaseData baseData) {
+        
         if (Constant.HTTP_OPERATE_TYPE_UPDATESTATUS.equals(baseData.getOptType())) {// 3.24
                                                                                     // 补货单状态更新
             if (!baseData.isSuccess()) {
                 baseData = null;
                 return;
             }
+//            if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+//                return ;
+//            }
             List<ReplenishmentHeadData> datas = (List<ReplenishmentHeadData>) baseData.getUserObject();
             if (datas.isEmpty()) {
                 baseData = null;
@@ -125,7 +130,7 @@ public class ReplenishmentDataParse implements DataParseListener {
             if (_flag) {
                 Log.i("[replenishment]:", "======>>>>>补货单状态更新上传状态批量更新成功!" + datas.size());
             } else {
-                Log.i("[replenishment]:", "==========>>>>>补货单状态更新上传状态批量更新失败!");
+                ZillionLog.e("[replenishment]:", "==========>>>>>补货单状态更新上传状态批量更新失败!");
             }
             // System.out.println("=========>>" +
             // replenishmentHeadDbOper.findAll());
@@ -144,7 +149,7 @@ public class ReplenishmentDataParse implements DataParseListener {
             if (flag_) {
                 Log.i("[replenishment]:", "======>>>>>补货差异上传状态批量更新成功!" + datas.size());
             } else {
-                Log.i("[replenishment]:", "==========>>>>>补货差异上传状态批量更新失败!");
+                ZillionLog.e("[replenishment]:", "==========>>>>>补货差异上传状态批量更新失败!");
             }
             // System.out.println("--------->>" +
             // replenishmentDetailDbOper.findAll());
@@ -155,6 +160,12 @@ public class ReplenishmentDataParse implements DataParseListener {
                     this.listener.parseRequestFailure(baseData);
                 }
                 return;
+            }
+            if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+                if (listener != null) {
+                    listener.parseRequestFailure(baseData);
+                }
+                return ;
             }
             List<ReplenishmentHeadData> list = parse(baseData.getData());
             if (list.isEmpty()) {
@@ -193,7 +204,7 @@ public class ReplenishmentDataParse implements DataParseListener {
                     DataParseHelper parseHelper = new DataParseHelper(this);
                     parseHelper.sendLogVersion(list.get(0).getLogVersion());
                 } else {
-                    Log.i("[replenishment]:", "==========>>>>>补货单批量增加失败!");
+                    ZillionLog.e("[replenishment]:", "==========>>>>>补货单批量增加失败!");
                 }
             } else if (!updateList.isEmpty()) {
                 boolean flag_ = replenishmentHeadDbOper.batchUpdateReplenishmentHead(updateList);
@@ -202,7 +213,7 @@ public class ReplenishmentDataParse implements DataParseListener {
                     DataParseHelper parseHelper = new DataParseHelper(this);
                     parseHelper.sendLogVersion(list.get(0).getLogVersion());
                 } else {
-                    Log.i("[replenishment]:", "==========>>>>>补货单批量更新订单失败!");
+                    ZillionLog.e("[replenishment]:", "==========>>>>>补货单批量更新订单失败!");
                 }
             } else {
                 DataParseHelper parseHelper = new DataParseHelper(this);
@@ -308,7 +319,7 @@ public class ReplenishmentDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>补货单解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>补货单解析数据异常!");
         }
         return list;
     }

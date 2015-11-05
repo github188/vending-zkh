@@ -15,6 +15,7 @@ import com.mc.vending.db.ProductGroupPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class ProductGroupPowerDataParse implements DataParseListener {
     private static ProductGroupPowerDataParse instance = null;
@@ -49,7 +50,7 @@ public class ProductGroupPowerDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品组合权限网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品组合权限网络请求数据异常!");
         }
     }
 
@@ -60,6 +61,12 @@ public class ProductGroupPowerDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<ProductGroupPowerData> list = parse(baseData.getData());
@@ -79,7 +86,7 @@ public class ProductGroupPowerDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[productGroupPower]:", "==========>>>>>产品组合权限批量增加失败!");
+                ZillionLog.e("[productGroupPower]:", "==========>>>>>产品组合权限批量增加失败!");
             }
         }
 
@@ -134,7 +141,7 @@ public class ProductGroupPowerDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品组合权限解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品组合权限解析数据异常!");
         }
         return list;
     }

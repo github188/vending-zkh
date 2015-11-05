@@ -14,6 +14,7 @@ import com.mc.vending.data.CustomerData;
 import com.mc.vending.db.CustomerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class CustomerDataParse implements DataParseListener {
     private static CustomerDataParse instance = null;
@@ -48,7 +49,7 @@ public class CustomerDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>客户网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>客户网络请求数据异常!");
         }
     }
 
@@ -59,6 +60,12 @@ public class CustomerDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData()==null  || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<CustomerData> list = parse(baseData.getData());
@@ -78,7 +85,7 @@ public class CustomerDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[customer]:", "客户批量增加失败!");
+                ZillionLog.e("[customer]:", "客户批量增加失败!");
             }
         }
         // System.out.println(customerDbOper.findAll());
@@ -134,7 +141,7 @@ public class CustomerDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>客户解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>客户解析数据异常!");
         }
         return list;
     }

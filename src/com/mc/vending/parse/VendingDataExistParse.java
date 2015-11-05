@@ -3,11 +3,10 @@ package com.mc.vending.parse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.mc.vending.data.BaseData;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 售货机数据请求与解析
@@ -76,7 +75,7 @@ public class VendingDataExistParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机存在请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机存在请求数据异常!");
         }
     }
 
@@ -103,7 +102,7 @@ public class VendingDataExistParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机验证存在异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机验证存在异常!");
         }
         return flag;
     }

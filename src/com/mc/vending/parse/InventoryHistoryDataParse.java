@@ -11,6 +11,7 @@ import com.mc.vending.data.BaseData;
 import com.mc.vending.data.InventoryHistoryData;
 import com.mc.vending.db.InventoryHistoryDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class InventoryHistoryDataParse implements DataParseListener {
     private static InventoryHistoryDataParse instance = null;
@@ -62,7 +63,7 @@ public class InventoryHistoryDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "==========>>>>>盘点交易记录网络请求异常!");
+            ZillionLog.e(this.getClass().toString(), "==========>>>>>盘点交易记录网络请求异常!");
         }
     }
 
@@ -72,6 +73,9 @@ public class InventoryHistoryDataParse implements DataParseListener {
             baseData = null;
             return;
         }
+//        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+//            return ;
+//        }
         List<InventoryHistoryData> datas = (List<InventoryHistoryData>) baseData.getUserObject();
         if (datas.isEmpty()) {
             baseData = null;
@@ -82,7 +86,7 @@ public class InventoryHistoryDataParse implements DataParseListener {
             Log.i("[inventoryHistory]:",
                 "==========>>>>>盘点交易记录上传状态批量更新成功!" + "========" + datas.size());
         } else {
-            Log.i("[inventoryHistory]:", "盘点交易记录上传状态批量更新失败!");
+            ZillionLog.e("[inventoryHistory]:", "盘点交易记录上传状态批量更新失败!");
         }
         baseData = null;
     }

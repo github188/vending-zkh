@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.mc.vending.data.ReplenishmentDetailData;
-import com.zillionstar.tools.L;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 补货单从表　操作类
@@ -59,7 +59,6 @@ public class ReplenishmentDetailDbOper {
         List<ReplenishmentDetailData> list = new ArrayList<ReplenishmentDetailData>();
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         String sql = "SELECT * FROM ReplenishmentDetail WHERE RH2_RH1_ID=? ORDER BY RH2_VC1_CODE ASC ";
-        L.v("query " + sql + rh1Id);
         Cursor c = db.rawQuery(sql, new String[] { rh1Id });
         while (c.moveToNext()) {
             ReplenishmentDetailData replenishmentDetail = new ReplenishmentDetailData();
@@ -82,8 +81,6 @@ public class ReplenishmentDetailDbOper {
             list.add(replenishmentDetail);
         }
 
-        L.v("list " + list);
-        
         return list;
     }
 
@@ -133,6 +130,7 @@ public class ReplenishmentDetailDbOper {
             flag = true;
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
@@ -192,6 +190,7 @@ public class ReplenishmentDetailDbOper {
             flag = true;
         } catch (SQLException e) {
             // 结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }

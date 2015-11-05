@@ -13,6 +13,7 @@ import com.mc.vending.data.UsedRecordData;
 import com.mc.vending.db.StockTransactionDbOper;
 import com.mc.vending.db.UsedRecordDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class UsedRecordUploadDataParse implements DataParseListener {
     private static UsedRecordUploadDataParse instance = null;
@@ -49,7 +50,7 @@ public class UsedRecordUploadDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>库存交易记录网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>库存交易记录网络请求数据异常!");
         }
     }
 
@@ -60,6 +61,9 @@ public class UsedRecordUploadDataParse implements DataParseListener {
             baseData = null;
             return;
         }
+//        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+//            return ;
+//        }
         List<StockTransactionData> datas = (List<StockTransactionData>) baseData.getUserObject();
         if (datas.isEmpty()) {
             baseData = null;
@@ -69,7 +73,7 @@ public class UsedRecordUploadDataParse implements DataParseListener {
         if (flag) {
             Log.i("[stockTransaction]:", "======>>>>>库存交易记录上传状态批量更新成功!" + datas.size());
         } else {
-            Log.i("[stockTransaction]:", "==========>>>>库存交易记录上传状态批量增加失败!");
+            ZillionLog.e("[stockTransaction]:", "==========>>>>库存交易记录上传状态批量增加失败!");
         }
         baseData = null;
     }

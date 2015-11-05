@@ -15,7 +15,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.TrafficStats;
 import android.os.IBinder;
 
-import com.zillionstar.tools.ZillionLog;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * @author Forever

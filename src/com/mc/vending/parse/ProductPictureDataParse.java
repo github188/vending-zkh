@@ -16,6 +16,7 @@ import com.mc.vending.data.ProductPictureData;
 import com.mc.vending.db.ProductPictureDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class ProductPictureDataParse implements DataParseListener {
     private static ProductPictureDataParse instance = null;
@@ -51,7 +52,7 @@ public class ProductPictureDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品图片网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品图片网络请求数据异常!");
         }
     }
 
@@ -62,6 +63,12 @@ public class ProductPictureDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 增量
         List<ProductPictureData> list = parse(baseData.getData());
@@ -94,7 +101,7 @@ public class ProductPictureDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[productPicture]:", "==========>>>>>产品图片批量增加失败!");
+                ZillionLog.e("[productPicture]:", "==========>>>>>产品图片批量增加失败!");
             }
         } else if (!updateList.isEmpty()) {
             boolean flag_ = productPictureDbOper.batchUpdateProductPicture(updateList);
@@ -103,7 +110,7 @@ public class ProductPictureDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[productPicture]:", "==========>>>>>产品图片批量更新失败!");
+                ZillionLog.e("[productPicture]:", "==========>>>>>产品图片批量更新失败!");
             }
         } else {
             DataParseHelper parseHelper = new DataParseHelper(this);
@@ -152,7 +159,7 @@ public class ProductPictureDataParse implements DataParseListener {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>产品图片解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>产品图片解析数据异常!");
         }
         return list;
     }

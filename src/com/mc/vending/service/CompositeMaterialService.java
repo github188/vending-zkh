@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import android.util.Log;
-
 import com.mc.vending.data.ChnStockWrapperData;
 import com.mc.vending.data.ProductGroupHeadData;
 import com.mc.vending.data.ProductGroupHeadWrapperData;
@@ -27,6 +25,7 @@ import com.mc.vending.tools.BusinessException;
 import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
 
 public class CompositeMaterialService extends BasicService {
 
@@ -54,11 +53,12 @@ public class CompositeMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(list);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询售货机产品组合列表发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>查询售货机产品组合列表发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询售货机产品组合列表发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>查询售货机产品组合列表发生异常!");
@@ -144,11 +144,12 @@ public class CompositeMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(productGroupHeadWrapperData);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询产品组合明细发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>查询产品组合明细发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>查询产品组合明细发生异常",e);
             e.printStackTrace();
             result.setSuccess(false);
             result.setCode("0");
@@ -221,11 +222,12 @@ public class CompositeMaterialService extends BasicService {
             result.setSuccess(true);
             result.setResult(true);
         } catch (BusinessException be) {
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查产品组合权限逻辑发生异常",be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            Log.i(this.getClass().toString(), "======>>>>检查产品组合权限逻辑发生异常");
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查产品组合权限逻辑发生异常",e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>检查产品组合权限逻辑发生异常!");

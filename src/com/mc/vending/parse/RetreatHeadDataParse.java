@@ -15,6 +15,7 @@ import com.mc.vending.data.RetreatDetailData;
 import com.mc.vending.data.RetreatHeadData;
 import com.mc.vending.db.RetreatHeadDbOper;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class RetreatHeadDataParse extends BaseDataParse {
     private DataParseRequestListener listener;
@@ -47,6 +48,12 @@ public class RetreatHeadDataParse extends BaseDataParse {
             }
             return;
         }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
+        }
         // 增量
         List<RetreatHeadData> list = parse(baseData.getData());
 
@@ -76,7 +83,7 @@ public class RetreatHeadDataParse extends BaseDataParse {
                 Log.i("[ReturnForward]:", "======>>>>>批量增加成功!" + "==========" + list.size());
                 callBackLogversion(list.get(0));
             } else {
-                Log.i("[ReturnForward]:", "==========>>>>>批量增加失败!");
+                ZillionLog.e("[ReturnForward]:", "==========>>>>>批量增加失败!");
             }
         } else if (!updateList.isEmpty()) {
             // 批量增加
@@ -85,7 +92,7 @@ public class RetreatHeadDataParse extends BaseDataParse {
                 Log.i("[ReturnForward]:", "======>>>>>批量更新成功!" + "==========" + list.size());
                 callBackLogversion(list.get(0));
             } else {
-                Log.i("[ReturnForward]:", "==========>>>>>批量更新失败!");
+                ZillionLog.e("[ReturnForward]:", "==========>>>>>批量更新失败!");
             }
         } else {
 
@@ -112,7 +119,7 @@ public class RetreatHeadDataParse extends BaseDataParse {
             helper.requestSubmitServer(optType, json, requestURL, rowCount);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>退货单网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>退货单网络请求数据异常!");
         }
     }
 

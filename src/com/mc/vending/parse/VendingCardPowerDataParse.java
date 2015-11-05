@@ -14,6 +14,7 @@ import com.mc.vending.data.VendingCardPowerData;
 import com.mc.vending.db.VendingCardPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class VendingCardPowerDataParse implements DataParseListener {
     private static VendingCardPowerDataParse instance = null;
@@ -48,7 +49,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机卡/密码权限网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机卡/密码权限网络请求数据异常!");
         }
     }
 
@@ -59,6 +60,12 @@ public class VendingCardPowerDataParse implements DataParseListener {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<VendingCardPowerData> list = parse(baseData.getData());
@@ -78,7 +85,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[vendingCardPower]:", "==========>>>>>售货机卡/密码权限批量增加失败!");
+                ZillionLog.e("[vendingCardPower]:", "==========>>>>>售货机卡/密码权限批量增加失败!");
             }
         }
 
@@ -127,7 +134,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>售货机卡/密码权限解析数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>售货机卡/密码权限解析数据异常!");
         }
         return list;
     }

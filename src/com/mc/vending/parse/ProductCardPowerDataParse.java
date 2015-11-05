@@ -14,6 +14,7 @@ import com.mc.vending.data.ProductCardPowerData;
 import com.mc.vending.db.ProductCardPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.tools.ZillionLog;
 
 public class ProductCardPowerDataParse implements DataParseListener {
     private static ProductCardPowerDataParse instance = null;
@@ -41,7 +42,7 @@ public class ProductCardPowerDataParse implements DataParseListener {
      * 网络请求,下载数据
      */
     public void requestProductCardPowerData(String optType, String requestURL, String vendingId) {
-        Log.i(this.getClass().getName(), vendingId);
+//        Log.i(this.getClass().getName(), vendingId);
         JSONObject json = new JSONObject();
         try {
             json.put("VD1_ID", vendingId);
@@ -49,18 +50,24 @@ public class ProductCardPowerDataParse implements DataParseListener {
             helper.requestSubmitServer(optType, json, requestURL);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>卡与产品权限网络请求数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>卡与产品权限网络请求数据异常!");
         }
     }
 
     @Override
     public void parseJson(BaseData baseData) {
-        Log.i(this.getClass().getName(), baseData.toString());
+//        Log.i(this.getClass().getName(), baseData.toString());
         if (!baseData.isSuccess()) {
             if (this.listener != null) {
                 this.listener.parseRequestFailure(baseData);
             }
             return;
+        }
+        if (baseData==null || baseData.getData() == null || baseData.getData().length()==0) {
+            if (listener != null) {
+                listener.parseRequestFailure(baseData);
+            }
+            return ;
         }
         // 全表
         List<ProductCardPowerData> list = parse(baseData.getData());
@@ -78,14 +85,14 @@ public class ProductCardPowerDataParse implements DataParseListener {
         }
         boolean deleteFlag = cardDbOper.batchDeleteVendingCard(dbPra);
         if (deleteFlag) {
-            Log.i("[ProductCardPower]:", "卡与产品权限批量删除成功!" + "======" + dbPra);
+            Log.i("[ProductCardPower]:", "卡与产品权限批量删除成功!" );
             boolean addFlag = cardDbOper.batchAddProductCardPower(list);
             if (addFlag) {
                 Log.i("[ProductCardPower]:", "卡与产品权限批量增加成功!" + "======" + list.size());
                 DataParseHelper parseHelper = new DataParseHelper(this);
                 parseHelper.sendLogVersion(list.get(0).getLogVersion());
             } else {
-                Log.i("[ProductCardPower]:", "卡与产品权限批量增加失败!");
+                ZillionLog.e("[ProductCardPower]:", "卡与产品权限批量增加失败!");
             }
         }
         // System.out.println(cardDbOper.findAll());
@@ -143,7 +150,7 @@ public class ProductCardPowerDataParse implements DataParseListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i(this.getClass().toString(), "======>>>>>卡与产品权限解析网络数据异常!");
+            ZillionLog.e(this.getClass().toString(), "======>>>>>卡与产品权限解析网络数据异常!");
         }
         return list;
     }

@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.mc.vending.data.VendingPictureData;
+import com.mc.vending.tools.ZillionLog;
 
 /**
  * 售货机　操作类
@@ -127,6 +128,7 @@ public class VendingPictureDbOper {
             flag = true;
         } catch (SQLException e) {
             //结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
@@ -153,6 +155,7 @@ public class VendingPictureDbOper {
             flag = true;
         } catch (SQLException e) {
             //结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
             db.endTransaction();
             e.printStackTrace();
         }
