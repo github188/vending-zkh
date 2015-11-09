@@ -47,6 +47,7 @@
             android:background="@null"
             android:singleLine="true" 
             android:hint="@string/placeholder_server_url"
+            android:text="http://192.168.0.101:8061/wsrr.ashx"
             android:textSize="25sp" />
 <!--             
 android:text="http://203.110.179.35:8061/wsrr.ashx" 
@@ -79,6 +80,7 @@ android:text="http://203.110.179.35:8061/wsrr.ashx"
             android:layout_marginTop="30dp"
             android:background="@null"
             android:hint="@string/placeholder_vend_code"
+            android:text="e2a015v"
             android:textSize="25sp" />
 <!--             
 android:text="E2A017V" 

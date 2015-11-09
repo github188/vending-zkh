@@ -132,10 +132,10 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         dataList.add(getResources().getString(R.string.set_returns_forward_list));
         dataList.add(getResources().getString(R.string.set_returns_reverse));
         dataList.add(getResources().getString(R.string.set_pick_test));
-        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
-        } else {
+//        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+//        } else {
             dataList.add(getResources().getString(R.string.set_synchronous_stock));
-        }
+//        }
         dataList.add(getResources().getString(R.string.set_synchronous));
         dataList.add(getResources().getString(R.string.set_init));
         dataList.add(getResources().getString(R.string.set_finish));
@@ -174,18 +174,20 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                     setPickTest();
                     break;
                 case 7:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
-                        setSynchronous();
-                    }else {
-                        setSynchronousStock();
-                    }
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+//                        setSynchronous();
+//                    }else {
+//                        setSynchronousStock();
+//                    }
+                	setSynchronousStock();
                     break;
                 case 8:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
-                        setInit();
-                    }else {
-                        setSynchronous();
-                    }
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+//                        setInit();
+//                    }else {
+//                        setSynchronous();
+//                    }
+                	setSynchronous();
                     break;
                 case 9:
                     if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {

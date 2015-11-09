@@ -128,6 +128,7 @@ public class Constant {
     public final static String              METHOD_WSID_PRODUCTCARDPOWER                 = "610cc826-5da6-4d94-83e2-2b839f5a0299"; // 3.41卡产品权限
     public final static String              METHOD_WSID_USEDRECORD                       = "c3d76872-6905-4231-821f-67f575cf0e07"; // 3.42卡产品领用
     public final static String              METHOD_WSID_VENDINGRUNERROR                  = "564000F1-D704-476B-8E1B-D0218668B712"; // 3.43错误日志
+    public final static String 				METHOD_WSID_CONVERSION						 = "B090547D-CF3A-4F71-8121-1E22C8B7D093"; //单位换算关系表	
     // APP接口调用返回
     // 接口返回状态
     public final static String              RETURNCODE_SUCCESS                           = "0";                                   // 成功
@@ -211,6 +212,7 @@ public class Constant {
                                                                                                          "卡产品领用接口");
                                                                                                  put(METHOD_WSID_PRODUCTCARDPOWER,
                                                                                                          "卡产品权限接口");
+                                                                                                 put(METHOD_WSID_CONVERSION,"单位换算关系");
                                                                                              }
                                                                                          };
 

@@ -28,8 +28,8 @@ public class SerialTools {
 
 //    private static final String        PortName_mVender          = "/dev/ttyO2";          // 售货机
 //    private static final String        PortName_mRFIDReader      = "/dev/ttyO6";          // 读卡器
-//    private static final String        PortName_mKeyBoard        = "/dev/ttyO7";          // 键盘
-//    private static final String        PortName_mStore           = "/dev/ttyO5";          // 格子机
+//    private static final String        PortName_mKeyBoard        = "/dev/ttyO5";          // 键盘
+//    private static final String        PortName_mStore           = "/dev/ttyO8";          // 格子机
 
     
     public static final int            MESSAGE_LOG_mKeyBoard     = 1;                     // 键盘
@@ -64,7 +64,7 @@ public class SerialTools {
     public static final String         FUNCTION_KEY_COMBINATION  = "50";                  // 组合
     public static final String         FUNCTION_KEY_BORROW       = "23";                  // 借
     public static final String         FUNCTION_KEY_BACK         = "2A";                  // 还
-    public static final String         FUNCTION_KEY_SET          = "08";                  // 设置
+    public static final String         FUNCTION_KEY_SET          = "20";                  // 设置
     public static final String         FUNCTION_KEY_CANCEL       = "1B";                  // 取消
     public static final String         FUNCTION_KEY_CONFIRM      = "0D";                  // 确认
 

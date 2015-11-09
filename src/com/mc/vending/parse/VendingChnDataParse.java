@@ -132,6 +132,7 @@ public class VendingChnDataParse implements DataParseListener {
                 data.setVc1ColumnNum(jsonObj.getString("VC1_ColumnNum"));
                 data.setVc1Height(jsonObj.getString("VC1_Height"));
                 data.setLogVersion(jsonObj.getString("LogVision"));
+                data.setVc1Cn1Id(jsonObj.getString("VC1_CN1_ID"));
                 data.setVc1CreateUser(createUser);
                 data.setVc1CreateTime(createTime);
                 data.setVc1ModifyUser(modifyUser);
