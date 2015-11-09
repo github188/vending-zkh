@@ -10,8 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.InterfaceData;
@@ -22,6 +20,8 @@ import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.zillionstar.tools.L;
 import com.zillionstar.tools.ZillionLog;
+
+import android.util.Log;
 
 /**
  * 售货机数据请求与解析
@@ -230,6 +230,7 @@ public class VendingDataParse implements DataParseListener {
                 UsedRecordDownloadDataParse parse = new UsedRecordDownloadDataParse();
                 parse.requestUsedRecordData(Constant.HTTP_OPERATE_TYPE_GETDATA,
                         Constant.METHOD_WSID_USEDRECORD, vendingId);
+            }else if(wsid.equals(Constant.METHOD_WSID_CONVERSION)){
             }
         }
     }

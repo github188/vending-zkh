@@ -233,8 +233,8 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 	private void goNormalPickAcitivity() {
 		Intent intent = new Intent();
 		intent.putExtra("vendCode", vendCode);
-		// intent.setClass(MainActivity.this,MC_NormalPickActivity.class);
-		intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
+		 intent.setClass(MainActivity.this,MC_NormalPickActivity.class);
+//		intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
 		startActivity(intent);
 		finish();
 	}

@@ -23,11 +23,11 @@ public class SerialTools {
 	private static Map<String, String> keymap = null;
 
 	private static final String TAG = "MainActivity";
-	// private static final String PortName_mVender = "/dev/ttyS0"; // 售货机
-	// private static final String PortName_mRFIDReader = "/dev/ttyS1"; // 读卡器
-	// private static final String PortName_mKeyBoard = "/dev/ttyS2"; // 键盘
-	// private static final String PortName_mStore = "/dev/ttyS4"; // 格子机
-	// private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块 added by
+//	 private static final String PortName_mVender = "/dev/ttyS0"; // 售货机
+//	 private static final String PortName_mRFIDReader = "/dev/ttyS1"; // 读卡器
+//	 private static final String PortName_mKeyBoard = "/dev/ttyS2"; // 键盘
+//	 private static final String PortName_mStore = "/dev/ttyS4"; // 格子机
+//	 private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块 added by
 	// junjie.you
 
 	private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
