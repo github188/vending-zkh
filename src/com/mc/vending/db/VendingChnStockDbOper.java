@@ -198,7 +198,10 @@ public class VendingChnStockDbOper {
 
     public Boolean batchUpdateVendingChnStock(List<VendingChnStockData> list) {
         boolean flag = false;
-        String updateSql = "UPDATE VendingChnStock SET VS1_Quantity = VS1_Quantity + ? WHERE VS1_VD1_ID = ? and VS1_VC1_CODE = ?  and VS1_PD1_ID = ? ";
+        String updateSql = "UPDATE VendingChnStock SET VS1_Quantity = VS1_Quantity + ? ,VS1_PD1_ID = ?"
+                + "WHERE VS1_VD1_ID = ? and VS1_VC1_CODE = ?";
+//        String updateSql = "UPDATE VendingChnStock SET VS1_Quantity = VS1_Quantity + ? "
+//                + "WHERE VS1_VD1_ID = ? and VS1_VC1_CODE = ?  and VS1_PD1_ID = ? ";
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         try {
             //开启事务
@@ -206,9 +209,9 @@ public class VendingChnStockDbOper {
             for (VendingChnStockData vendingChnStock : list) {
                 SQLiteStatement stat = db.compileStatement(updateSql);
                 stat.bindLong(1, vendingChnStock.getVs1Quantity());
-                stat.bindString(2, vendingChnStock.getVs1Vd1Id());
-                stat.bindString(3, vendingChnStock.getVs1Vc1Code());
-                stat.bindString(4, vendingChnStock.getVs1Pd1Id());
+                stat.bindString(2, vendingChnStock.getVs1Pd1Id());
+                stat.bindString(3, vendingChnStock.getVs1Vd1Id());
+                stat.bindString(4, vendingChnStock.getVs1Vc1Code());
                 stat.executeUpdateDelete();
             }
             //数据插入成功，设置事物成功标志  
@@ -234,7 +237,8 @@ public class VendingChnStockDbOper {
      * @return
      */
     public Boolean updateStockQuantity(int inputQty, VendingChnData vendingChn) {
-        String updateSql = "UPDATE VendingChnStock SET VS1_Quantity = VS1_Quantity + ? WHERE VS1_VD1_ID = ? and VS1_VC1_CODE = ? and VS1_PD1_ID = ? ";
+        String updateSql = "UPDATE VendingChnStock SET VS1_Quantity = VS1_Quantity + ? "
+                + "WHERE VS1_VD1_ID = ? and VS1_VC1_CODE = ? and VS1_PD1_ID = ? ";
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         SQLiteStatement stat = db.compileStatement(updateSql);
         stat.bindLong(1, inputQty);

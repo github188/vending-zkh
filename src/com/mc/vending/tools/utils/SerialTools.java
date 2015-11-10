@@ -64,7 +64,7 @@ public class SerialTools {
     public static final String         FUNCTION_KEY_COMBINATION  = "50";                  // 组合
     public static final String         FUNCTION_KEY_BORROW       = "23";                  // 借
     public static final String         FUNCTION_KEY_BACK         = "2A";                  // 还
-    public static final String         FUNCTION_KEY_SET          = "20";                  // 设置
+    public static final String         FUNCTION_KEY_SET          = "08";                  // 设置
     public static final String         FUNCTION_KEY_CANCEL       = "1B";                  // 取消
     public static final String         FUNCTION_KEY_CONFIRM      = "0D";                  // 确认
 

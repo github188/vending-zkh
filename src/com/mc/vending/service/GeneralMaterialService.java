@@ -1,7 +1,10 @@
 package com.mc.vending.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.mc.vending.data.CardData;
 import com.mc.vending.data.ConversionData;
@@ -134,10 +137,13 @@ public class GeneralMaterialService extends BasicService {
 	private void handlerMaterialPower(String vendingId, String skuId, String cusId, String vc2Id, int inputQty,
 			String vendingChnCode, String cardId) {
 		boolean isPackageChn = false;
+		boolean isBasicPckChn = false;
+		Map<String, Object> cpIdWithScaleList = new HashMap<String, Object>();
 		int preInputQty = 0;
 		int scale = 1;
 		String operation = "包";
 		vc2Id = StringHelper.nullSafeString(vc2Id).trim();
+		String preSkuId = skuId;
 
 		// f) 根据”售货机卡/密码权限.ID”查询“产品领料权限“表： 如果记录数＝0，继续跳过
 		ProductMaterialPowerDbOper productMaterialPowerDbOper = new ProductMaterialPowerDbOper();
@@ -155,9 +161,13 @@ public class GeneralMaterialService extends BasicService {
 			inputQty = inputQty * scale;// 将用户输入的取货量乘以该货到所代表的“基础物品”的倍数
 			operation = StringHelper.isEmpty(conversionData.getCn1Operation()) ? "包" : conversionData.getCn1Operation();
 			isPackageChn = true;
-			// 最终结果要进行单位换算
 			// modified by junjie.you
 		}
+		cpIdWithScaleList = conversionDbOper.findConversionByUpid(skuId);// 根据"基础产品ID"查询"单位换算关系表"中有无该产品的换算关系
+		if (cpIdWithScaleList != null) {
+			isBasicPckChn = true;
+		}
+
 		if (!list.contains(skuId)) {
 			throw new BusinessException("输入的卡号或密码无权限领料，请重新输入！");
 		}
@@ -191,15 +201,33 @@ public class GeneralMaterialService extends BasicService {
 						String dateStr = DateHelper.format(date, "yyyy-MM-dd HH:mm:ss");
 						try {
 							UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-							transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId, dateStr);
-							transQtyTotal = transQtyTotal * -1;
 							StockTransactionDbOper stockTransactionDb = new StockTransactionDbOper();
-							int transQtyTotal1 = stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
+							int transQtyTotal1 = 0;
+							// 1.无论如何都要拿一遍基础的领料个数
+							transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId, dateStr);
+							transQtyTotal1 = stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
 									vendingId, skuId, vendingChnCode, dateStr, cardId);
+							// 2.如果该基础sku有对应的关联sku，则遍历查询是否有关联sku领料记录，如果有就直接转换为基础sku的个数
+							if (cpIdWithScaleList != null) {
+								// 查询该卡领取该货道的交易数据
+								for (Entry<String, Object> entry : cpIdWithScaleList.entrySet()) {
+									// 键：关联产品SKU
+									// 值：对应的倍率
+									String innerCpId = entry.getKey();
+									int innerScale = ConvertHelper.toInt(entry.getValue(), 1);
+									transQtyTotal = transQtyTotal
+											+ (usedRecordDbOper.getTransQtyCount(cardId, innerCpId, dateStr)
+													* innerScale);
+									transQtyTotal1 = transQtyTotal1
+											+ (stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
+													vendingId, innerCpId, vendingChnCode, dateStr, cardId)
+											* innerScale);
+								}
+							}
+							transQtyTotal = transQtyTotal * -1;
 							if (transQtyTotal1 < transQtyTotal) {
 								transQtyTotal = transQtyTotal1;
 							}
-
 						} catch (Exception e) {
 							ZillionLog.e(this.getClass().toString(), "产品领料权限检查错误", e);
 							// L.e(e.getMessage());
@@ -207,7 +235,6 @@ public class GeneralMaterialService extends BasicService {
 							throw new BusinessException("产品领料权限检查错误,库存交易记录数：" + transQtyTotal);
 						}
 					}
-
 					int total = transQtyTotal * (-1);
 					if (inputQty > periodQty) {
 						if (isPackageChn) {
@@ -218,13 +245,8 @@ public class GeneralMaterialService extends BasicService {
 						}
 					}
 					if (total + inputQty > periodQty) {
-						if (isPackageChn) {
-							throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total * scale + "("
-									+ preInputQty + operation + ")" + "，不允许超领！");
-						} else {
+						
 							throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
-						}
-
 					}
 				}
 			} else {
