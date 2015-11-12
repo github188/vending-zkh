@@ -144,6 +144,19 @@ public class Constant {
 	public static final int REQUEST_TIMEOUT = 30 * 1000; // 设置请求超时10秒钟
 	public static final int SO_TIMEOUT = 30 * 1000; // 设置等待数据超时时间10秒钟
 
+	/**
+	 * 获得称重模块重量
+	 */
+	public static final int FW_GET_WEIGHT = 0;
+	/**
+	 * 称重模块-置零
+	 */
+	public static final int FW_SET_ZERO = 1;
+	/**
+	 * 称重模块-去皮
+	 */
+	public static final int FW_NET_WEIGHT = 2;
+
 	public final static Map<String, String> WSIDNAMEMAP = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 

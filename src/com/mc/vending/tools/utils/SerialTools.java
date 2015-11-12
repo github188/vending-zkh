@@ -7,6 +7,7 @@ import java.util.Timer;
 
 import com.mc.vending.activitys.pick.MC_CombinationPickDetailActivity;
 import com.mc.vending.activitys.pick.MC_WeightPickActivity;
+import com.mc.vending.config.Constant;
 import com.mc.vending.db.VendingDbOper;
 import com.zillion.evm.jssc.SerialPort;
 import com.zillion.evm.jssc.SerialPortEvent;
@@ -23,18 +24,17 @@ public class SerialTools {
 	private static Map<String, String> keymap = null;
 
 	private static final String TAG = "MainActivity";
-//	 private static final String PortName_mVender = "/dev/ttyS0"; // 售货机
-//	 private static final String PortName_mRFIDReader = "/dev/ttyS1"; // 读卡器
-//	 private static final String PortName_mKeyBoard = "/dev/ttyS2"; // 键盘
-//	 private static final String PortName_mStore = "/dev/ttyS4"; // 格子机
-//	 private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块 added by
+	// private static final String PortName_mVender = "/dev/ttyS0"; // 售货机
+	// private static final String PortName_mRFIDReader = "/dev/ttyS1"; // 读卡器
+	// private static final String PortName_mKeyBoard = "/dev/ttyS2"; // 键盘
+	// private static final String PortName_mStore = "/dev/ttyS4"; // 格子机
+	// private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块 added by
 	// junjie.you
 
 	private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
 	private static final String PortName_mKeyBoard = "/dev/ttyO5"; // 键盘
 	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
-	// private static final String PortName_mFw = "/dev/ttyUSB20"; // 称重模块
 	private static final String PortName_mFw = "/dev/ttyO7"; // 称重模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
@@ -427,7 +427,7 @@ public class SerialTools {
 	 *            称重模块ID号
 	 * @throws SerialPortException
 	 */
-	public void openFW(int pId) {
+	public void openFW(int pId, int pMethodType) {
 		ZillionLog.i("打开称重模块：", pId);
 		try {
 			if (mFw.isOpened() || mFw.openPort()) {
@@ -440,17 +440,26 @@ public class SerialTools {
 
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 
-				 if (mSendThread == null) {
-				 mSendThread = new SendThread();
-				 mSendThread.start();
-				 }
-				
-				 mSendThread.setResume(); // 线程唤醒，开始发送
+				if (mSendThread == null) {
+					mSendThread = new SendThread();
+					mSendThread.start();
+				}
 
-				 sendPortData(mFw, MyFunc.cmdOpenFW(pId), true); 
-				// 参数:设备类型，编号，门号
-				// ZillionLog.i("sendPortData", MyFunc.cmdOpenStoreDoor(a, b,
-				// c));
+				mSendThread.setResume(); // 线程唤醒，开始发送
+				switch (pMethodType) {
+				case Constant.FW_GET_WEIGHT:
+					sendPortData(mFw, MyFunc.cmdOpenFW(pId), true);
+					break;
+				case Constant.FW_NET_WEIGHT:
+					sendPortData(mFw, MyFunc.cmdNetWeightFW(pId), true);
+					break;
+				case Constant.FW_SET_ZERO:
+					sendPortData(mFw, MyFunc.cmdSetZeroFW(pId), true);
+					break;
+				default:
+					break;
+				}
+
 			}
 		} catch (SerialPortException e) {
 			ZillionLog.e("打开称重模块：", pId + " " + e.getExceptionType().toString());
@@ -475,13 +484,15 @@ public class SerialTools {
 		@Override
 		public void serialEvent(SerialPortEvent event) {
 			// TODO Auto-generated method stub
-//			Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " + event.getEventValue()+"EventType:"+event.getEventType());
+			// Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " +
+			// event.getEventValue()+"EventType:"+event.getEventType());
 			if (event.isRXCHAR()) {// If
 									// data
 									// is
 									// available
 				int obtain = 0;
-				Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " + event.getEventValue()+"EventType:"+event.getEventType());
+				Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " + event.getEventValue() + "EventType:"
+						+ event.getEventType());
 				if (event.getEventValue() > 0) {
 					try {
 						String data = null;
@@ -492,6 +503,7 @@ public class SerialTools {
 							data = mFw.readHexString(event.getEventValue());
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
 						}
+
 						Message m = Message.obtain(mHandler, obtain);
 						m.obj = data;
 						mHandler.sendMessage(m);
@@ -504,15 +516,15 @@ public class SerialTools {
 			} else if (event.isDSR()) { /* dsr */
 			}
 			try {
-//				SerialTools.getInstance().closeFW();
+				// SerialTools.getInstance().closeFW();
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			} 
-//			catch (SerialPortException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			}
+			// catch (SerialPortException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 		}
 
 	};
@@ -582,14 +594,7 @@ public class SerialTools {
 
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mFw:
-				if (toolsListener != null && toolsListener instanceof MC_WeightPickActivity) {
-					toolsListener.serialReturn((String) msg.obj, msg.what);
-
-				} else {
-					if (toolsListener != null) {
-						toolsListener.serialReturn((String) msg.obj, msg.what);
-					}
-				}
+				toolsListener.serialReturn((String) msg.obj, msg.what);
 				break;
 			case SerialTools.MESSAGE_LOG_mKeyBoard:
 				if (toolsListener != null && toolsListener instanceof MC_CombinationPickDetailActivity) {

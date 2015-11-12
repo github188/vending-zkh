@@ -27,34 +27,58 @@
             android:text="去皮" />
 
         <Button
-            android:id="@+id/btn_setZero"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/weight_listview_datalist"
-            android:text="置零" />
-
-        <Button
             android:id="@+id/btn_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/btn_noSkin"
+            android:layout_below="@id/weight_listview_datalist"
+            android:layout_toRightOf="@id/btn_noSkin"
             android:text="设置" />
+
+        <Button
+            android:id="@+id/btn_setZero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/weight_listview_datalist"
+            android:layout_toRightOf="@id/btn_setting"
+            android:text="置零" />
+
+        <Button
+            android:id="@+id/btn_exitWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/btn_setZero"
+            android:text="结束领料" />
 
         <Button
             android:id="@+id/btn_getWeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_below="@id/btn_setZero"
-            android:text="获取重量" />
+            android:layout_toLeftOf="@id/btn_exitWeight"
+            android:text="开始领料" />
+
+        <Button
+            android:id="@+id/btn_return"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_setZero"
+            android:layout_toLeftOf="@id/btn_getWeight"
+            android:text="开始补货" />
+
+        <Button
+            android:id="@+id/btn_clearlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_setZero"
+            android:layout_toLeftOf="@id/btn_return"
+            android:text="清屏" />
 
         <TextView
             android:id="@+id/tv_weight_a"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_setting"
+            android:layout_height="50dp"
+            android:layout_below="@id/btn_clearlist"
             android:text="托盘A" />
 
         <EditText
@@ -68,7 +92,7 @@
         <TextView
             android:id="@+id/tv_weight_b"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_weight_a"
             android:text="托盘B" />
@@ -84,7 +108,7 @@
         <TextView
             android:id="@+id/tv_weight_c"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_weight_b"
             android:text="托盘C" />
@@ -104,6 +128,14 @@
             android:layout_alignParentLeft="true"
             android:layout_below="@id/tv_weight_c"
             android:text="解锁" />
+
+        <Button
+            android:id="@+id/btn_setting_unit_zero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_weight_c"
+            android:layout_toRightOf="@id/btn_setting_unlock"
+            android:text="重置标量" />
 
         <Button
             android:id="@+id/btn_setting_lock"
