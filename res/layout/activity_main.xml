@@ -47,7 +47,11 @@
             android:background="@null"
             android:singleLine="true" 
             android:hint="@string/placeholder_server_url"
+<<<<<<< HEAD
             android:text="http://192.168.0.101:8061/WSRR.ashx"
+=======
+            android:text="http://172.16.18.202:8081/WSRR.ashx"
+>>>>>>> 745bc1cd8105c8d5705daa981dfd193e5c8901f0
             android:textSize="25sp" />
 <!--             
 android:text="http://203.110.179.35:8061/wsrr.ashx" 
@@ -76,7 +80,11 @@ android:text="http://203.110.179.35:8061/wsrr.ashx"
             android:layout_marginRight="50dp"
             android:layout_marginTop="30dp"
             android:background="@null"
+<<<<<<< HEAD
             android:text="e2a002v"
+=======
+            android:text="V0030"
+>>>>>>> 745bc1cd8105c8d5705daa981dfd193e5c8901f0
             android:hint="@string/placeholder_vend_code"
             android:textSize="25sp" />
 <!--             
