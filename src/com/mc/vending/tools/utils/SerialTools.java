@@ -36,6 +36,7 @@ public class SerialTools {
 	private static final String PortName_mKeyBoard = "/dev/ttyO5"; // 键盘
 	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
 	private static final String PortName_mFw = "/dev/ttyO7"; // 称重模块
+	private static final String PortName_mRD = "/dev/ttyO4"; // 测距模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
 	public static final int MESSAGE_LOG_mRFIDReader = 2; // 读卡器
@@ -44,6 +45,7 @@ public class SerialTools {
 	public static final int MESSAGE_LOG_mStore_check = 5; // 检查格子机
 	public static final int MESSAGE_LOG_mVender_check = 6; // 检查售货机
 	public static final int MESSAGE_LOG_mFw = 7; // 称重模块 added by junjie.you
+	public static final int MESSAGE_LOG_mRD = 8;// 测距模块 added by junjie.you
 	// 常用指令
 	public static final String cmdOpenKeyBoard = "02303234353033343403"; // 指令打开键盘
 	public static final String cmdCloseKeyBoard = "02303234353030343703"; // 指令关闭键盘
@@ -58,6 +60,7 @@ public class SerialTools {
 	private final SerialPort mStore; // 初始化格子机监听对象
 	private final SerialPort mVender; // 售货机对象监听
 	private final SerialPort mFw; // 初始化称重模块监听对象
+	private final SerialPort mRD; // 初始化测距模块监听对象
 	// 单例对象
 	private static SerialTools instance = null;
 	private Timer mStoreTimer;
@@ -111,6 +114,7 @@ public class SerialTools {
 		mStore = new SerialPort(PortName_mStore);// 初始化格子机监听对象
 		mVender = new SerialPort(PortName_mVender);
 		mFw = new SerialPort(PortName_mFw);// 初始化称重模块监听对象 added by junjie.you
+		mRD = new SerialPort(PortName_mRD);// 初始化测距模块监听对象 added by junjie.you
 
 	}
 
@@ -420,6 +424,47 @@ public class SerialTools {
 	}
 
 	/**
+	 * 打开测距模块
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            测距模块ID号
+	 * @throws SerialPortException
+	 */
+	public void openRD(int pId) {
+		ZillionLog.i("打开测距模块：", pId);
+		try {
+			if (mRD.isOpened() || mRD.openPort()) {
+				try {
+					mRD.addEventListener(mListener);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
+				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				sendPortData(mRD, MyFunc.cmdGetRangeDistance(pId), true);
+			}
+
+		} catch (SerialPortException e) {
+			ZillionLog.e("打开测距模块：", pId + " " + e.getExceptionType().toString());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 关闭测距模块
+	 * 
+	 * @throws SerialPortException
+	 */
+	public void closeRD() throws SerialPortException {
+
+		if (mRD.isOpened()) {
+			mRD.closePort();
+		}
+
+	}
+
+	/**
 	 * 打开静载称重模块
 	 * 
 	 * @author junjie.you
@@ -432,7 +477,7 @@ public class SerialTools {
 		try {
 			if (mFw.isOpened() || mFw.openPort()) {
 				try {
-					mFw.addEventListener(mFWlistener);
+					mFw.addEventListener(mListener);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -440,12 +485,12 @@ public class SerialTools {
 
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 
-//				if (mSendThread == null) {
-//					mSendThread = new SendThread();
-//					mSendThread.start();
-//				}
+				// if (mSendThread == null) {
+				// mSendThread = new SendThread();
+				// mSendThread.start();
+				// }
 
-//				mSendThread.setResume(); // 线程唤醒，开始发送
+				// mSendThread.setResume(); // 线程唤醒，开始发送
 				switch (pMethodType) {
 				case Constant.FW_GET_WEIGHT:
 					sendPortData(mFw, MyFunc.cmdOpenFW(pId), true);
@@ -479,13 +524,11 @@ public class SerialTools {
 		}
 	}
 
-	private SerialPortEventListener mFWlistener = new SerialPortEventListener() {
+	private SerialPortEventListener mListener = new SerialPortEventListener() {
 
 		@Override
 		public void serialEvent(SerialPortEvent event) {
 			// TODO Auto-generated method stub
-			// Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " +
-			// event.getEventValue()+"EventType:"+event.getEventType());
 			if (event.isRXCHAR()) {// If
 									// data
 									// is
@@ -502,8 +545,13 @@ public class SerialTools {
 							obtain = SerialTools.MESSAGE_LOG_mFw;
 							data = mFw.readHexString(event.getEventValue());
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
+						} else if (PortName_mRD.equals(event.getPortName())) {
+							// by
+							// junjie.you
+							obtain = SerialTools.MESSAGE_LOG_mRD;
+							data = mRD.readHexString(event.getEventValue());
+							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
 						}
-
 						Message m = Message.obtain(mHandler, obtain);
 						m.obj = data;
 						mHandler.sendMessage(m);
@@ -516,17 +564,11 @@ public class SerialTools {
 			} else if (event.isDSR()) { /* dsr */
 			}
 			try {
-				// SerialTools.getInstance().closeFW();
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			// catch (SerialPortException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
 		}
-
 	};
 	/**
 	 * 返回数据监听
@@ -591,8 +633,8 @@ public class SerialTools {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-
 			switch (msg.what) {
+			case SerialTools.MESSAGE_LOG_mRD:
 			case SerialTools.MESSAGE_LOG_mFw:
 				toolsListener.serialReturn((String) msg.obj, msg.what);
 				break;

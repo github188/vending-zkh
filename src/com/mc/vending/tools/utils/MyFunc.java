@@ -9,6 +9,8 @@ import com.zillionstar.tools.ZillionLog;
  */
 public class MyFunc {
 	public final static String BlankStr = " ";
+	public final static String RDHOSTHEAD = "FFAA0055";
+	public final static String RDHOSTTAIL = "0055FFAA";
 
 	// -------------------------------------------------------
 	// 判断奇数或偶数，位运算，最后一位是1则为奇数，为0是偶数
@@ -212,8 +214,14 @@ public class MyFunc {
 		String cmdString = "FF" + BlankStr + cmd;
 		String noBlankCMD = cmdString.replaceAll(" ", "");
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
-//		return (cmdString + BlankStr + bcc).toUpperCase();
 		return (noBlankCMD + bcc).toUpperCase();
+	}
+
+	// 生成测距模块控制指令，参数为命令字加数据包
+	public static String getRDCommand(String cmd) {
+		String noBlankCMD = cmd.replaceAll(" ", "");
+		String bcc = Integer.toHexString(getBCC(noBlankCMD));
+		return (RDHOSTHEAD + noBlankCMD + bcc + RDHOSTTAIL).toUpperCase();
 	}
 
 	/**
@@ -256,6 +264,20 @@ public class MyFunc {
 		String cmdString = "5A";
 		cmdString += String.format("%02x", pId);
 		return getFWCommand(cmdString);
+	}
+
+	/**
+	 * 生成获取测距模块指令
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            模块ID号
+	 * @return
+	 */
+	public static String cmdGetRangeDistance(int pId) {
+		String cmdString = "01CC";
+		cmdString += String.format("%02x", pId);
+		return getRDCommand(cmdString);
 	}
 
 	// 计算累加和值

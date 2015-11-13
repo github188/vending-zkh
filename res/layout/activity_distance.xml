@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activitys.pick.MC_DistancePickActivity" >
+
+    <RelativeLayout
+        android:name="@+id/relout_weight_show"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" >
+
+        <ListView
+            android:id="@+id/distance_listview_datalist"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical" >
+        </ListView>
+
+        <TextView
+            android:id="@+id/tv_distance_material"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/distance_listview_datalist"
+            android:text="物品单个长度(mm)" />
+
+        <EditText
+            android:id="@+id/txt_distance_material"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distance_listview_datalist"
+            android:layout_toRightOf="@id/tv_distance_material"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btn_distance_material_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/tv_distance_material"
+            android:text="保存" />
+
+        <Button
+            android:id="@+id/btn_distance_material_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_distance_material"
+            android:layout_toRightOf="@id/btn_distance_material_save"
+            android:text="重置" />
+
+        <TextView
+            android:id="@+id/tv_distance_unit_a"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/btn_distance_material_save"
+            android:text="设定" />
+
+        <EditText
+            android:id="@+id/txt_distance_unit_a"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_distance_material_save"
+            android:layout_toRightOf="@id/tv_distance_unit_a"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/tv_distance_unit_b"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_below="@id/btn_distance_material_save"
+            android:layout_toRightOf="@id/txt_distance_unit_a"
+            android:text="厘米为" />
+
+        <EditText
+            android:id="@+id/txt_distance_unit_b"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_distance_material_save"
+            android:layout_toRightOf="@id/tv_distance_unit_b"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/tv_distance_unit_c"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/tv_distance_unit_a"
+            android:text="则1毫米为" />
+
+        <EditText
+            android:id="@+id/txt_distance_unit_c"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_distance_unit_a"
+            android:layout_toRightOf="@id/tv_distance_unit_c"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btn_distance_material_lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/tv_distance_unit_c"
+            android:text="锁定" />
+
+        <Button
+            android:id="@+id/btn_distance_material_unlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_distance_unit_c"
+            android:layout_toRightOf="@id/btn_distance_material_save"
+            android:text="解除锁定" />
+    </RelativeLayout>
+
+</LinearLayout>
