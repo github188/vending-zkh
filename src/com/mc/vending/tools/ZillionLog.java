@@ -61,7 +61,8 @@ public class ZillionLog {
 
         if (!(new File("/mnt/sdcard1/").exists() && new File("/mnt/sdcard1/").list() != null && new File(
                 "/mnt/sdcard1/").list().length > 0)) {
-            MYLOG_PATH_SDCARD_DIR = "/data/data/com.mc.vending/logs/vending.log";
+//            MYLOG_PATH_SDCARD_DIR = "/data/data/com.mc.vending/logs/vending.log";
+            MYLOG_PATH_SDCARD_DIR = "/storage/sdcard0/Download/vendinglog/vending.txt"; // 日志文件在sdcard中的路径
         }
 
         logConfigurator.setFileName(MYLOG_PATH_SDCARD_DIR);
@@ -93,7 +94,7 @@ public class ZillionLog {
         gLogger = Logger.getLogger("");
         gLogger.info(msg);
 
-        String eString = msg.toString();
+        String eString = msg + "";
         sendLog(eString, 2);
     }
 
@@ -101,7 +102,7 @@ public class ZillionLog {
         gLogger = Logger.getLogger(tag);
         gLogger.info(msg);
 
-        String eString = tag + ":" + msg.toString();
+        String eString = tag + ":" + msg;
         sendLog(eString, 2);
     }
 
@@ -121,7 +122,7 @@ public class ZillionLog {
         gLogger = Logger.getLogger("");
         gLogger.error(msg);
 
-        String eString = msg.toString();
+        String eString = msg + "";
         sendLog(eString, 1);
     }
 
@@ -129,7 +130,7 @@ public class ZillionLog {
         gLogger = Logger.getLogger("E:" + tag);
         gLogger.error(msg);
 
-        String eString = tag + ":" + msg.toString();
+        String eString = tag + ":" + msg;
         sendLog(eString, 1);
     }
 
@@ -137,7 +138,7 @@ public class ZillionLog {
         gLogger = Logger.getLogger("E:" + tag);
         gLogger.error(msg, e);
 
-        String eString = tag + ":" + msg.toString() + Tools.getStackTrace(e);
+        String eString = tag + ":" + msg + Tools.getStackTrace(e);
         sendLog(eString, 1);
 
     }

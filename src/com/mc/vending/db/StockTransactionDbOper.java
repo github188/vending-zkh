@@ -274,34 +274,34 @@ public class StockTransactionDbOper {
 
 	public List<StockTransactionData> findStockTransactionDataToUpload() {
 
-		List<StockTransactionData> list = new ArrayList<StockTransactionData>();
-		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
-		Cursor c = db.rawQuery("SELECT * FROM StockTransaction WHERE TS1_UploadStatus = ?",
-				new String[] { StockTransactionData.UPLOAD_UNLOAD });
-		while (c.moveToNext()) {
-			StockTransactionData stockTransaction = new StockTransactionData();
-			stockTransaction.setTs1Id(c.getString(c.getColumnIndex("TS1_ID")));
-			stockTransaction.setTs1M02Id(c.getString(c.getColumnIndex("TS1_M02_ID")));
-			stockTransaction.setTs1BillType(c.getString(c.getColumnIndex("TS1_BillType")));
-			stockTransaction.setTs1BillCode(c.getString(c.getColumnIndex("TS1_BillCode")));
-			stockTransaction.setTs1Cd1Id(c.getString(c.getColumnIndex("TS1_CD1_ID")));
-			stockTransaction.setTs1Vd1Id(c.getString(c.getColumnIndex("TS1_VD1_ID")));
-			stockTransaction.setTs1Pd1Id(c.getString(c.getColumnIndex("TS1_PD1_ID")));
-			stockTransaction.setTs1Vc1Code(c.getString(c.getColumnIndex("TS1_VC1_CODE")));
-			stockTransaction.setTs1TransQty(c.getInt(c.getColumnIndex("TS1_TransQty")));
-			stockTransaction.setTs1TransType(c.getString(c.getColumnIndex("TS1_TransType")));
-			stockTransaction.setTs1Sp1Code(c.getString(c.getColumnIndex("TS1_SP1_CODE")));
-			stockTransaction.setTs1Sp1Name(c.getString(c.getColumnIndex("TS1_SP1_Name")));
-			stockTransaction.setTs1UploadStatus(c.getString(c.getColumnIndex("TS1_UploadStatus")));
-			stockTransaction.setTs1CreateUser(c.getString(c.getColumnIndex("TS1_CreateUser")));
-			stockTransaction.setTs1CreateTime(c.getString(c.getColumnIndex("TS1_CreateTime")));
-			stockTransaction.setTs1ModifyUser(c.getString(c.getColumnIndex("TS1_ModifyUser")));
-			stockTransaction.setTs1ModifyTime(c.getString(c.getColumnIndex("TS1_ModifyTime")));
-			stockTransaction.setTs1RowVersion(c.getString(c.getColumnIndex("TS1_RowVersion")));
-			list.add(stockTransaction);
-		}
-		return list;
-	}
+        List<StockTransactionData> list = new ArrayList<StockTransactionData>();
+        SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM StockTransaction WHERE TS1_UploadStatus = ? limit 50",
+                new String[] { StockTransactionData.UPLOAD_UNLOAD });
+        while (c.moveToNext()) {
+            StockTransactionData stockTransaction = new StockTransactionData();
+            stockTransaction.setTs1Id(c.getString(c.getColumnIndex("TS1_ID")));
+            stockTransaction.setTs1M02Id(c.getString(c.getColumnIndex("TS1_M02_ID")));
+            stockTransaction.setTs1BillType(c.getString(c.getColumnIndex("TS1_BillType")));
+            stockTransaction.setTs1BillCode(c.getString(c.getColumnIndex("TS1_BillCode")));
+            stockTransaction.setTs1Cd1Id(c.getString(c.getColumnIndex("TS1_CD1_ID")));
+            stockTransaction.setTs1Vd1Id(c.getString(c.getColumnIndex("TS1_VD1_ID")));
+            stockTransaction.setTs1Pd1Id(c.getString(c.getColumnIndex("TS1_PD1_ID")));
+            stockTransaction.setTs1Vc1Code(c.getString(c.getColumnIndex("TS1_VC1_CODE")));
+            stockTransaction.setTs1TransQty(c.getInt(c.getColumnIndex("TS1_TransQty")));
+            stockTransaction.setTs1TransType(c.getString(c.getColumnIndex("TS1_TransType")));
+            stockTransaction.setTs1Sp1Code(c.getString(c.getColumnIndex("TS1_SP1_CODE")));
+            stockTransaction.setTs1Sp1Name(c.getString(c.getColumnIndex("TS1_SP1_Name")));
+            stockTransaction.setTs1UploadStatus(c.getString(c.getColumnIndex("TS1_UploadStatus")));
+            stockTransaction.setTs1CreateUser(c.getString(c.getColumnIndex("TS1_CreateUser")));
+            stockTransaction.setTs1CreateTime(c.getString(c.getColumnIndex("TS1_CreateTime")));
+            stockTransaction.setTs1ModifyUser(c.getString(c.getColumnIndex("TS1_ModifyUser")));
+            stockTransaction.setTs1ModifyTime(c.getString(c.getColumnIndex("TS1_ModifyTime")));
+            stockTransaction.setTs1RowVersion(c.getString(c.getColumnIndex("TS1_RowVersion")));
+            list.add(stockTransaction);
+        }
+        return list;
+    }
 
 	public boolean updateUploadStatusByTs1Id(String ts1Id) {
 		boolean flag = false;

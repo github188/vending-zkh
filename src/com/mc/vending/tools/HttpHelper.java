@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
+import com.mc.vending.parse.StockTransactionDataParse;
 import com.mc.vending.tools.utils.DES;
 
 public class HttpHelper {
@@ -113,21 +114,24 @@ public class HttpHelper {
                 httpPost.abort();
             }
 
-        } catch (UnsupportedEncodingException e) {
-            // e.printStackTrace();
-            // L.e(e.getMessage());
-            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
-            ZillionLog.e("HttpHelp", e.getMessage(),e);
-            baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
-        } catch (IOException e) {
-            // L.e(e.getMessage());
-            // e.printStackTrace();
-            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
-            ZillionLog.e("HttpHelp", e.getMessage(),e);
-            baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
+//        } catch (UnsupportedEncodingException e) {
+//            // e.printStackTrace();
+//            // L.e(e.getMessage());
+//            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+//            ZillionLog.e("HttpHelp", e.getMessage(),e);
+//            baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
+//        } catch (IOException e) {
+//            // L.e(e.getMessage());
+//            // e.printStackTrace();
+//            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
+//            ZillionLog.e("HttpHelp", e.getMessage(),e);
+//            baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
         } catch (Exception e) {
             // L.e(e.getMessage());
             // e.printStackTrace();
+            if (baseData.getRequestURL().equals(Constant.METHOD_WSID_STOCKTRANSACTION)) {
+                StockTransactionDataParse.getInstance().isSync = false;
+            }
             ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
             ZillionLog.e("HttpHelp", e.getMessage(),e);
             baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
@@ -164,6 +168,9 @@ public class HttpHelper {
             } catch (Exception e) {
                 // e.printStackTrace();
                 // L.e(e.getMessage());
+                if (baseData.getRequestURL().equals(Constant.METHOD_WSID_STOCKTRANSACTION)) {
+                    StockTransactionDataParse.getInstance().isSync = false;
+                }
                 ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
                 ZillionLog.e("HttpHelp", e.getMessage(),e);
                 baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_PRASE_ERROR;

@@ -45,7 +45,7 @@ public class StockTransactionDataParse implements DataParseListener {
     public void requestStockTransactionData(String optType, String requestURL, String vendingId) {
 
         isSync = true;
-//        ZillionLog.i(this.getClass().getName(),"上传交易记录01："+isSync);
+        ZillionLog.i(this.getClass().getName(),"上传交易记录01："+isSync);
         JSONArray jsonArray = null;
         List<StockTransactionData> datas = new StockTransactionDbOper().findStockTransactionDataToUpload();
 
@@ -70,16 +70,16 @@ public class StockTransactionDataParse implements DataParseListener {
                 jsonArray.put(json);
             }
             if (jsonArray.length() > 0) {
-//                ZillionLog.i(this.getClass().getName(),"上传交易记录02："+isSync);
+                ZillionLog.i(this.getClass().getName(),"上传交易记录02："+isSync);
                 DataParseHelper helper = new DataParseHelper(this);
                 helper.requestSubmitServer(optType, jsonArray, requestURL, datas);
             } else {
                 isSync = false;
-//                ZillionLog.i(this.getClass().getName(),"上传交易记录03："+isSync);
+                ZillionLog.i(this.getClass().getName(),"上传交易记录03："+isSync);
             }
         } catch (Exception e) {
             isSync = false;
-//            ZillionLog.i(this.getClass().getName(),"上传交易记录04："+isSync);
+            ZillionLog.i(this.getClass().getName(),"上传交易记录04："+isSync);
             e.printStackTrace();
             ZillionLog.e(this.getClass().toString(), "======>>>>>库存交易记录网络请求数据异常!");
         }
@@ -93,9 +93,9 @@ public class StockTransactionDataParse implements DataParseListener {
      */
     public void requestStockTransactionData(String optType, String requestURL, String vendingId,List<StockTransactionData> datas) {
 
-//        ZillionLog.i(this.getClass().getName(),"上传交易记录11："+isSync);
+        //ZillionLog.i(this.getClass().getName(),"上传交易记录11："+isSync);
         isSync = true;
-//        ZillionLog.i(this.getClass().getName(),"上传交易记录12："+isSync);
+        ZillionLog.i(this.getClass().getName(),"上传交易记录12："+isSync);
         JSONArray jsonArray = null;
 //        List<StockTransactionData> datas = new StockTransactionDbOper().findStockTransactionDataToUpload();
 
@@ -124,11 +124,11 @@ public class StockTransactionDataParse implements DataParseListener {
                 helper.requestSubmitServer(optType, jsonArray, requestURL, datas);
             } else {
                 isSync = false;
-//                ZillionLog.i(this.getClass().getName(),"上传交易记录13："+isSync);
+                ZillionLog.i(this.getClass().getName(),"上传交易记录13："+isSync);
             }
         } catch (Exception e) {
             isSync = false;
-//            ZillionLog.i(this.getClass().getName(),"上传交易记录14："+isSync);
+            ZillionLog.i(this.getClass().getName(),"上传交易记录14："+isSync);
             e.printStackTrace();
             ZillionLog.e(this.getClass().toString(), "======>>>>>库存交易记录网络请求数据异常!");
         }
@@ -140,7 +140,12 @@ public class StockTransactionDataParse implements DataParseListener {
     @Override
     public void parseJson(BaseData baseData) {
         ZillionLog.i(this.getClass().getName(),baseData);
+        ZillionLog.i(this.getClass().getName(),"上传交易记录24："+isSync);
+        
         if (!baseData.isSuccess()) {
+            
+            ZillionLog.i(this.getClass().getName(),"上传交易记录22："+isSync);
+            
             if (this.listener != null) {
                 this.listener.parseRequestFailure(baseData);
             }
@@ -148,6 +153,9 @@ public class StockTransactionDataParse implements DataParseListener {
             isSync = false;
             return;
         }
+        
+        ZillionLog.i(this.getClass().getName(),"上传交易记录23："+isSync);
+        
         List<StockTransactionData> datas = (List<StockTransactionData>) baseData.getUserObject();
         if (datas.isEmpty()) {
             if (this.listener != null) {
@@ -165,7 +173,7 @@ public class StockTransactionDataParse implements DataParseListener {
         }
 //        baseData = null;
         isSync = false;
-//        ZillionLog.i(this.getClass().getName(),"上传交易记录："+isSync);
+        ZillionLog.i(this.getClass().getName(),"上传交易记录："+isSync);
 
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);

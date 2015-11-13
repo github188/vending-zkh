@@ -78,7 +78,7 @@ public class MC_SetAdapter extends BaseAdapter {
                     R.drawable.icon_synchronous));
         } else if (position == 8) {
             //数据同步
-            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                 viewHodler.set_icon
                         .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_init));
             } else {
@@ -87,7 +87,7 @@ public class MC_SetAdapter extends BaseAdapter {
             }
         } else if (position == 9) {
             //初始化
-            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                 viewHodler.set_icon
                         .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_back));
             } else {
@@ -96,7 +96,7 @@ public class MC_SetAdapter extends BaseAdapter {
             }
         } else if (position == 10) {
             //退出应用
-            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+            if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
             } else {
                 viewHodler.set_icon
                         .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_back));

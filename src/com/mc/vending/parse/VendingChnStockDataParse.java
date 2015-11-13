@@ -85,7 +85,7 @@ public class VendingChnStockDataParse implements DataParseListener {
             if (addflag) {
                 Log.i("[vendingChnStock]:", "======>>>>>售货机货道库存批量增加成功!" + list.size());
 
-                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                     DataParseHelper parseHelper = new DataParseHelper(this);
                     parseHelper.sendLogVersion(list.get(0).getLogVersion());
                 }
@@ -125,7 +125,7 @@ public class VendingChnStockDataParse implements DataParseListener {
                 data.setVs1Pd1Id(jsonObj.getString("VS1_PD1_ID"));
                 data.setVs1Quantity(ConvertHelper.toInt(jsonObj.getString("VS1_Quantity"), 0));
                 
-                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                     data.setLogVersion(jsonObj.getString("LogVision"));
                 }
                 data.setVs1CreateUser(createUser);

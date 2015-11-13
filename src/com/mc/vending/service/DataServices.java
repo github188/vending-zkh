@@ -112,76 +112,76 @@ public class DataServices extends Service implements DataParseRequestListener, S
     public static boolean synDataFlag = false; // 同步数据的flag
 
     private Timer configTimer; // 系统配置定时器
-    private int configTimerLength = 1000 * 60 * 60 * 24; // 系统配置定时间隔时间
+    private int configTimerLength = 1000 * 60 * 2 ; // 系统配置定时间隔时间
 
     private Timer vendingTimer; // 售货机定时器，有多少个请求任务，增加多少个定时器
-    private int vendingTimerLength = 1000 * 60 * 60 * 24;
+    private int vendingTimerLength = 1000 * 60 * 2;
 
     private Timer vendingPictureTimer; // 待机图片定时器，
-    private int vendingPictureTimerLength = 1000 * 60 * 60 * 24; // 待机图片定时更新间隔时间
+    private int vendingPictureTimerLength = 1000 * 60 * 2; // 待机图片定时更新间隔时间
 
     private Timer vendingChnTimer; // 售货机货道定时器，
-    private int vendingChnTimerLength = 1000 * 60 * 60 * 24; // 售货机货道定时更新间隔时间
+    private int vendingChnTimerLength = 1000 * 60 * 2; // 售货机货道定时更新间隔时间
 
     private Timer vendingProLinkTimer; // 售货机产品定时器，
-    private int vendingProLinkTimerLength = 1000 * 60 * 60 * 24; // 售货机产品定时更新间隔时间
+    private int vendingProLinkTimerLength = 1000 * 60 * 2; // 售货机产品定时更新间隔时间
     private Timer productTimer; // 产品定时器，
-    private int productTimerLength = 1000 * 60 * 60 * 24; // 产品道定时更新间隔时间
+    private int productTimerLength = 1000 * 60 * 2; // 产品道定时更新间隔时间
     private int productRowCount = 10;
 
     private Timer productPictureTimer; // 产品图片定时器，
-    private int productPictureTimerLength = 1000 * 60 * 60 * 24; // 产品图片道定时更新间隔时间
+    private int productPictureTimerLength = 1000 * 60 * 2; // 产品图片道定时更新间隔时间
     private int productPictureRowCount = 10;
     private Timer supplierTimer; // 货主定时器，
-    private int supplierTimerLength = 1000 * 60 * 60 * 24; // 货主道定时更新间隔时间
+    private int supplierTimerLength = 1000 * 60 * 2; // 货主道定时更新间隔时间
     private int supplierRowCount = 10;
     private Timer stationTimer; // 站点图片定时器，
-    private int stationTimerLength = 1000 * 60 * 60 * 24; // 站点图片道定时更新间隔时间
+    private int stationTimerLength = 1000 * 60 * 2; // 站点图片道定时更新间隔时间
     private int stationRowCount = 10;
     private Timer vendingCardPowerTimer; // 售货机卡/密码权限定时器，
-    private int vendingCardPowerTimerLength = 1000 * 60 * 60 * 24; // 售货机卡/密码权限定时更新间隔时间
+    private int vendingCardPowerTimerLength = 1000 * 60 * 2; // 售货机卡/密码权限定时更新间隔时间
 
     private Timer productMaterialPowerTimer; // 产品领料权限定时器，
-    private int productMaterialPowerTimerLength = 1000 * 60 * 60 * 24; // 产品领料权限定时更新间隔时间
+    private int productMaterialPowerTimerLength = 1000 * 60 * 2; // 产品领料权限定时更新间隔时间
 
     private Timer cardTimer; // 卡/密码定时器，
-    private int cardTimerLength = 1000 * 60 * 60 * 24; // 卡/密码定时更新间隔时间
+    private int cardTimerLength = 1000 * 60 * 2; // 卡/密码定时更新间隔时间
 
     private Timer cusEmpCardPowerTimer; // 客户员工卡/密码权限定时器，
-    private int cusEmpCardPowerTimerLength = 1000 * 60 * 60 * 24; // 客户员工卡/密码权限定时更新间隔时间
+    private int cusEmpCardPowerTimerLength = 1000 * 60 * 2; // 客户员工卡/密码权限定时更新间隔时间
 
     private Timer customerEmpLinkTimer; // 客户员工定时器，
-    private int customerEmpLinkTimerLength = 1000 * 60 * 60 * 24; // 客户员工定时更新间隔时间
+    private int customerEmpLinkTimerLength = 1000 * 60 * 2; // 客户员工定时更新间隔时间
 
     private Timer customerTimer; // 客户定时器，
-    private int customerTimerLength = 1000 * 60 * 60 * 24; // 客户定时更新间隔时间
+    private int customerTimerLength = 1000 * 60 * 2; // 客户定时更新间隔时间
 
     private Timer productGroupTimer; // 产品组合定时器，
-    private int productGroupTimerLength = 1000 * 60 * 60 * 24; // 产品组合定时更新间隔时间
+    private int productGroupTimerLength = 1000 * 60 * 2; // 产品组合定时更新间隔时间
 
     private Timer productGroupPowerTimer; // 产品组合权限定时器，
-    private int productGroupPowerTimerLength = 1000 * 60 * 60 * 24; // 产品组合权限定时更新间隔时间
+    private int productGroupPowerTimerLength = 1000 * 60 * 2; // 产品组合权限定时更新间隔时间
 
     private Timer replenishmentTimer; // 补货单定时器，
-    private int replenishmentTimerLength = 1000 * 60 * 60 * 24; // 补货单定时更新间隔时间
+    private int replenishmentTimerLength = 1000 * 60 * 2; // 补货单定时更新间隔时间
     private int replenishmentRowCount = 10;
     private Timer vendingStatusTimer; // 售货机状态定时器，
-    private int vendingStatusTimerLength = 1000 * 60 * 60 * 24; // 售货机状态定时更新间隔时间
+    private int vendingStatusTimerLength = 1000 * 60 * 2; // 售货机状态定时更新间隔时间
 
     private Timer replenishmentDiffTimer; // 补货差异定时器，
-    private int replenishmentDiffTimerLength = 1000 * 60 * 60 * 24; // 补货差异定时更新间隔时间
+    private int replenishmentDiffTimerLength = 1000 * 60 * 2; // 补货差异定时更新间隔时间
 
     private Timer replenishmentStatusTimer; // 补货状态定时器，
-    private int replenishmentStatusTimerLength = 1000 * 60 * 60 * 24; // 补货状态定时更新间隔时间
+    private int replenishmentStatusTimerLength = 1000 * 60 * 2; // 补货状态定时更新间隔时间
 
     private Timer inventoryTimer; // 盘点定时器，
-    private int inventoryTimerLength = 1000 * 60 * 60 * 24; // 盘点定时更新间隔时间
+    private int inventoryTimerLength = 1000 * 60 * 2; // 盘点定时更新间隔时间
 
     private Timer stockTransactionTimer; // 库存交易定时器，
-    private int stockTransactionTimerLength = 1000 * 60 * 60 * 24; // 库存交易定时更新间隔时间
+    private int stockTransactionTimerLength = 1000 * 60 * 2; // 库存交易定时更新间隔时间
 
     private Timer vendingPasswordTimer; // 售货机强制密码定时器，
-    private int vendingPasswordTimerLength = 1000 * 60 * 60 * 24; // 售货机强制密码更新间隔时间
+    private int vendingPasswordTimerLength = 1000 * 60 * 2; // 售货机强制密码更新间隔时间
 
     private Map<String, InterfaceData> configMap = new HashMap<String, InterfaceData>();
     private TimerTask configTask = null;
@@ -344,6 +344,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         initConfigTask();
         initConfigTimer();
         configTimer.schedule(configTask, DateHelper.truncateTime(new Date(), 1), configTimerLength);
+//        configTimer.schedule(configTask, configTimerLength, configTimerLength);
         // configTimer.schedule(configTask, 1, configTimerLength);
     }
 
@@ -367,27 +368,27 @@ public class DataServices extends Service implements DataParseRequestListener, S
         /******************************************************************** 数据上传接口 start ****************************************************/
         // 售货机联机状态 定时任务 全表
         if (vendingStatusTimerLength>0) {
-            vendingStatusTimer.schedule(vendingStatusTask, 1, vendingStatusTimerLength);
+            vendingStatusTimer.schedule(vendingStatusTask, vendingStatusTimerLength, vendingStatusTimerLength);
         }
         // 更新补货 单状态定时任务 上传数据
         if (replenishmentStatusTimerLength > 0) {
 
-            replenishmentStatusTimer.schedule(replenishmentStatusTask, 1, replenishmentStatusTimerLength);
+            replenishmentStatusTimer.schedule(replenishmentStatusTask, replenishmentStatusTimerLength, replenishmentStatusTimerLength);
         }
         // 补货差异 定时任务 全表 上传数据
         if (replenishmentDiffTimerLength > 0) {
 
-            replenishmentDiffTimer.schedule(replenishmentDiffTask, 1, replenishmentDiffTimerLength);
+            replenishmentDiffTimer.schedule(replenishmentDiffTask, replenishmentDiffTimerLength, replenishmentDiffTimerLength);
         }
         // 盘点记录 定时任务 全表 上传数据
         if (inventoryTimerLength > 0) {
 
-            inventoryTimer.schedule(inventoryTask, 1, inventoryTimerLength);
+            inventoryTimer.schedule(inventoryTask, inventoryTimerLength, inventoryTimerLength);
         }
         // 库存交易记录 定时任务 全表 上传数据
         if (stockTransactionTimerLength > 0) {
 
-            stockTransactionTimer.schedule(stockTransactionTask, 1, stockTransactionTimerLength);
+            stockTransactionTimer.schedule(stockTransactionTask, stockTransactionTimerLength, stockTransactionTimerLength);
         }
         /******************************************************************** 数据上传接口 end ****************************************************/
     }
@@ -422,7 +423,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
             }
         };
         if (vendingTimerLength > 0) {
-            vendingTimer.schedule(vendingTask, 1, vendingTimerLength);
+            vendingTimer.schedule(vendingTask,vendingTimerLength, vendingTimerLength);
             
         }
     }
@@ -438,6 +439,8 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 + Constant.HTTP_OPERATE_TYPE_GETDATA);
         vendingTimerLength = vendingConfig != null ? vendingConfig.getM03ExeInterval() * standardInterval
                 : vendingTimerLength;
+        
+        ZillionLog.i(this.getClass().getName(),"resetTimerLength");
 
 //        InterfaceData configConfig = configMap.get(Constant.METHOD_WSID_CONFIG + "_"
 //                + Constant.HTTP_OPERATE_TYPE_GETDATA);
@@ -575,6 +578,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
 
     @Override
     public void onDestroy() {
+        ZillionLog.i(this.getClass().getName(),"销毁DataService");
         cancelConfigTask();
         removeConfigTimer();
         cancelDownLoadTask();
@@ -870,6 +874,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
         configTask = new TimerTask() {
             @Override
             public void run() {
+                ZillionLog.i("vendingTask", "initConfigTask start..");
                 InterfaceData configConfig = configMap.get(Constant.METHOD_WSID_CONFIG + "_"
                         + Constant.HTTP_OPERATE_TYPE_GETDATA);
                 boolean flag = DataServices.isTaskStart(configConfig);
@@ -1339,6 +1344,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 // 上传库存交易记录
                                 ZillionLog.i("上传交易记录--自动任务："+StockTransactionDataParse.getInstance().isSync);
                                 if (!StockTransactionDataParse.getInstance().isSync) { //没有上传
+                                    
                                     StockTransactionDataParse.getInstance().requestStockTransactionData(
                                             Constant.HTTP_OPERATE_TYPE_INSERT,
                                             Constant.METHOD_WSID_STOCKTRANSACTION, vendingId);
@@ -1389,9 +1395,9 @@ public class DataServices extends Service implements DataParseRequestListener, S
                 }
             } else if (baseData.getRequestURL().equals(Constant.METHOD_WSID_CONFIG)) {
 
-//                ZillionLog.i(this.getClass().getName(),"parseRequestFinised METHOD_WSID_CONFIG");
-//                startConfigTimer();
-//                initParam();
+                ZillionLog.i(this.getClass().getName(),"parseRequestFinised:");
+                startConfigTimer();
+                initParam();
 
             } else if (baseData.getRequestURL().equals(Constant.METHOD_WSID_AUTHER)) {
                 if (taskMap.containsKey(Constant.METHOD_WSID_AUTHER)) {
@@ -1494,6 +1500,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
     public void parseRequestFailure(BaseData baseData) {
         if (baseData.getRequestURL().equals(Constant.METHOD_WSID_CONFIG)) {
 
+            ZillionLog.i(this.getClass().getName(),"parseRequestFailure:");
             VendingData vending = new VendingDbOper().getVending();
             this.initFlag = false;
             if (vending != null) {
@@ -1634,6 +1641,7 @@ public class DataServices extends Service implements DataParseRequestListener, S
     public void requestConfig() {
         VendingData vending = new VendingDbOper().getVending();
         if (vending != null && !StringHelper.isEmpty(vending.getVd1Id(), true)) {
+            ZillionLog.i(this.getClass().getName(),"requestConfig");
             vendingId = vending.getVd1Id();// 请求接口配置接口
             vendingCode = vending.getVd1Code();
             ConfigDataParse parse = new ConfigDataParse();
