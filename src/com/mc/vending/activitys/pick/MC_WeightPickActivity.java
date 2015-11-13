@@ -1,8 +1,10 @@
 package com.mc.vending.activitys.pick;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -87,6 +89,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	private Button btn_clearlist; // 清屏
 	private Button btn_return; // 开始补货
 	private Button btn_setting_unit_zero;
+	private Button btn_exitreturn;// 停止补货
 	private VendingData vendData; // 售货机对象
 	private VendingChnData vendingChn; // 售货机货道对象
 	private VendingCardPowerWrapperData wrapperData; // 卡密码权限对象
@@ -105,6 +108,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	boolean isOperating = false; // 是否再操作中
 	private boolean isStoreChecked; // 格子机验证返回
 	public boolean isSettingUnitWeight = false;
+	public boolean isReturnMaterial = false;
 	/**
 	 * 为小数点位置（0-5）
 	 * 
@@ -351,6 +355,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		btn_clearlist = (Button) this.findViewById(R.id.btn_clearlist);
 		btn_return = (Button) this.findViewById(R.id.btn_return);
 		btn_exitWeight = (Button) this.findViewById(R.id.btn_exitWeight);
+		btn_exitreturn = (Button) this.findViewById(R.id.btn_exitreturn);
 	}
 
 	/**
@@ -364,6 +369,7 @@ public class MC_WeightPickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				WeightArr.clear();
 				openFW();
 			}
 		});
@@ -426,7 +432,8 @@ public class MC_WeightPickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-
+				isReturnMaterial = true;
+				openFW();
 			}
 		});
 		btn_exitWeight.setOnClickListener(new View.OnClickListener() {
@@ -434,6 +441,20 @@ public class MC_WeightPickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				try {
+					SerialTools.getInstance().closeFW();
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		btn_exitreturn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				isReturnMaterial = false;
 				try {
 					SerialTools.getInstance().closeFW();
 				} catch (SerialPortException e) {
@@ -454,7 +475,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		try {
 			for (int i = 1; i <= maxVendingCount; i++) {
 				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
-				Thread.sleep(11);
+				Thread.sleep(20);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -533,11 +554,14 @@ public class MC_WeightPickActivity extends BaseActivity
 			// 获取之前该id内存储的重量
 			String preWeight = sp.getString(pId + "", "0");
 			sp.edit().putString(pId + "", pWeight).commit();
-			int preWeightInt = ConvertHelper.toInt(preWeight, 0);
-			int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
-			// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
-			if ((nowWeightInt - deviationScalar) > preWeightInt || (nowWeightInt + deviationScalar) < preWeightInt) {
-				UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
+			if (!isReturnMaterial) {
+				int preWeightInt = ConvertHelper.toInt(preWeight, 0);
+				int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
+				// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
+				if ((nowWeightInt - deviationScalar) > preWeightInt
+						|| (nowWeightInt + deviationScalar) < preWeightInt) {
+					UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
+				}
 			}
 		}
 	}
@@ -633,10 +657,15 @@ public class MC_WeightPickActivity extends BaseActivity
 			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
 			float afterCount = Math.abs(pDifWeight) / denominator;
 			if (afterCount != 0) {
-				afterCount += WeightCountCalculator(afterCount);
-				afterCount += preCount;
+				afterCount = WeightCountCalculator(afterCount);
+				//pDifWeight为正是放回物品，为负是取走物品
+				if (pDifWeight > 0) {
+					afterCount -= preCount;
+				} else {
+					afterCount += preCount;
+				}
 				// 将变化的个数更新该ID对应的显示个数
-				WEIGHTLIST.put(pId, idName + "		X" + afterCount);// 把显示LIST中的对应数据进行更新
+				WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 			}
 			ShowMaterialList();
 
@@ -649,16 +678,13 @@ public class MC_WeightPickActivity extends BaseActivity
 	 * 将WEIGHTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowMaterialList() {
-		Set<String> get = WEIGHTLIST.keySet();
 		WeightArr.clear();
-		for (String i : get) {
-			String content = WEIGHTLIST.get(i);
-			if (WeightArr.contains(content)) {
-
-			} else {
-				WeightArr.add(content);
-			}
+		Iterator<Entry<String, String>> it = WEIGHTLIST.entrySet().iterator();
+		while (it.hasNext()) {
+			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+			WeightArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
 		}
+
 		weight_datalist.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, WeightArr));
 
 	}
@@ -693,7 +719,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		 */
 		double ceil = Math.ceil(pNum);
 		double floor = Math.floor(pNum);
-		if ((pNum + weightDeviationScalar) > ceil || (pNum - weightDeviationScalar) > floor) {
+		if (((pNum + weightDeviationScalar) > ceil || (pNum - weightDeviationScalar) > floor) && ceil != floor) {
 			flag = true;
 		}
 		return flag;

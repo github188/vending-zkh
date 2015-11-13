@@ -57,14 +57,21 @@
             android:layout_below="@id/btn_setZero"
             android:layout_toLeftOf="@id/btn_exitWeight"
             android:text="开始领料" />
-
+ <Button
+            android:id="@+id/btn_exitreturn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_setZero"
+            android:layout_toLeftOf="@id/btn_getWeight"
+            android:text="停止补货" />
         <Button
             android:id="@+id/btn_return"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/btn_setZero"
-            android:layout_toLeftOf="@id/btn_getWeight"
+            android:layout_toLeftOf="@id/btn_exitreturn"
             android:text="开始补货" />
+        
 
         <Button
             android:id="@+id/btn_clearlist"

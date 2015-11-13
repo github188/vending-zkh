@@ -440,12 +440,12 @@ public class SerialTools {
 
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 
-				if (mSendThread == null) {
-					mSendThread = new SendThread();
-					mSendThread.start();
-				}
+//				if (mSendThread == null) {
+//					mSendThread = new SendThread();
+//					mSendThread.start();
+//				}
 
-				mSendThread.setResume(); // 线程唤醒，开始发送
+//				mSendThread.setResume(); // 线程唤醒，开始发送
 				switch (pMethodType) {
 				case Constant.FW_GET_WEIGHT:
 					sendPortData(mFw, MyFunc.cmdOpenFW(pId), true);
