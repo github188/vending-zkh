@@ -21,15 +21,15 @@ public class SerialTools {
     private static Map<String, String> keymap                    = null;
 
     private static final String        TAG                       = "MainActivity";
-    private static final String        PortName_mVender          = "/dev/ttyS0";          // 售货机
-    private static final String        PortName_mRFIDReader      = "/dev/ttyS1";          // 读卡器
-    private static final String        PortName_mKeyBoard        = "/dev/ttyS2";          // 键盘
-    private static final String        PortName_mStore           = "/dev/ttyS4";          // 格子机
+//    private static final String        PortName_mVender          = "/dev/ttyS0";          // 售货机
+//    private static final String        PortName_mRFIDReader      = "/dev/ttyS1";          // 读卡器
+//    private static final String        PortName_mKeyBoard        = "/dev/ttyS2";          // 键盘
+//    private static final String        PortName_mStore           = "/dev/ttyS4";          // 格子机
 
-//    private static final String        PortName_mVender          = "/dev/ttyO2";          // 售货机
-//    private static final String        PortName_mRFIDReader      = "/dev/ttyO6";          // 读卡器
-//    private static final String        PortName_mKeyBoard        = "/dev/ttyO5";          // 键盘
-//    private static final String        PortName_mStore           = "/dev/ttyO8";          // 格子机
+    private static final String        PortName_mVender          = "/dev/ttyO2";          // 售货机
+    private static final String        PortName_mRFIDReader      = "/dev/ttyO6";          // 读卡器
+    private static final String        PortName_mKeyBoard        = "/dev/ttyO5";          // 键盘
+    private static final String        PortName_mStore           = "/dev/ttyO8";          // 格子机
 
     
     public static final int            MESSAGE_LOG_mKeyBoard     = 1;                     // 键盘
