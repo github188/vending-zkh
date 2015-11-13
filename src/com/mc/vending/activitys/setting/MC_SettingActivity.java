@@ -132,7 +132,7 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         dataList.add(getResources().getString(R.string.set_returns_forward_list));
         dataList.add(getResources().getString(R.string.set_returns_reverse));
         dataList.add(getResources().getString(R.string.set_pick_test));
-        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
         } else {
             dataList.add(getResources().getString(R.string.set_synchronous_stock));
         }
@@ -174,28 +174,28 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                     setPickTest();
                     break;
                 case 7:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                         setSynchronous();
                     }else {
                         setSynchronousStock();
                     }
                     break;
                 case 8:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                         setInit();
                     }else {
                         setSynchronous();
                     }
                     break;
                 case 9:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                         setFinishApp();
                     }else {
                         setInit();
                     }
                     break;
                 case 10:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                     }else {
                         setFinishApp();
                     }

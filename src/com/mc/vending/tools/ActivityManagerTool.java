@@ -114,6 +114,7 @@ public class ActivityManagerTool extends Application {
                 activity.finish();
             }
         }
+        ZillionLog.i(this.getClass().getName(),"退出系统");
         //System.out.println("退出系统");
         System.exit(0);
     }

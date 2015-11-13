@@ -269,7 +269,7 @@ public class StockTransactionDbOper {
 
         List<StockTransactionData> list = new ArrayList<StockTransactionData>();
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
-        Cursor c = db.rawQuery("SELECT * FROM StockTransaction WHERE TS1_UploadStatus = ?",
+        Cursor c = db.rawQuery("SELECT * FROM StockTransaction WHERE TS1_UploadStatus = ? limit 50",
                 new String[] { StockTransactionData.UPLOAD_UNLOAD });
         while (c.moveToNext()) {
             StockTransactionData stockTransaction = new StockTransactionData();

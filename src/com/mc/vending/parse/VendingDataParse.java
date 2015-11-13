@@ -238,7 +238,7 @@ public class VendingDataParse implements DataParseListener, DataParseRequestList
                         Constant.METHOD_WSID_USEDRECORD, vendingId);
             } else if (wsid.equals(Constant.METHOD_WSID_SYN_STOCK)) {
 
-                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) > 218) {
+                if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                     synchronousStock(vendingId);
                 }
             }

@@ -146,7 +146,7 @@ public class TaskService extends Service {
     }
 
     private static void clearLog() {
-        deleteDir(new File("/data/data/com.mc.vending/logs/"));
+//        deleteDir(new File("/data/data/com.mc.vending/logs/"));
     }
 
     private Handler  handler = new Handler();
