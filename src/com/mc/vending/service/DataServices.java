@@ -268,7 +268,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
             + "CN1_ModifyTime  varchar(100), "
             + "CN1_RowVersion  varchar(100), "
             + "PRIMARY KEY (CN1_ID) );";
-    private String sql2104 = "alter table VendingChn add VC1_CN1_ID varchar(100)";
     
 //    private String sql202 = "CREATE TABLE if not exists ReturnForward ( id  varchar(100) NOT NULL, RT1_M02_ID  varchar(100), RT1_RTCode  varchar(100), RT1_Type  varchar(10), RT1_CU1_ID  varchar(100), RT1_VD1_ID  varchar(100), RT1_CE1_ID  varchar(100), RT1_Status  varchar(10), CreateUser  varchar(100), CreateTime  varchar(100), ModifyUser  varchar(100), ModifyTime  varchar(100), RowVersion  varchar(100), PRIMARY KEY (id) );";
 
@@ -283,7 +282,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
             VersionDbOper.exec(sql2101);
             VersionDbOper.exec(sql2102);
             VersionDbOper.exec(sql2103);
-            VersionDbOper.exec(sql2104);
         }
 
         taskMap = new HashMap<String, String>();

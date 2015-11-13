@@ -10,9 +10,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
-import com.mc.vending.data.ConversionData;
 import com.mc.vending.data.UsedRecordData;
-import com.mc.vending.tools.ConvertHelper;
 import com.mc.vending.tools.ZillionLog;
 
 /**
@@ -269,15 +267,6 @@ public class UsedRecordDbOper {
             count = Double.valueOf(a == null ? "0" : a).intValue();
             break;
         }
-//        ConversionDbOper conversionDbOper = new ConversionDbOper();
-//		ConversionData conversionData = conversionDbOper.findConversionByCpid(skuId);// 根据"关联产品ID"查询"单位换算关系表"中有无该产品的换算关系
-//		if (conversionData != null) {
-//			count = count * ConvertHelper.toInt(conversionData.getCn1Proportion(), 1);
-//			// 最终结果要进行单位换算
-//			// modified
-//			// by
-//			// junjie.you
-//		}
         return count;
     }
 

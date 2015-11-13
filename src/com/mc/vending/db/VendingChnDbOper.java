@@ -105,6 +105,7 @@ public class VendingChnDbOper {
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         Cursor c = db
             .rawQuery(
+                
                 "SELECT VC1_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,VC1_CN1_ID FROM VendingChn WHERE VC1_CODE=?  limit 1",
                 new String[] { vendingChnCode });
         while (c.moveToNext()) {
@@ -268,6 +269,7 @@ public class VendingChnDbOper {
      */
     public boolean addVendingChn(VendingChnData vendingChn) {
         String insertSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
+                           
                            + "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion,VC1_CN1_ID)"
                            + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
@@ -305,6 +307,7 @@ public class VendingChnDbOper {
     public boolean batchAddVendingChn(List<VendingChnData> list) {
         boolean flag = false;
         String chnSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
+                        
                         + "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion,VC1_CN1_ID)"
                         + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
