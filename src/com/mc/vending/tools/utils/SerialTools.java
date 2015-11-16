@@ -442,6 +442,7 @@ public class SerialTools {
 				}
 				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
 				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				ZillionLog.i("test", MyFunc.cmdGetRangeDistance(pId));
 				sendPortData(mRD, MyFunc.cmdGetRangeDistance(pId), true);
 			}
 

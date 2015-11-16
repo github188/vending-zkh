@@ -58,13 +58,22 @@ public class MC_DistancePickActivity extends BaseActivity
 	public DataServices dataServices;
 	public final int deviationScalar = 20;// 材料列表更新的重量摇摆标量
 	public final double weightDeviationScalar = 0.1;
-	public final int maxVendingCount = 3;// 售货机id，十进制
+	public final int maxVendingCount = 60;// 售货机id，十进制
 
-	public final String FWDataList = "FWDataList";// 称重模块SP存储数据文件名称
-	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
-	public final String FWUnitList = "FWUnitList";// 称重模块SP存储物品单位重量列表文件名称
-	private Map<String, String> WEIGHTLIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
-	private ArrayList<String> WeightArr = new ArrayList<String>();
+	/**
+	 * 测距SP存储长度数据文件名称
+	 */
+	public final String RDDataList = "RDDataList";
+	/**
+	 * // 测距模块SP存储物品显示列表文件名称
+	 */
+	public final String RDIdNameList = "RDIdNameList";
+	/**
+	 * SP存储物品单位长度列表文件名称
+	 */
+	public final String RDUnitList = "RDUnitList";
+	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
+	private ArrayList<String> DistanceArr = new ArrayList<String>();
 	public ListView distance_listview_datalist;
 	public Button btn_noSkin = null;
 	public Button btn_setZero = null;
@@ -167,7 +176,7 @@ public class MC_DistancePickActivity extends BaseActivity
 		// requestGetClientVersionServer();
 		getParam();
 		initComponents();
-//		initObject();
+		initObject();
 //		startService();
 	}
 
@@ -289,7 +298,7 @@ public class MC_DistancePickActivity extends BaseActivity
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					FWSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				openFW();
+//				openFW();
 				break;
 			default:
 				break;
@@ -369,107 +378,107 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * 初始化变量对象
 	 */
 	private void initObject() {
-		InitSPFWShowList();
-		UpdateUnitWeightForEditText();
-		btn_getWeight.setOnClickListener(new View.OnClickListener() {
+//		InitSPFWShowList();
+//		UpdateUnitWeightForEditText();
+//		btn_getWeight.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				DistanceArr.clear();
+////				openFW();
+//			}
+//		});
+//		btn_setting.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//
+//			}
+//		});
+//		btn_setting_lock.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				isSettingUnitWeight = false;
+//				try {
+//					SerialTools.getInstance().closeFW();
+//				} catch (SerialPortException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+		btn_distance_material_unlock.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				WeightArr.clear();
-				openFW();
+				openRdSetUnit();
 			}
 		});
-		btn_setting.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-
-			}
-		});
-		btn_setting_lock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingUnitWeight = false;
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_setting_unlock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				openFwSetUnit();
-			}
-		});
-		btn_setZero.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
-			}
-		});
-		btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				SetZeroSPUnitWeightForFW();
-			}
-		});
-		btn_clearlist.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				distance_listview_datalist.setAdapter(null);
-			}
-		});
-		btn_return.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isReturnMaterial = true;
-				openFW();
-			}
-		});
-		btn_exitWeight.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_exitreturn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isReturnMaterial = false;
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+//		btn_setZero.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
+//			}
+//		});
+//		btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				SetZeroSPUnitWeightForFW();
+//			}
+//		});
+//		btn_clearlist.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				distance_listview_datalist.setAdapter(null);
+//			}
+//		});
+//		btn_return.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				isReturnMaterial = true;
+//				// openFW();
+//			}
+//		});
+//		btn_exitWeight.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				try {
+//					SerialTools.getInstance().closeFW();
+//				} catch (SerialPortException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		btn_exitreturn.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				isReturnMaterial = false;
+//				try {
+//					SerialTools.getInstance().closeFW();
+//				} catch (SerialPortException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 	}
 
 	private void resetViews() {
@@ -477,11 +486,11 @@ public class MC_DistancePickActivity extends BaseActivity
 		layout_show.setVisibility(View.VISIBLE);
 	}
 
-	private void openFW() {
+	private void openRD() {
 		SerialTools.getInstance().addToolsListener(this);
 		try {
 			for (int i = 1; i <= maxVendingCount; i++) {
-				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
+				SerialTools.getInstance().openRD(i);
 				Thread.sleep(20);
 			}
 		} catch (InterruptedException e) {
@@ -490,9 +499,9 @@ public class MC_DistancePickActivity extends BaseActivity
 		}
 	}
 
-	private void openFwSetUnit() {
+	private void openRdSetUnit() {
 		isSettingUnitWeight = true;
-		openFW();
+		openRD();
 	}
 
 	/**
@@ -557,7 +566,7 @@ public class MC_DistancePickActivity extends BaseActivity
 			UpdateSPUnitWeightForFW(pId, ConvertHelper.toInt(pWeight, 0));
 			UpdateUnitWeightForEditText();
 		} else {
-			final SharedPreferences sp = getSharedPreferences(FWDataList, MODE_PRIVATE);
+			final SharedPreferences sp = getSharedPreferences(RDDataList, MODE_PRIVATE);
 			// 获取之前该id内存储的重量
 			String preWeight = sp.getString(pId + "", "0");
 			sp.edit().putString(pId + "", pWeight).commit();
@@ -581,7 +590,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pWeight
 	 */
 	private void UpdateUnitWeightForEditText() {
-		final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);
+		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
 		String pWeight = "";
 		for (int i = 1; i <= maxVendingCount; i++) {
 			pWeight = spUnit.getString(i + "", "100");
@@ -610,7 +619,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pWeight
 	 */
 	private void UpdateSPUnitWeightForFW(int pId, int pWeight) {
-		final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);
+		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
 		spUnit.edit().putString(pId + "", "" + pWeight).commit();
 	}
 
@@ -623,14 +632,14 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	private void SetZeroSPUnitWeightForFW() {
 		// 先清空SP内的单位重量List
-		final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);
+		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
 		spUnit.edit().clear().commit();
 		// 再调用更新方法来更新单位重量显示
 		UpdateUnitWeightForEditText();
 	}
 
 	private void InitSPFWShowList() {
-		final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
+		final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 		for (int i = 1; i <= maxVendingCount; i++) {
 			sp.edit().putString(i + "", i + "号托盘").commit();
 		}
@@ -648,18 +657,18 @@ public class MC_DistancePickActivity extends BaseActivity
 	private void UpdateMaterialList(String pId, int pDifWeight) {
 		try {
 			// 获取显示物品列表文件
-			final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
+			final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 			// 获取该id在之前的显示列表内的个数，没有则为0
 			String idName = sp.getString(pId, "0");
 			if (idName.equals("0")) {
 				idName = pId + "号模块文件名获取失败";
 			}
 			// 获取物品单位标准重量
-			final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+			final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
 
 			// 获取该物品锁对应的单位重量，没有则为0
 			String idUnitWeight = spUnit.getString(pId, "1");// 之前该id内存储的值
-			int preCount = ConvertHelper.toInt(WEIGHTLIST.get(pId), 0);
+			int preCount = ConvertHelper.toInt(DISTANCELIST.get(pId), 0);
 			// 根据重量变化值和单位重量计算出变化的个数
 			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
 			float afterCount = Math.abs(pDifWeight) / denominator;
@@ -672,7 +681,7 @@ public class MC_DistancePickActivity extends BaseActivity
 					afterCount += preCount;
 				}
 				// 将变化的个数更新该ID对应的显示个数
-				WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+				DISTANCELIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 			}
 			ShowMaterialList();
 
@@ -685,14 +694,14 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * 将WEIGHTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowMaterialList() {
-		WeightArr.clear();
-		Iterator<Entry<String, String>> it = WEIGHTLIST.entrySet().iterator();
+		DistanceArr.clear();
+		Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
 		while (it.hasNext()) {
 			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			WeightArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
+			DistanceArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
 		}
 
-		distance_listview_datalist.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, WeightArr));
+		distance_listview_datalist.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
 
 	}
 
