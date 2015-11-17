@@ -499,7 +499,10 @@ public class MC_NormalPickActivity extends BaseActivity
 		msg.what = serialType;
 		msg.obj = value;
 		// 判断串口类型
+		ZillionLog.i(
+				String.format("NormalPick-serialReturn(value,serialType)-value={0},serialType={1}", value, serialType));
 		switch (serialType) {
+
 		case SerialTools.MESSAGE_LOG_mKeyBoard:
 			// 当串口类型为键盘时，判断是否为功能键
 			if (isOperating) {
@@ -542,6 +545,7 @@ public class MC_NormalPickActivity extends BaseActivity
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			ZillionLog.i(String.format("NormalPick-Handler-msg.what={0},msg.obj={1}", msg.what, (String) msg.obj));
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mKeyBoard:
 				hiddenAlertMsg();
@@ -641,8 +645,8 @@ public class MC_NormalPickActivity extends BaseActivity
 				intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
 				startActivity(intent);
 			}
-//			 } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
-		} else if ("20".equals(value)) {
+		} else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
+			// } else if ("20".equals(value)) {
 			// 功能键－－设置
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
 				operateStep = OPERATE_STEP.OPERATE_STEP_SET;
@@ -848,6 +852,7 @@ public class MC_NormalPickActivity extends BaseActivity
 				// 售货机
 				vendingChn.setInputQty(ConvertHelper.toInt(et_pick_number.getText().toString(), 0));
 				isOperating = true;
+				SerialTools.getInstance().addToolsListener(this);
 				openVender(null);
 
 			} else {

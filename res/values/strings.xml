@@ -2,7 +2,7 @@
 <resources>
 
 	<!-- public -->
-    <string name="app_name">Vending</string>
+    <string name="app_name">VendingPkg</string>
     <string name="hello_world">Hello world!</string>
     <string name="init_server_url">系统初始化，请输入服务器地址</string>
     <string name="placeholder_server_url">请输入服务器地址</string>
