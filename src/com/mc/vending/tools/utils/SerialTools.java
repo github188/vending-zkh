@@ -35,8 +35,8 @@ public class SerialTools {
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
 	private static final String PortName_mKeyBoard = "/dev/ttyO5"; // 键盘
 	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
-	private static final String PortName_mFw = "/dev/ttyO7"; // 称重模块
-	private static final String PortName_mRD = "/dev/ttyO4"; // 测距模块
+	private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块
+	private static final String PortName_mRD = "/dev/ttyO7"; // 测距模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
 	public static final int MESSAGE_LOG_mRFIDReader = 2; // 读卡器
@@ -431,8 +431,8 @@ public class SerialTools {
 	 *            测距模块ID号
 	 * @throws SerialPortException
 	 */
-	public void openRD(int pId) {
-		ZillionLog.i("打开测距模块：", pId);
+	public void openALLRD() {
+		ZillionLog.i("打开测距模块：", "");
 		try {
 			if (mRD.isOpened() || mRD.openPort()) {
 				try {
@@ -442,12 +442,12 @@ public class SerialTools {
 				}
 				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
 				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				ZillionLog.i("test", MyFunc.cmdGetRangeDistance(pId));
-				sendPortData(mRD, MyFunc.cmdGetRangeDistance(pId), true);
+				ZillionLog.i("test", MyFunc.cmdGetAllRangeDistance());
+				sendPortData(mRD, MyFunc.cmdGetAllRangeDistance(), true);
 			}
 
 		} catch (SerialPortException e) {
-			ZillionLog.e("打开测距模块：", pId + " " + e.getExceptionType().toString());
+			ZillionLog.e("打开测距模块：", e.getExceptionType().toString());
 			e.printStackTrace();
 		}
 	}
@@ -485,13 +485,6 @@ public class SerialTools {
 				mFw.setRequestMethod(SerialTools.MESSAGE_LOG_mFw);
 
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-
-				// if (mSendThread == null) {
-				// mSendThread = new SendThread();
-				// mSendThread.start();
-				// }
-
-				// mSendThread.setResume(); // 线程唤醒，开始发送
 				switch (pMethodType) {
 				case Constant.FW_GET_WEIGHT:
 					sendPortData(mFw, MyFunc.cmdOpenFW(pId), true);

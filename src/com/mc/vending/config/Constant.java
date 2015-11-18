@@ -156,6 +156,10 @@ public class Constant {
 	 * 称重模块-去皮
 	 */
 	public static final int FW_NET_WEIGHT = 2;
+	public final static String RDHOSTHEAD = "FFAA0055";
+	public final static String RDHOSTTAIL = "0055FFAA";
+	public final static String RDSERVEHEADWITHBLANK = "AA FF 55 00";
+	public final static String RDSERVETAILWITHBLANK = "55 00 AA FF";
 
 	public final static Map<String, String> WSIDNAMEMAP = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;

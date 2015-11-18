@@ -50,7 +50,7 @@ import android.widget.TextView;
 public class MC_WeightPickActivity extends BaseActivity
 		implements MC_SerialToolsListener, RequestDataFinishListener, DataParseRequestListener {
 	public DataServices dataServices;
-	public final int deviationScalar = 20;// 材料列表更新的重量摇摆标量
+	public final int deviationScalar = 5;// 材料列表更新的重量摇摆标量
 	public final double weightDeviationScalar = 0.1;
 	public final int maxVendingCount = 3;// 售货机id，十进制
 
@@ -58,8 +58,11 @@ public class MC_WeightPickActivity extends BaseActivity
 	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
 	public final String FWUnitList = "FWUnitList";// 称重模块SP存储物品单位重量列表文件名称
 	private Map<String, String> WEIGHTLIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
-	private ArrayList<String> WeightArr = new ArrayList<String>();
+	private Map<String, String> VENDINGCHNLIST = new LinkedHashMap<String, String>();// 用来储存每个货道库存个数的List
+	private ArrayList<String> WeightArr = new ArrayList<String>();// 用户领料物品名称、个数列表
+	private ArrayList<String> VendingChnArr = new ArrayList<String>();// 货到存放物品名称、个数列表
 	public ListView weight_datalist;
+	public ListView weight_listview_vendingchnlist;
 	public Button btn_noSkin = null;
 	public Button btn_setZero = null;
 	public Button btn_setting = null;
@@ -108,6 +111,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	boolean isOperating = false; // 是否再操作中
 	private boolean isStoreChecked; // 格子机验证返回
 	public boolean isSettingUnitWeight = false;
+	public boolean isSettingZero = false;
 	public boolean isReturnMaterial = false;
 	/**
 	 * 为小数点位置（0-5）
@@ -175,6 +179,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		initComponents();
 		initObject();
 		startService();
+		ShowVendingChnList();
 		// resetViews();
 		// foo();
 	}
@@ -291,6 +296,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mFw:
 				String[] portRtnStrList = ((String) msg.obj).split("FF");
@@ -303,6 +309,7 @@ public class MC_WeightPickActivity extends BaseActivity
 				break;
 			}
 		}
+
 	};
 
 	@Override
@@ -339,6 +346,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	private void initComponents() {
 		layout_show = (RelativeLayout) this.findViewById(R.id.relout_weight_show);
 		weight_datalist = (ListView) this.findViewById(R.id.weight_listview_datalist);
+		weight_listview_vendingchnlist = (ListView) this.findViewById(R.id.weight_listview_vendingchnlist);
 		btn_noSkin = (Button) this.findViewById(R.id.btn_noSkin);
 		btn_setZero = (Button) this.findViewById(R.id.btn_setZero);
 		btn_setting = (Button) this.findViewById(R.id.btn_setting);
@@ -408,7 +416,14 @@ public class MC_WeightPickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				isSettingZero = true;
 				SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
+				try {
+					SerialTools.getInstance().closeFW();
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
@@ -424,6 +439,7 @@ public class MC_WeightPickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				WeightArr.clear();
 				weight_datalist.setAdapter(null);
 			}
 		});
@@ -433,6 +449,7 @@ public class MC_WeightPickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				isReturnMaterial = true;
+				VendingChnArr.clear();
 				openFW();
 			}
 		});
@@ -510,25 +527,27 @@ public class MC_WeightPickActivity extends BaseActivity
 	 */
 	private void FWSerialPortReturnStrHandler(String pReturnString) {
 		int portId = -1;
+
 		if (pReturnString.isEmpty()) {
 
 		} else {
 			String[] strArrayReturnHex = pReturnString.split(" ");
-			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null) {
+			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null && strArrayReturnHex.length > 2) {
 				portId = Integer.parseInt(strArrayReturnHex[1], 16);
 				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
 				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
-				if (!StringHelper.isEmpty(theThirdByteStr)) {
+				if (!StringHelper.isEmpty(theThirdByteStr) && strArrayReturnHex.length > 5) {
 					// 对“第三位”状态位进行解析
 					char[] theThirdByteArr = theThirdByteStr.toCharArray();
-					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(0, 3), 2);
-					isScallingError = Integer.valueOf(theThirdByteArr[3] + "", 2) == 1 ? true : false;
-					isPositive = Integer.valueOf(theThirdByteArr[4] + "", 2) == 0 ? true : false;
-					isStable = Integer.valueOf(theThirdByteArr[5] + "", 2) == 1 ? true : false;
-					isOverload = Integer.valueOf(theThirdByteArr[6] + "", 2) == 1 ? true : false;
+					// 0 0 0 0 0 100
+					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(5, 7), 2);
+					isScallingError = Integer.valueOf(theThirdByteArr[4] + "", 2) == 1 ? true : false;
+					isPositive = Integer.valueOf(theThirdByteArr[3] + "", 2) == 0 ? true : false;
+					isStable = Integer.valueOf(theThirdByteArr[2] + "", 2) == 1 ? true : false;
+					isOverload = Integer.valueOf(theThirdByteArr[1] + "", 2) == 1 ? true : false;
 					// 高、中、低位重量数据
 					String weightValue = "" + (strArrayReturnHex[5] + strArrayReturnHex[4] + strArrayReturnHex[3]);
-					if (isStable && !isOverload) {
+					if (isStable && !isOverload && !isScallingError) {
 						SaveSharedPreferencesForFW(portId, weightValue);
 					}
 				}
@@ -554,15 +573,14 @@ public class MC_WeightPickActivity extends BaseActivity
 			// 获取之前该id内存储的重量
 			String preWeight = sp.getString(pId + "", "0");
 			sp.edit().putString(pId + "", pWeight).commit();
-			if (!isReturnMaterial) {
-				int preWeightInt = ConvertHelper.toInt(preWeight, 0);
-				int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
-				// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
-				if ((nowWeightInt - deviationScalar) > preWeightInt
-						|| (nowWeightInt + deviationScalar) < preWeightInt) {
-					UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
-				}
+			// if (!isReturnMaterial) {
+			int preWeightInt = ConvertHelper.toInt(preWeight, 0);
+			int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
+			// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
+			if ((nowWeightInt - deviationScalar) > preWeightInt || (nowWeightInt + deviationScalar) < preWeightInt) {
+				UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
 			}
+			// }
 		}
 	}
 
@@ -652,22 +670,41 @@ public class MC_WeightPickActivity extends BaseActivity
 
 			// 获取该物品锁对应的单位重量，没有则为0
 			String idUnitWeight = spUnit.getString(pId, "1");// 之前该id内存储的值
-			int preCount = ConvertHelper.toInt(WEIGHTLIST.get(pId), 0);
+			int preCount = 0;
+			if (!isReturnMaterial) {
+				preCount = ConvertHelper.toInt(WEIGHTLIST.get(pId), 0);
+			} else {
+				preCount = ConvertHelper.toInt(VENDINGCHNLIST.get(pId), 0);
+			}
 			// 根据重量变化值和单位重量计算出变化的个数
 			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
-			float afterCount = Math.abs(pDifWeight) / denominator;
+			float afterCount = pDifWeight / denominator;
 			if (afterCount != 0) {
 				afterCount = WeightCountCalculator(afterCount);
-				//pDifWeight为正是放回物品，为负是取走物品
 				if (pDifWeight > 0) {
-					afterCount -= preCount;
+					afterCount = preCount + afterCount;
 				} else {
 					afterCount += preCount;
 				}
-				// 将变化的个数更新该ID对应的显示个数
-				WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+				if (isReturnMaterial) {
+					// 将变化的个数更新该ID对应的显示个数
+					if (afterCount == 0) {
+						VENDINGCHNLIST.remove(pId);
+					} else {
+						VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					}
+				} else {
+					// 将变化的个数更新该ID对应的显示个数
+					if (afterCount == 0) {
+						WEIGHTLIST.remove(pId);
+					} else {
+						WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					}
+					ShowMaterialList();
+					UpdateVendingChnList(pId, afterCount, pDifWeight > 0 ? true : false);
+				}
+				ShowVendingChnList();
 			}
-			ShowMaterialList();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -690,6 +727,50 @@ public class MC_WeightPickActivity extends BaseActivity
 	}
 
 	/**
+	 * 更新货到库存列表
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * @param afterCount
+	 */
+	private void ShowVendingChnList() {
+		VendingChnArr.clear();
+		Iterator<Entry<String, String>> it = VENDINGCHNLIST.entrySet().iterator();
+		while (it.hasNext()) {
+			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+			VendingChnArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
+		}
+
+		weight_listview_vendingchnlist
+				.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, VendingChnArr));
+
+	}
+
+	/**
+	 * 用户领料后触发的更新货道物品数量
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            变化货道Id
+	 * @param pCount
+	 *            变化个数
+	 * @param isActive
+	 *            是否为正数
+	 */
+	private void UpdateVendingChnList(String pId, float pCount, boolean isActive) {
+		if (VENDINGCHNLIST.containsKey(pId)) {
+			float preCount = ConvertHelper.toFloat(VENDINGCHNLIST.get(pId), (float) 0);
+			float count = 0;
+			if (isActive) {
+				count = preCount - pCount;
+			} else {
+				count = preCount + pCount;
+			}
+			VENDINGCHNLIST.put(pId, count + "");
+		}
+	}
+
+	/**
 	 * 计算变化个数
 	 * 
 	 * @author junjie.you
@@ -699,7 +780,12 @@ public class MC_WeightPickActivity extends BaseActivity
 	private int WeightCountCalculator(float pNum) {
 		int intPart = (int) pNum;
 		if (FuzzyJudgment(pNum)) {
-			intPart++;
+			if (pNum > 0) {
+				intPart++;
+			} else {
+				intPart--;
+			}
+
 		}
 		return intPart;
 	}
@@ -717,6 +803,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		/*
 		 * 向上取整用Math.ceil(double a) 向下取整用Math.floor(double a)
 		 */
+		pNum = Math.abs(pNum);
 		double ceil = Math.ceil(pNum);
 		double floor = Math.floor(pNum);
 		if (((pNum + weightDeviationScalar) > ceil || (pNum - weightDeviationScalar) > floor) && ceil != floor) {

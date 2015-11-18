@@ -58,7 +58,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	public DataServices dataServices;
 	public final int deviationScalar = 20;// 材料列表更新的重量摇摆标量
 	public final double weightDeviationScalar = 0.1;
-	public final int maxVendingCount = 60;// 售货机id，十进制
+	public final int maxVendingCount = 49;// 售货机id，十进制
 
 	/**
 	 * 测距SP存储长度数据文件名称
@@ -87,8 +87,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	public EditText txt_weight_c;
 	public Button btn_setting_lock;
 	private Button btn_setting_unlock;
-	
-	
+
 	public TextView tv_distance_material;
 	public EditText txt_distance_material;
 	public Button btn_distance_material_save;
@@ -162,6 +161,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	public void requestFinished() {
 		// TODO Auto-generated method stub
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -177,7 +177,7 @@ public class MC_DistancePickActivity extends BaseActivity
 		getParam();
 		initComponents();
 		initObject();
-//		startService();
+		// startService();
 	}
 
 	/**
@@ -279,7 +279,7 @@ public class MC_DistancePickActivity extends BaseActivity
 		msg.obj = value;
 		// 判断串口类型
 		switch (serialType) {
-		case SerialTools.MESSAGE_LOG_mFw:
+		case SerialTools.MESSAGE_LOG_mRD:
 			// resetTimer();
 			handler.sendMessage(msg);
 			isRFID = false;
@@ -293,12 +293,13 @@ public class MC_DistancePickActivity extends BaseActivity
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case SerialTools.MESSAGE_LOG_mFw:
-				String[] portRtnStrList = ((String) msg.obj).split("FF");
+			case SerialTools.MESSAGE_LOG_mRD:
+				String[] portRtnStrList = ((String) msg.obj).replaceAll(Constant.RDSERVETAILWITHBLANK, "")
+						.split(Constant.RDSERVEHEADWITHBLANK);
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
-					FWSerialPortReturnStrHandler(portRtnStrList[i]);
+					RdSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-//				openFW();
+				// openFW();
 				break;
 			default:
 				break;
@@ -357,7 +358,7 @@ public class MC_DistancePickActivity extends BaseActivity
 		btn_return = (Button) this.findViewById(R.id.btn_return);
 		btn_exitWeight = (Button) this.findViewById(R.id.btn_exitWeight);
 		btn_exitreturn = (Button) this.findViewById(R.id.btn_exitreturn);
-		
+
 		distance_listview_datalist = (ListView) this.findViewById(R.id.weight_listview_datalist);
 		btn_distance_material_save = (Button) this.findViewById(R.id.btn_distance_material_save);
 		btn_distance_material_reset = (Button) this.findViewById(R.id.btn_distance_material_reset);
@@ -371,46 +372,46 @@ public class MC_DistancePickActivity extends BaseActivity
 		txt_distance_unit_b = (EditText) this.findViewById(R.id.txt_distance_unit_b);
 		tv_distance_unit_c = (TextView) this.findViewById(R.id.tv_distance_unit_c);
 		txt_distance_unit_c = (EditText) this.findViewById(R.id.txt_distance_unit_c);
-		
+
 	}
 
 	/**
 	 * 初始化变量对象
 	 */
 	private void initObject() {
-//		InitSPFWShowList();
-//		UpdateUnitWeightForEditText();
-//		btn_getWeight.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				DistanceArr.clear();
-////				openFW();
-//			}
-//		});
-//		btn_setting.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//
-//			}
-//		});
-//		btn_setting_lock.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				isSettingUnitWeight = false;
-//				try {
-//					SerialTools.getInstance().closeFW();
-//				} catch (SerialPortException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// InitSPFWShowList();
+		// UpdateUnitWeightForEditText();
+		// btn_getWeight.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// DistanceArr.clear();
+		//// openFW();
+		// }
+		// });
+		// btn_setting.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// });
+		// btn_setting_lock.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingUnitWeight = false;
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
 		btn_distance_material_unlock.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -419,66 +420,66 @@ public class MC_DistancePickActivity extends BaseActivity
 				openRdSetUnit();
 			}
 		});
-//		btn_setZero.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
-//			}
-//		});
-//		btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				SetZeroSPUnitWeightForFW();
-//			}
-//		});
-//		btn_clearlist.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				distance_listview_datalist.setAdapter(null);
-//			}
-//		});
-//		btn_return.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				isReturnMaterial = true;
-//				// openFW();
-//			}
-//		});
-//		btn_exitWeight.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				try {
-//					SerialTools.getInstance().closeFW();
-//				} catch (SerialPortException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//		btn_exitreturn.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				isReturnMaterial = false;
-//				try {
-//					SerialTools.getInstance().closeFW();
-//				} catch (SerialPortException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+		// btn_setZero.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
+		// }
+		// });
+		// btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// SetZeroSPUnitWeightForFW();
+		// }
+		// });
+		// btn_clearlist.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// distance_listview_datalist.setAdapter(null);
+		// }
+		// });
+		// btn_return.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isReturnMaterial = true;
+		// // openFW();
+		// }
+		// });
+		// btn_exitWeight.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_exitreturn.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isReturnMaterial = false;
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
 	}
 
 	private void resetViews() {
@@ -489,10 +490,8 @@ public class MC_DistancePickActivity extends BaseActivity
 	private void openRD() {
 		SerialTools.getInstance().addToolsListener(this);
 		try {
-			for (int i = 1; i <= maxVendingCount; i++) {
-				SerialTools.getInstance().openRD(i);
-				Thread.sleep(20);
-			}
+			SerialTools.getInstance().openALLRD();
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -531,6 +530,42 @@ public class MC_DistancePickActivity extends BaseActivity
 		} else {
 			String[] strArrayReturnHex = pReturnString.split(" ");
 			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null) {
+				portId = Integer.parseInt(strArrayReturnHex[1], 16);
+				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
+				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
+				if (!StringHelper.isEmpty(theThirdByteStr)) {
+					// 对“第三位”状态位进行解析
+					char[] theThirdByteArr = theThirdByteStr.toCharArray();
+					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(0, 3), 2);
+					isScallingError = Integer.valueOf(theThirdByteArr[3] + "", 2) == 1 ? true : false;
+					isPositive = Integer.valueOf(theThirdByteArr[4] + "", 2) == 0 ? true : false;
+					isStable = Integer.valueOf(theThirdByteArr[5] + "", 2) == 1 ? true : false;
+					isOverload = Integer.valueOf(theThirdByteArr[6] + "", 2) == 1 ? true : false;
+					// 高、中、低位重量数据
+					String weightValue = "" + (strArrayReturnHex[5] + strArrayReturnHex[4] + strArrayReturnHex[3]);
+					if (isStable && !isOverload) {
+						SaveSharedPreferencesForFW(portId, weightValue);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 用以处理测距模块串口传回的数据解析
+	 * 
+	 * @author junjie.you
+	 * @param pReturnString
+	 *            称重模块串口传回的数据
+	 */
+	private void RdSerialPortReturnStrHandler(String pReturnString) {
+		int portId = -1;
+		if (pReturnString.isEmpty()) {
+
+		} else {
+			String[] strArrayReturnHex = pReturnString.split(" ");
+			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null) {
+				// [, 01, CC, 00, 00, CD]
 				portId = Integer.parseInt(strArrayReturnHex[1], 16);
 				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
 				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
@@ -674,7 +709,7 @@ public class MC_DistancePickActivity extends BaseActivity
 			float afterCount = Math.abs(pDifWeight) / denominator;
 			if (afterCount != 0) {
 				afterCount = WeightCountCalculator(afterCount);
-				//pDifWeight为正是放回物品，为负是取走物品
+				// pDifWeight为正是放回物品，为负是取走物品
 				if (pDifWeight > 0) {
 					afterCount -= preCount;
 				} else {
@@ -701,7 +736,8 @@ public class MC_DistancePickActivity extends BaseActivity
 			DistanceArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
 		}
 
-		distance_listview_datalist.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
+		distance_listview_datalist
+				.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
 
 	}
 
@@ -741,22 +777,30 @@ public class MC_DistancePickActivity extends BaseActivity
 		return flag;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.mc.vending.parse.listener.DataParseListener#parseJson(com.mc.vending.data.BaseData)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mc.vending.parse.listener.DataParseListener#parseJson(com.mc.vending.
+	 * data.BaseData)
 	 */
 	@Override
 	public void parseJson(BaseData baseData) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
-	 * @see com.mc.vending.parse.listener.DataParseListener#parseRequestError(com.mc.vending.data.BaseData)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.mc.vending.parse.listener.DataParseListener#parseRequestError(com.mc.
+	 * vending.data.BaseData)
 	 */
 	@Override
 	public void parseRequestError(BaseData baseData) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

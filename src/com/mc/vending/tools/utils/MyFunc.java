@@ -2,6 +2,7 @@ package com.mc.vending.tools.utils;
 
 import java.math.BigInteger;
 
+import com.mc.vending.config.Constant;
 import com.zillionstar.tools.ZillionLog;
 
 /**
@@ -9,8 +10,7 @@ import com.zillionstar.tools.ZillionLog;
  */
 public class MyFunc {
 	public final static String BlankStr = " ";
-	public final static String RDHOSTHEAD = "FFAA0055";
-	public final static String RDHOSTTAIL = "0055FFAA";
+
 
 	// -------------------------------------------------------
 	// 判断奇数或偶数，位运算，最后一位是1则为奇数，为0是偶数
@@ -221,7 +221,7 @@ public class MyFunc {
 	public static String getRDCommand(String cmd) {
 		String noBlankCMD = cmd.replaceAll(" ", "");
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
-		return (RDHOSTHEAD + noBlankCMD + bcc + RDHOSTTAIL).toUpperCase();
+		return (Constant.RDHOSTHEAD + noBlankCMD + bcc + Constant.RDHOSTTAIL);
 	}
 
 	/**
@@ -276,7 +276,20 @@ public class MyFunc {
 	 */
 	public static String cmdGetRangeDistance(int pId) {
 		String cmdString = "01CC";
-		cmdString += String.format("%02x", pId);
+		cmdString = cmdString + String.format("%02x", pId);
+		return getRDCommand(cmdString);
+	}
+	
+	/**
+	 * 生成获取全部测距模块指令
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            模块ID号
+	 * @return
+	 */
+	public static String cmdGetAllRangeDistance() {
+		String cmdString = "015540";
 		return getRDCommand(cmdString);
 	}
 
