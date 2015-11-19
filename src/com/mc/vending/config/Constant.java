@@ -144,6 +144,15 @@ public class Constant {
     public static final int                 REQUEST_TIMEOUT                              = 30 * 1000;                             //设置请求超时10秒钟  
     public static final int                 SO_TIMEOUT                                   = 30 * 1000;                             //设置等待数据超时时间10秒钟  
 
+    /**
+     * 隐藏运行Android 4.0以上系统的平板的屏幕下方的状态栏
+     */
+    public static String HIDE_STATUSBAR_CMD = "su -c service call activity 42 s16 com.android.systemui";
+    /**
+     * 恢复运行Android 4.0以上系统的平板的屏幕下方的状态栏
+     */
+    public static String SHOW_STATUSBAR_CMD = "su -c am startservice -n com.android.systemui/.SystemUIService";
+    
     public final static Map<String, String> WSIDNAMEMAP                                  = new HashMap<String, String>() {
                                                                                              private static final long serialVersionUID = 1L;
                                                                                              {

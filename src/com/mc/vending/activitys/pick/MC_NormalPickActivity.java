@@ -4,6 +4,43 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.mc.vending.R;
+import com.mc.vending.activitys.BaseActivity;
+import com.mc.vending.activitys.MC_ImagePlayerActivity;
+import com.mc.vending.activitys.MainActivity;
+import com.mc.vending.activitys.VersionActivity;
+import com.mc.vending.activitys.setting.MC_SettingActivity;
+import com.mc.vending.config.Constant;
+import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
+import com.mc.vending.data.ProductPictureData;
+import com.mc.vending.data.VendingCardPowerWrapperData;
+import com.mc.vending.data.VendingChnData;
+import com.mc.vending.data.VendingData;
+import com.mc.vending.data.VendingPasswordData;
+import com.mc.vending.data.VendingPictureData;
+import com.mc.vending.data.VersionData;
+import com.mc.vending.db.VendingDbOper;
+import com.mc.vending.db.VendingPasswordDbOper;
+import com.mc.vending.db.VendingPictureDbOper;
+import com.mc.vending.parse.VersionDataParse;
+import com.mc.vending.parse.listener.DataParseRequestListener;
+import com.mc.vending.parse.listener.RequestDataFinishListener;
+import com.mc.vending.service.CompositeMaterialService;
+import com.mc.vending.service.DataServices;
+import com.mc.vending.service.GeneralMaterialService;
+import com.mc.vending.service.ReplenishmentService;
+import com.mc.vending.tools.ActivityManagerTool;
+import com.mc.vending.tools.AsyncImageLoader;
+import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ServiceResult;
+import com.mc.vending.tools.StringHelper;
+import com.mc.vending.tools.ZillionLog;
+import com.mc.vending.tools.utils.MC_SerialToolsListener;
+import com.mc.vending.tools.utils.MyFunc;
+import com.mc.vending.tools.utils.SerialTools;
+import com.zillion.evm.jssc.SerialPortException;
+
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ComponentName;
@@ -25,45 +62,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.mc.vending.R;
-import com.mc.vending.activitys.BaseActivity;
-import com.mc.vending.activitys.MC_ImagePlayerActivity;
-import com.mc.vending.activitys.MainActivity;
-import com.mc.vending.activitys.VersionActivity;
-import com.mc.vending.activitys.setting.MC_SettingActivity;
-import com.mc.vending.config.Constant;
-import com.mc.vending.data.BaseData;
-import com.mc.vending.data.CardData;
-import com.mc.vending.data.ConversionData;
-import com.mc.vending.data.ProductPictureData;
-import com.mc.vending.data.VendingCardPowerWrapperData;
-import com.mc.vending.data.VendingChnData;
-import com.mc.vending.data.VendingData;
-import com.mc.vending.data.VendingPasswordData;
-import com.mc.vending.data.VendingPictureData;
-import com.mc.vending.data.VersionData;
-import com.mc.vending.db.ConversionDbOper;
-import com.mc.vending.db.VendingDbOper;
-import com.mc.vending.db.VendingPasswordDbOper;
-import com.mc.vending.db.VendingPictureDbOper;
-import com.mc.vending.parse.VersionDataParse;
-import com.mc.vending.parse.listener.DataParseRequestListener;
-import com.mc.vending.parse.listener.RequestDataFinishListener;
-import com.mc.vending.service.CompositeMaterialService;
-import com.mc.vending.service.DataServices;
-import com.mc.vending.service.GeneralMaterialService;
-import com.mc.vending.service.ReplenishmentService;
-import com.mc.vending.tools.ActivityManagerTool;
-import com.mc.vending.tools.AsyncImageLoader;
-import com.mc.vending.tools.ConvertHelper;
-import com.mc.vending.tools.ServiceResult;
-import com.mc.vending.tools.StringHelper;
-import com.mc.vending.tools.ZillionLog;
-import com.mc.vending.tools.utils.MC_SerialToolsListener;
-import com.mc.vending.tools.utils.MyFunc;
-import com.mc.vending.tools.utils.SerialTools;
-import com.zillion.evm.jssc.SerialPortException;
+import android.widget.Toast;
 
 /**
  * 一般领料
@@ -115,6 +114,15 @@ public class MC_NormalPickActivity extends BaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/*
+		 * 隐藏运行Android 4.0以上系统的平板的屏幕下方的状态栏
+		 */
+		try {
+			Process proc = Runtime.getRuntime().exec(Constant.HIDE_STATUSBAR_CMD);
+			proc.waitFor();
+		} catch (Exception ex) {
+			Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+		}
 
 		setContentView(R.layout.acticity_normal_pick);
 		ActivityManagerTool.getActivityManager().add(this);
@@ -480,6 +488,16 @@ public class MC_NormalPickActivity extends BaseActivity
 	@Override
 	protected void onDestroy() {
 		ActivityManagerTool.getActivityManager().removeActivity(this);
+		/*
+		 * 恢复运行Android 4.0以上系统的平板的屏幕下方的状态栏
+		 */
+		try {
+			Process proc = Runtime.getRuntime().exec(Constant.SHOW_STATUSBAR_CMD);
+			proc.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		super.onDestroy();
 		this.unbindService(conn);
 	}
