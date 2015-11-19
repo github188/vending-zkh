@@ -162,6 +162,13 @@
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical" >
         </ListView>
+        <Button
+            android:id="@+id/btn_clear_vendingchn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/weight_listview_vendingchnlist"
+            android:text="清空货道库存" />
     </RelativeLayout>
 
 </LinearLayout>

@@ -57,6 +57,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	public final String FWDataList = "FWDataList";// 称重模块SP存储数据文件名称
 	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
 	public final String FWUnitList = "FWUnitList";// 称重模块SP存储物品单位重量列表文件名称
+	public final String RDDataList = "RDDataList";// 测距模块SP存储数据文件名称
 	private Map<String, String> WEIGHTLIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
 	private Map<String, String> VENDINGCHNLIST = new LinkedHashMap<String, String>();// 用来储存每个货道库存个数的List
 	private ArrayList<String> WeightArr = new ArrayList<String>();// 用户领料物品名称、个数列表
@@ -93,6 +94,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	private Button btn_return; // 开始补货
 	private Button btn_setting_unit_zero;
 	private Button btn_exitreturn;// 停止补货
+	private Button btn_clear_vendingchn;
 	private VendingData vendData; // 售货机对象
 	private VendingChnData vendingChn; // 售货机货道对象
 	private VendingCardPowerWrapperData wrapperData; // 卡密码权限对象
@@ -364,6 +366,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		btn_return = (Button) this.findViewById(R.id.btn_return);
 		btn_exitWeight = (Button) this.findViewById(R.id.btn_exitWeight);
 		btn_exitreturn = (Button) this.findViewById(R.id.btn_exitreturn);
+		btn_clear_vendingchn = (Button) this.findViewById(R.id.btn_clear_vendingchn);
 	}
 
 	/**
@@ -440,6 +443,7 @@ public class MC_WeightPickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				WeightArr.clear();
+				ClearFWDataListFromSP();
 				weight_datalist.setAdapter(null);
 			}
 		});
@@ -450,6 +454,7 @@ public class MC_WeightPickActivity extends BaseActivity
 				// TODO Auto-generated method stub
 				isReturnMaterial = true;
 				VendingChnArr.clear();
+				WEIGHTLIST.clear();
 				openFW();
 			}
 		});
@@ -478,6 +483,17 @@ public class MC_WeightPickActivity extends BaseActivity
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
+		});
+		btn_clear_vendingchn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				VendingChnArr.clear();
+				VENDINGCHNLIST.clear();
+				ClearVendingChnFromSP();
+				weight_listview_vendingchnlist.setAdapter(null);
 			}
 		});
 	}
@@ -539,7 +555,6 @@ public class MC_WeightPickActivity extends BaseActivity
 				if (!StringHelper.isEmpty(theThirdByteStr) && strArrayReturnHex.length > 5) {
 					// 对“第三位”状态位进行解析
 					char[] theThirdByteArr = theThirdByteStr.toCharArray();
-					// 0 0 0 0 0 100
 					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(5, 7), 2);
 					isScallingError = Integer.valueOf(theThirdByteArr[4] + "", 2) == 1 ? true : false;
 					isPositive = Integer.valueOf(theThirdByteArr[3] + "", 2) == 0 ? true : false;
@@ -613,6 +628,11 @@ public class MC_WeightPickActivity extends BaseActivity
 
 	}
 
+	private void UpdateRangeDistanceDataList(String pId, float pAcount) {
+		final SharedPreferences spUnit = getSharedPreferences(RDDataList, MODE_PRIVATE);
+		spUnit.edit().putString(pId, "" + pAcount).commit();
+	}
+
 	/**
 	 * 更新每个秤盘单位重量
 	 * 
@@ -679,13 +699,20 @@ public class MC_WeightPickActivity extends BaseActivity
 			// 根据重量变化值和单位重量计算出变化的个数
 			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
 			float afterCount = pDifWeight / denominator;
+			int difCount = 0;
 			if (afterCount != 0) {
 				afterCount = WeightCountCalculator(afterCount);
-				if (pDifWeight > 0) {
-					afterCount = preCount + afterCount;
+				difCount = Math.abs((int) afterCount);
+				// if (pDifWeight > 0) {
+				// afterCount = preCount + afterCount;
+				// } else {
+				if (isReturnMaterial) {
+					afterCount = preCount - afterCount;
 				} else {
 					afterCount += preCount;
 				}
+
+				// }
 				if (isReturnMaterial) {
 					// 将变化的个数更新该ID对应的显示个数
 					if (afterCount == 0) {
@@ -693,6 +720,7 @@ public class MC_WeightPickActivity extends BaseActivity
 					} else {
 						VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 					}
+					UpdateVendingChnList(pId, afterCount);
 				} else {
 					// 将变化的个数更新该ID对应的显示个数
 					if (afterCount == 0) {
@@ -701,8 +729,9 @@ public class MC_WeightPickActivity extends BaseActivity
 						WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 					}
 					ShowMaterialList();
-					UpdateVendingChnList(pId, afterCount, pDifWeight > 0 ? true : false);
+					UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifWeight > 0 ? true : false);
 				}
+
 				ShowVendingChnList();
 			}
 
@@ -727,6 +756,35 @@ public class MC_WeightPickActivity extends BaseActivity
 	}
 
 	/**
+	 * 从数据源读取历史记录
+	 * 
+	 * @author junjie.you
+	 */
+	private void GetVendingChnFromSP2List() {
+		final SharedPreferences rdDataList = getSharedPreferences(RDDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+
+		for (int i = 1; i <= maxVendingCount; i++) {
+			VENDINGCHNLIST.put(i + "", rdDataList.getString(i + "", "0.0"));
+		}
+
+	}
+
+	/**
+	 * 清空货道物品SP
+	 * 
+	 * @author junjie.you
+	 */
+	private void ClearVendingChnFromSP() {
+		final SharedPreferences rdDataList = getSharedPreferences(RDDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+		rdDataList.edit().clear().commit();
+	}
+
+	private void ClearFWDataListFromSP() {
+		final SharedPreferences fwDataList = getSharedPreferences(FWDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+		fwDataList.edit().clear().commit();
+	}
+
+	/**
 	 * 更新货到库存列表
 	 * 
 	 * @author junjie.you
@@ -735,10 +793,15 @@ public class MC_WeightPickActivity extends BaseActivity
 	 */
 	private void ShowVendingChnList() {
 		VendingChnArr.clear();
+		VENDINGCHNLIST.clear();
+		GetVendingChnFromSP2List();
 		Iterator<Entry<String, String>> it = VENDINGCHNLIST.entrySet().iterator();
 		while (it.hasNext()) {
 			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			VendingChnArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
+			if (!entry.getValue().equals("0.0")) {
+				VendingChnArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
+			}
+
 		}
 
 		weight_listview_vendingchnlist
@@ -752,22 +815,31 @@ public class MC_WeightPickActivity extends BaseActivity
 	 * @author junjie.you
 	 * @param pId
 	 *            变化货道Id
+	 * @param pDifCount
+	 *            本次领料个数变化值
 	 * @param pCount
-	 *            变化个数
+	 *            用户最终领料个数
+	 * @param pPreCount
+	 *            之前托盘个数变化值
 	 * @param isActive
 	 *            是否为正数
 	 */
-	private void UpdateVendingChnList(String pId, float pCount, boolean isActive) {
+	private void UpdateVendingChnList(String pId, int pDifCount, float pCount, int pPreCount, boolean isActive) {
 		if (VENDINGCHNLIST.containsKey(pId)) {
-			float preCount = ConvertHelper.toFloat(VENDINGCHNLIST.get(pId), (float) 0);
+			float preVendingChnCount = ConvertHelper.toFloat(VENDINGCHNLIST.get(pId), (float) 0);
 			float count = 0;
 			if (isActive) {
-				count = preCount - pCount;
+				count = preVendingChnCount - pCount + pPreCount;
 			} else {
-				count = preCount + pCount;
+				count = preVendingChnCount + pDifCount;
 			}
 			VENDINGCHNLIST.put(pId, count + "");
+			UpdateRangeDistanceDataList(pId, count);
 		}
+	}
+
+	private void UpdateVendingChnList(String pId, float pCount) {
+		UpdateRangeDistanceDataList(pId, pCount);
 	}
 
 	/**
