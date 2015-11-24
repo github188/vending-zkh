@@ -56,7 +56,7 @@ import android.widget.TextView;
 public class MC_DistancePickActivity extends BaseActivity
 		implements MC_SerialToolsListener, RequestDataFinishListener, DataParseListener {
 	public DataServices dataServices;
-	public final int deviationScalar = 20;// 材料列表更新的重量摇摆标量
+	public final int deviationScalar = 7;// 材料列表更新的重量摇摆标量
 	public final double weightDeviationScalar = 0.1;
 	public final int maxVendingCount = 49;// 售货机id，十进制
 
@@ -69,11 +69,28 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	public final String RDIdNameList = "RDIdNameList";
 	/**
-	 * SP存储物品单位长度列表文件名称
+	 * SP存储测距模块单位长度列表文件名称
 	 */
 	public final String RDUnitList = "RDUnitList";
-	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
-	private ArrayList<String> DistanceArr = new ArrayList<String>();
+	/**
+	 * SP存储物品单位长度列表文件名称
+	 */
+	public final String RDMaterialUnitList = "RDMaterialUnitList";
+	/**
+	 * 存放各模块0长度的值
+	 */
+	public final String RdZeroList = "RDZeroList";
+
+	/**
+	 * 存放货道库存个数
+	 */
+	public final String RDMaterialChnList = "RDMaterialChnList";
+
+	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器电路板返回的所有货道数据的List
+	private Map<String, String> DISTANCECHNCOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器库存个数List
+	private Map<String, String> DISTANCECOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器领料个数List
+	private ArrayList<String> DistanceArr = new ArrayList<String>();// 领料的Array
+	private ArrayList<String> DistanceChnArr = new ArrayList<String>();// 库存的Array
 	public ListView distance_listview_datalist;
 	public Button btn_noSkin = null;
 	public Button btn_setZero = null;
@@ -98,8 +115,17 @@ public class MC_DistancePickActivity extends BaseActivity
 	public EditText txt_distance_unit_b;
 	public TextView tv_distance_unit_c;
 	public EditText txt_distance_unit_c;
+	public TextView tv_distance_show;
+	public EditText txt_distance_show;
 	public Button btn_distance_material_lock;
 	public Button btn_distance_material_unlock;
+	public Button btn_distance_material_setzero;
+	public Button btn_distance_material_getdistance;
+	public Button btn_distance_material_stopgetdistance;
+	public Button btn_distance_return;
+	public Button btn_distance_exitreturn;
+	public Button btn_clear_distance_vendingchn;
+	public ListView distance_listview_vendingchnlist;
 
 	public RelativeLayout layout_setting; // 步骤1布局
 	public RelativeLayout layout_show; // 步骤2布局
@@ -121,10 +147,13 @@ public class MC_DistancePickActivity extends BaseActivity
 
 	private TimerTask mTimerTask;
 	private final static int MESSAGE_Image_player = 99; // 跳转到待机
+	private final static String[] TotalVendingChn = { "49" };// 总共有多少测距货道
 	boolean isOperating = false; // 是否再操作中
 	private boolean isStoreChecked; // 格子机验证返回
-	public boolean isSettingUnitWeight = false;
-	public boolean isReturnMaterial = false;
+	public boolean isSettingUnitDistance = false;// 是否校对测距模块单位毫米电压数
+	public boolean isSettingMaterialUnitDistance = false;// 是否校对测量物品单位长度
+	public boolean isReturnMaterial = false;// 是否在做补货
+	public boolean isSettingUnitZero = false;// 是否在对模块校对为0
 	/**
 	 * 为小数点位置（0-5）
 	 * 
@@ -177,6 +206,8 @@ public class MC_DistancePickActivity extends BaseActivity
 		getParam();
 		initComponents();
 		initObject();
+		ShowUnitDistance4EditText(maxVendingCount + "");
+		ShowMaterialUnitDistance4EditText(maxVendingCount + "");
 		// startService();
 	}
 
@@ -299,7 +330,20 @@ public class MC_DistancePickActivity extends BaseActivity
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					RdSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				// openFW();
+				if (isSettingUnitZero) {
+					try {
+						InitFlag();
+						SerialTools.getInstance().closeRD();
+
+					} catch (SerialPortException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else if (isSettingUnitDistance) {
+					openRdSetUnit();
+				} else {
+					openRD();
+				}
 				break;
 			default:
 				break;
@@ -340,7 +384,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	private void initComponents() {
 		layout_show = (RelativeLayout) this.findViewById(R.id.relout_weight_show);
-		distance_listview_datalist = (ListView) this.findViewById(R.id.weight_listview_datalist);
+		distance_listview_datalist = (ListView) this.findViewById(R.id.distance_listview_datalist);
 		btn_noSkin = (Button) this.findViewById(R.id.btn_noSkin);
 		btn_setZero = (Button) this.findViewById(R.id.btn_setZero);
 		btn_setting = (Button) this.findViewById(R.id.btn_setting);
@@ -358,8 +402,9 @@ public class MC_DistancePickActivity extends BaseActivity
 		btn_return = (Button) this.findViewById(R.id.btn_return);
 		btn_exitWeight = (Button) this.findViewById(R.id.btn_exitWeight);
 		btn_exitreturn = (Button) this.findViewById(R.id.btn_exitreturn);
+		btn_distance_material_setzero = (Button) this.findViewById(R.id.btn_distance_material_setzero);
 
-		distance_listview_datalist = (ListView) this.findViewById(R.id.weight_listview_datalist);
+		distance_listview_datalist = (ListView) this.findViewById(R.id.distance_listview_datalist);
 		btn_distance_material_save = (Button) this.findViewById(R.id.btn_distance_material_save);
 		btn_distance_material_reset = (Button) this.findViewById(R.id.btn_distance_material_reset);
 		btn_distance_material_lock = (Button) this.findViewById(R.id.btn_distance_material_lock);
@@ -372,6 +417,14 @@ public class MC_DistancePickActivity extends BaseActivity
 		txt_distance_unit_b = (EditText) this.findViewById(R.id.txt_distance_unit_b);
 		tv_distance_unit_c = (TextView) this.findViewById(R.id.tv_distance_unit_c);
 		txt_distance_unit_c = (EditText) this.findViewById(R.id.txt_distance_unit_c);
+		tv_distance_show = (TextView) this.findViewById(R.id.tv_distance_show);
+		txt_distance_show = (EditText) this.findViewById(R.id.txt_distance_show);
+		btn_distance_material_getdistance = (Button) this.findViewById(R.id.btn_distance_material_getdistance);
+		btn_distance_material_stopgetdistance = (Button) this.findViewById(R.id.btn_distance_material_stopgetdistance);
+		btn_distance_return = (Button) this.findViewById(R.id.btn_distance_return);
+		btn_distance_exitreturn = (Button) this.findViewById(R.id.btn_distance_exitreturn);
+		btn_clear_distance_vendingchn = (Button) this.findViewById(R.id.btn_clear_distance_vendingchn);
+		distance_listview_vendingchnlist = (ListView) this.findViewById(R.id.distance_listview_vendingchnlist);
 
 	}
 
@@ -379,7 +432,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * 初始化变量对象
 	 */
 	private void initObject() {
-		// InitSPFWShowList();
+		InitSPRDShowList();
 		// UpdateUnitWeightForEditText();
 		// btn_getWeight.setOnClickListener(new View.OnClickListener() {
 		//
@@ -398,36 +451,124 @@ public class MC_DistancePickActivity extends BaseActivity
 		//
 		// }
 		// });
-		// btn_setting_lock.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// isSettingUnitWeight = false;
-		// try {
-		// SerialTools.getInstance().closeFW();
-		// } catch (SerialPortException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// }
-		// });
+		btn_distance_material_lock.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitFlag();
+				try {
+					SerialTools.getInstance().closeRD();
+
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		btn_distance_material_unlock.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				isSettingUnitDistance = true;
 				openRdSetUnit();
 			}
 		});
-		// btn_setZero.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
-		// }
-		// });
+		btn_distance_material_setzero.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				isSettingUnitZero = true;
+				openRD(49);
+
+			}
+		});
+
+		btn_distance_material_getdistance.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitFlag();
+				openRD();
+			}
+		});
+		btn_distance_material_stopgetdistance.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitFlag();
+				try {
+					SerialTools.getInstance().closeRD();
+
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		btn_distance_material_reset.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				isSettingMaterialUnitDistance = true;
+				openRD();
+			}
+		});
+		btn_distance_material_save.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitFlag();
+				try {
+					SerialTools.getInstance().closeRD();
+
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		btn_distance_return.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				InitFlag();
+				isReturnMaterial = true;
+				openRD();
+			}
+		});
+		btn_distance_exitreturn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitFlag();
+				try {
+					SerialTools.getInstance().closeRD();
+
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		btn_clear_distance_vendingchn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				DISTANCECHNCOUNTLIST.clear();
+				DistanceChnArr.clear();
+				ClearSP(RDMaterialChnList);
+				distance_listview_vendingchnlist.setAdapter(null);
+			}
+		});
 		// btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
 		//
 		// @Override
@@ -489,18 +630,24 @@ public class MC_DistancePickActivity extends BaseActivity
 
 	private void openRD() {
 		SerialTools.getInstance().addToolsListener(this);
-		try {
-			SerialTools.getInstance().openALLRD();
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		SerialTools.getInstance().openALLRD();
+	}
+
+	private void openRD(int pId) {
+		SerialTools.getInstance().addToolsListener(this);
+		SerialTools.getInstance().openRd(pId);
 	}
 
 	private void openRdSetUnit() {
-		isSettingUnitWeight = true;
+		isSettingUnitDistance = true;
 		openRD();
+	}
+
+	private void InitFlag() {
+		isReturnMaterial = false;
+		isSettingUnitDistance = false;
+		isSettingUnitZero = false;
+		isSettingMaterialUnitDistance = false;
 	}
 
 	/**
@@ -513,45 +660,6 @@ public class MC_DistancePickActivity extends BaseActivity
 	}
 
 	/**
-	 * 用以处理称重模块串口传回的数据解析 第1字节： D0~D7 —— 0FFH（起始位） 第2字节： D0~D7 ——
-	 * ID号（有效范围为1-200，0为特殊用途） 第3字节： D0~D2 —— 为小数点位置（0-5） D3 —— 1表示标定参数错误，需要重新标定
-	 * D4 —— 1表示重量为负，0表示重量为正 D5 —— 1表示重量稳定，0表示重量不稳定 D6 —— 1表示重量超载，0表示重量未超载 第4字节：
-	 * D0~D7 —— BCD1（显示数值的最低字节） 第5字节： D0~D7 —— BCD2（显示数值的中间字节） 第6字节： D0~D7 ——
-	 * BCD3（显示数值的最高字节） 第7字节： D0~D7 —— 对前面的6个字节进行异或检验，如果校验结果和第一个字节相同，则变为0x7F。
-	 * 
-	 * @author junjie.you
-	 * @param pReturnString
-	 *            称重模块串口传回的数据
-	 */
-	private void FWSerialPortReturnStrHandler(String pReturnString) {
-		int portId = -1;
-		if (pReturnString.isEmpty()) {
-
-		} else {
-			String[] strArrayReturnHex = pReturnString.split(" ");
-			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null) {
-				portId = Integer.parseInt(strArrayReturnHex[1], 16);
-				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
-				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
-				if (!StringHelper.isEmpty(theThirdByteStr)) {
-					// 对“第三位”状态位进行解析
-					char[] theThirdByteArr = theThirdByteStr.toCharArray();
-					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(0, 3), 2);
-					isScallingError = Integer.valueOf(theThirdByteArr[3] + "", 2) == 1 ? true : false;
-					isPositive = Integer.valueOf(theThirdByteArr[4] + "", 2) == 0 ? true : false;
-					isStable = Integer.valueOf(theThirdByteArr[5] + "", 2) == 1 ? true : false;
-					isOverload = Integer.valueOf(theThirdByteArr[6] + "", 2) == 1 ? true : false;
-					// 高、中、低位重量数据
-					String weightValue = "" + (strArrayReturnHex[5] + strArrayReturnHex[4] + strArrayReturnHex[3]);
-					if (isStable && !isOverload) {
-						SaveSharedPreferencesForFW(portId, weightValue);
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * 用以处理测距模块串口传回的数据解析
 	 * 
 	 * @author junjie.you
@@ -559,33 +667,44 @@ public class MC_DistancePickActivity extends BaseActivity
 	 *            称重模块串口传回的数据
 	 */
 	private void RdSerialPortReturnStrHandler(String pReturnString) {
-		int portId = -1;
-		if (pReturnString.isEmpty()) {
 
-		} else {
-			String[] strArrayReturnHex = pReturnString.split(" ");
-			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null) {
-				// [, 01, CC, 00, 00, CD]
-				portId = Integer.parseInt(strArrayReturnHex[1], 16);
-				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
-				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
-				if (!StringHelper.isEmpty(theThirdByteStr)) {
-					// 对“第三位”状态位进行解析
-					char[] theThirdByteArr = theThirdByteStr.toCharArray();
-					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(0, 3), 2);
-					isScallingError = Integer.valueOf(theThirdByteArr[3] + "", 2) == 1 ? true : false;
-					isPositive = Integer.valueOf(theThirdByteArr[4] + "", 2) == 0 ? true : false;
-					isStable = Integer.valueOf(theThirdByteArr[5] + "", 2) == 1 ? true : false;
-					isOverload = Integer.valueOf(theThirdByteArr[6] + "", 2) == 1 ? true : false;
-					// 高、中、低位重量数据
-					String weightValue = "" + (strArrayReturnHex[5] + strArrayReturnHex[4] + strArrayReturnHex[3]);
-					if (isStable && !isOverload) {
-						SaveSharedPreferencesForFW(portId, weightValue);
-					}
+		if (pReturnString.length() == 370 || pReturnString.length() == 16) {
+			pReturnString = pReturnString.substring(6);
+			if (isSettingUnitZero) {
+				DISTANCELIST.put(maxVendingCount + "", pReturnString.substring(0, 6));
+			} else {
+				for (int i = 0; i < 60; i++) {
+					DISTANCELIST.put((i + 1) + "", pReturnString.substring(6 * i, 6 * i + 6));
 				}
 			}
+			pReturnString = null;
+			for (String i : TotalVendingChn) {
+				if (DISTANCELIST.containsKey(i)) {
+					// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
+					String mockDistanceV16 = DISTANCELIST.get(i).replaceAll(" ", "");// 找到对应的距离参数，16进制
+					String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();
+					float afterCount = CalcDistance(i, mockDistanceV10);
+					if (isSettingUnitDistance) {
+						UpdateUnitDistanceForEditText(i, afterCount + "");
+					} else if (isSettingUnitZero) {
+						SetSP(RdZeroList, i, mockDistanceV10);
+					} else if (isSettingMaterialUnitDistance) {
+						ShowMaterialUnitDistance(i, afterCount + "");
+					} else if (isReturnMaterial) {
+						ShowReturnMaterialDataList(i, afterCount + "");
+					} else {
+						ShowDistance4EditText(i, afterCount + "");
+						ShowReturnMaterialDataList(i, afterCount + "");
+					}
+
+				}
+
+			}
 		}
+
 	}
+
+	// SaveSharedPreferencesForFW(portId, weightValue);
 
 	/**
 	 * 将取得的id与重量的值保存至对应的SP中，这里要分清是设置单位重量还是获取实际领取重量
@@ -593,27 +712,25 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @author junjie.you
 	 * @param pId
 	 *            称重模块ID
-	 * @param pWeight
+	 * @param pLength
 	 *            模块读取到的重量数值
 	 */
-	private void SaveSharedPreferencesForFW(int pId, String pWeight) {
-		if (isSettingUnitWeight) {
-			UpdateSPUnitWeightForFW(pId, ConvertHelper.toInt(pWeight, 0));
-			UpdateUnitWeightForEditText();
-		} else {
-			final SharedPreferences sp = getSharedPreferences(RDDataList, MODE_PRIVATE);
-			// 获取之前该id内存储的重量
-			String preWeight = sp.getString(pId + "", "0");
-			sp.edit().putString(pId + "", pWeight).commit();
-			if (!isReturnMaterial) {
-				int preWeightInt = ConvertHelper.toInt(preWeight, 0);
-				int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
-				// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
-				if ((nowWeightInt - deviationScalar) > preWeightInt
-						|| (nowWeightInt + deviationScalar) < preWeightInt) {
-					UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
-				}
-			}
+	private void SaveSharedPreferencesForRD(String pId, String pLength) {
+
+		// 获取之前该id内存储的长度
+		String preLength = GetSP(RDDataList, pId, "0");
+		SetSP(RDDataList, pId, pLength);
+		// if (!isReturnMaterial) {
+		int preLengthInt = ConvertHelper.toInt(preLength, 0);
+		int nowLengthInt = ConvertHelper.toInt(pLength, deviationScalar);
+		// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
+		if ((nowLengthInt - deviationScalar) > preLengthInt || (nowLengthInt + deviationScalar) < preLengthInt) {
+			int different = ConvertHelper.toInt(preLength, 0) - ConvertHelper.toInt(pLength, 0);
+			// String unitLength = GetSP(RDMaterialUnitList, pId, "1");
+			// if (FuzzyJudgment(different / ConvertHelper.toFloat(unitLength,
+			// (float) 1))) {
+			UpdateMaterialListForRD(pId, different);
+			// }
 		}
 	}
 
@@ -624,38 +741,34 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pId
 	 * @param pWeight
 	 */
-	private void UpdateUnitWeightForEditText() {
-		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
-		String pWeight = "";
-		for (int i = 1; i <= maxVendingCount; i++) {
-			pWeight = spUnit.getString(i + "", "100");
-			switch (i) {
-			case 1:
-				txt_weight_a.setText(pWeight);
-				break;
-			case 2:
-				txt_weight_b.setText(pWeight);
-				break;
-			case 3:
-				txt_weight_c.setText(pWeight);
-				break;
-			default:
-				break;
-			}
-		}
-
-	}
-
-	/**
-	 * 更新每个秤盘单位重量
-	 * 
-	 * @author junjie.you
-	 * @param pId
-	 * @param pWeight
-	 */
-	private void UpdateSPUnitWeightForFW(int pId, int pWeight) {
-		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
-		spUnit.edit().putString(pId + "", "" + pWeight).commit();
+	private void UpdateUnitDistanceForEditText(String pId, String pNowLength) {
+		float unitDistance = (float) 0.0;
+		// for (String i : TotalVendingChn) {
+		// if (DISTANCELIST.containsKey(i)) {
+		// String mockDistanceV16 = DISTANCELIST.get(i).replaceAll(" ", "");//
+		// 找到对应的距离参数，16进制
+		// String mockDistanceV10 = Integer.valueOf(mockDistanceV16,
+		// 16).toString();
+		// int acNum = ConvertHelper.toInt(mockDistanceV10, 1) -
+		// ConvertHelper.toInt(GetSP(RdZeroList, i), 1);
+		// if (acNum < 0) {
+		// acNum = 0;
+		// }
+		// mockDistanceV10 = acNum + "";
+		// String denominator = txt_distance_unit_a.getText().toString();
+		// txt_distance_unit_b.setText(mockDistanceV10);
+		// unitDistance = (Integer.parseInt(mockDistanceV10) /
+		// ConvertHelper.toFloat(denominator, (float) 1) / 10);
+		// txt_distance_unit_c.setText(unitDistance + "");
+		// SetSP(RDUnitList, i, unitDistance + "");
+		// // ShowDistance4EditText(mockDistanceV10);
+		// }
+		// }
+		String denominator = txt_distance_unit_a.getText().toString();
+		txt_distance_unit_b.setText(pNowLength);
+		unitDistance = (ConvertHelper.toInt(pNowLength, 0) / ConvertHelper.toFloat(denominator, (float) 1) / 10);
+		txt_distance_unit_c.setText(unitDistance + "");
+		SetSP(RDUnitList, pId, unitDistance + "");
 	}
 
 	/**
@@ -665,19 +778,76 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pId
 	 * @param pWeight
 	 */
-	private void SetZeroSPUnitWeightForFW() {
+	private void InitSP(String pSPName) {
 		// 先清空SP内的单位重量List
-		final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);
+		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
 		spUnit.edit().clear().commit();
 		// 再调用更新方法来更新单位重量显示
-		UpdateUnitWeightForEditText();
+		// UpdateUnitWeightForEditText();
 	}
 
-	private void InitSPFWShowList() {
+	/**
+	 * 获取测距模块单位长度
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * 
+	 */
+	private String GetSP(String pSPName, String pId) {
+		String retStr = null;
+		// 先清空SP内的单位重量List
+		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
+		if (spUnit.contains(pId)) {
+			retStr = spUnit.getString(pId, "");
+		}
+		// 再调用更新方法来更新单位重量显示
+		// UpdateUnitWeightForEditText();
+		return retStr;
+	}
+
+	/**
+	 * 获取测距模块单位长度
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * 
+	 */
+	private String GetSP(String pSPName, String pId, String defaultValue) {
+		String retStr = null;
+		// 先清空SP内的单位重量List
+		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
+		if (spUnit.contains(pId)) {
+			retStr = spUnit.getString(pId, defaultValue);
+		}
+		// 再调用更新方法来更新单位重量显示
+		// UpdateUnitWeightForEditText();
+		return retStr;
+	}
+
+	/**
+	 * 获取测距模块单位长度
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * @param pWeight
+	 */
+	private void SetSP(String pSPName, String pId, String pData) {
+		// 先清空SP内的单位重量List
+		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
+		spUnit.edit().putString(pId, pData).commit();
+	}
+
+	private void InitSPRDShowList() {
 		final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 		for (int i = 1; i <= maxVendingCount; i++) {
-			sp.edit().putString(i + "", i + "号托盘").commit();
+			sp.edit().putString(i + "", i + "号货道").commit();
 		}
+	}
+
+	private void ClearSP(String pSPName) {
+
+		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
+		spUnit.edit().clear().commit();
 	}
 
 	/**
@@ -685,11 +855,11 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * 
 	 * @author junjie.you
 	 * @param pId
-	 *            称重模块ID
-	 * @param pDifWeight
-	 *            变化的重量数值
+	 *            测距模块ID
+	 * @param pDifLength
+	 *            变化的长度数值
 	 */
-	private void UpdateMaterialList(String pId, int pDifWeight) {
+	private void UpdateMaterialListForRD(String pId, int pDifLength) {
 		try {
 			// 获取显示物品列表文件
 			final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
@@ -698,42 +868,209 @@ public class MC_DistancePickActivity extends BaseActivity
 			if (idName.equals("0")) {
 				idName = pId + "号模块文件名获取失败";
 			}
-			// 获取物品单位标准重量
-			final SharedPreferences spUnit = getSharedPreferences(RDUnitList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
 
-			// 获取该物品锁对应的单位重量，没有则为0
-			String idUnitWeight = spUnit.getString(pId, "1");// 之前该id内存储的值
-			int preCount = ConvertHelper.toInt(DISTANCELIST.get(pId), 0);
+			// 获取该物品锁对应的单位重量，没有则为1
+			String idUnitLength = GetSP(RDMaterialUnitList, pId, "1");// 之前该id内存储的值
+			int preCount = 0;
+			if (!isReturnMaterial) {
+				preCount = ConvertHelper.toInt(DISTANCECOUNTLIST.get(pId), 0);
+			} else {
+				preCount = ConvertHelper.toInt(DISTANCECHNCOUNTLIST.get(pId), 0);
+			}
 			// 根据重量变化值和单位重量计算出变化的个数
-			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
-			float afterCount = Math.abs(pDifWeight) / denominator;
+			float denominator = ConvertHelper.toFloat(idUnitLength, (float) 0.00);
+			float afterCount = pDifLength / denominator;
+			int difCount = 0;
 			if (afterCount != 0) {
-				afterCount = WeightCountCalculator(afterCount);
-				// pDifWeight为正是放回物品，为负是取走物品
-				if (pDifWeight > 0) {
-					afterCount -= preCount;
+				afterCount = LengthCountCalculator(afterCount);
+				difCount = Math.abs((int) afterCount);
+				// if (pDifWeight > 0) {
+				// afterCount = preCount + afterCount;
+				// } else {
+				if (!isReturnMaterial) {
+					afterCount = preCount - afterCount;
 				} else {
 					afterCount += preCount;
 				}
-				// 将变化的个数更新该ID对应的显示个数
-				DISTANCELIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
-			}
-			ShowMaterialList();
 
+				// }
+				if (isReturnMaterial) {
+					// 将变化的个数更新该ID对应的显示个数
+					if (afterCount == 0) {
+						DISTANCECHNCOUNTLIST.remove(pId);
+					} else {
+						DISTANCECHNCOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					}
+					SetSP(RDMaterialChnList, pId, afterCount + "");
+				} else {
+					// 将变化的个数更新该ID对应的显示个数
+					if (afterCount == 0) {
+						DISTANCECOUNTLIST.remove(pId);
+					} else {
+						DISTANCECOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					}
+					ShowMaterialList();
+					UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifLength > 0 ? false : true);
+				}
+				ShowVendingChnList();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * 更新货到库存列表
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * @param afterCount
+	 */
+	private void ShowVendingChnList() {
+		DistanceChnArr.clear();
+		DISTANCECHNCOUNTLIST.clear();
+		GetVendingChnFromSP2List();
+		Iterator<Entry<String, String>> it = DISTANCECHNCOUNTLIST.entrySet().iterator();
+		while (it.hasNext()) {
+			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+			if (!entry.getValue().equals("0.0")) {
+				DistanceChnArr.add(entry.getKey() + "号货道		X" + entry.getValue());
+			}
+
+		}
+
+		distance_listview_vendingchnlist
+				.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceChnArr));
+
+	}
+
+	private void GetVendingChnFromSP2List() {
+		for (int i = maxVendingCount; i <= maxVendingCount; i++) {
+			DISTANCECHNCOUNTLIST.put(i + "", GetSP(RDMaterialChnList, maxVendingCount + ""));
 		}
 	}
 
 	/**
-	 * 将WEIGHTLIST绑定到ListView上，同时更新界面
+	 * 用户领料后触发的更新货道物品数量
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            变化货道Id
+	 * @param pDifCount
+	 *            本次领料个数变化值
+	 * @param pCount
+	 *            用户最终领料个数
+	 * @param pPreCount
+	 *            之前托盘个数变化值
+	 * @param isActive
+	 *            是否为正数
+	 */
+	private void UpdateVendingChnList(String pId, int pDifCount, float pCount, int pPreCount, boolean isActive) {
+		if (DISTANCECHNCOUNTLIST.containsKey(pId)) {
+			float preVendingChnCount = ConvertHelper.toFloat(DISTANCECHNCOUNTLIST.get(pId), (float) 0);
+			float count = 0;
+			if (isActive) {
+				count = preVendingChnCount - pCount + pPreCount;
+			} else {
+				count = preVendingChnCount + pDifCount;
+			}
+			DISTANCECHNCOUNTLIST.put(pId, count + "");
+			SetSP(RDMaterialChnList, pId, count + "");
+		}
+	}
+
+	/**
+	 * 显示当前毫米数
+	 * 
+	 * @author junjie.you
+	 * @param pNowLength
+	 */
+	private void ShowDistance4EditText(String pId, String pNowLength) {
+		float afterCount = CalcDistanceCount(pId, ConvertHelper.toFloat(pNowLength, (float) 0));
+		txt_distance_show.setText(afterCount + "");
+	}
+
+	/**
+	 * 计算当前实际毫米数
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * @param pNowLength
+	 * @return
+	 */
+	private float CalcDistance(String pId, String pNowLength) {
+		String zeroLength = GetSP(RdZeroList, maxVendingCount + "");
+		float nowLength = ConvertHelper.toInt(pNowLength, 0) - ConvertHelper.toInt(zeroLength, 0);
+		return nowLength;
+	}
+
+	private float CalcDistanceCount(String pId, float pNowLength) {
+		String unit = GetSP(RDUnitList, pId);
+		float denominator = ConvertHelper.toFloat(unit, (float) 0.00);
+		float afterCount = Math.abs(pNowLength) / denominator;
+		return afterCount;
+	}
+
+	/**
+	 * 显示物品单位长度
+	 * 
+	 * @author junjie.you
+	 * @param pNowLength
+	 */
+	private void ShowMaterialUnitDistance(String pId, String pNowLength) {
+		float NowLength = CalcDistanceCount(pId, ConvertHelper.toFloat(pNowLength, (float) 0));
+		SetSP(RDMaterialUnitList, pId, NowLength + "");
+		ShowMaterialUnitDistance4EditText(pId);
+
+	}
+
+	/**
+	 * 显示补货流程
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 * @param pNowLength
+	 */
+	private void ShowReturnMaterialDataList(String pId, String pNowLength) {
+		float afterCount = CalcDistanceCount(pId, ConvertHelper.toFloat(pNowLength, (float) 0));
+
+		SaveSharedPreferencesForRD(pId, afterCount + "");
+	}
+
+	/**
+	 * 显示物品单位长度
+	 * 
+	 * @author junjie.you
+	 * @param pNowLength
+	 */
+	private void ShowMaterialUnitDistance4EditText(String pId) {
+		String afterCount = GetSP(RDMaterialUnitList, pId);
+		// CalcDistance(pId, GetSP(RDMaterialUnitList, pId));
+		// CalcDistanceCount(afterCount);
+		txt_distance_material.setText(afterCount);
+	}
+
+	/**
+	 * 显示校准长度
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 */
+	private void ShowUnitDistance4EditText(String pId) {
+		String unit = GetSP(RDUnitList, pId);
+		txt_distance_unit_c.setText(unit + "");
+	}
+
+	/**
+	 * 将DISTANCECHNCOUNTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowMaterialList() {
 		DistanceArr.clear();
-		Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
+		Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
 		while (it.hasNext()) {
 			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			DistanceArr.add(entry.getKey() + "号托盘		X" + entry.getValue());
+			DistanceArr.add(entry.getKey() + "号货道		X" + entry.getValue());
 		}
 
 		distance_listview_datalist
@@ -748,10 +1085,14 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pNum
 	 * @return
 	 */
-	private int WeightCountCalculator(float pNum) {
+	private int LengthCountCalculator(float pNum) {
 		int intPart = (int) pNum;
 		if (FuzzyJudgment(pNum)) {
-			intPart++;
+			if (pNum > 0) {
+				intPart++;
+			} else {
+				intPart--;
+			}
 		}
 		return intPart;
 	}
@@ -766,6 +1107,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	private boolean FuzzyJudgment(float pNum) {
 		boolean flag = false;
+		pNum = Math.abs(pNum);
 		/*
 		 * 向上取整用Math.ceil(double a) 向下取整用Math.floor(double a)
 		 */

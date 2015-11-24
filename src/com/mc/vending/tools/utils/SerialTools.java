@@ -444,6 +444,46 @@ public class SerialTools {
 				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				ZillionLog.i("test", MyFunc.cmdGetAllRangeDistance());
 				sendPortData(mRD, MyFunc.cmdGetAllRangeDistance(), true);
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		} catch (SerialPortException e) {
+			ZillionLog.e("打开测距模块：", e.getExceptionType().toString());
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 打开测距模块
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            测距模块ID号
+	 * @throws SerialPortException
+	 */
+	public void openRd(int pId) {
+		ZillionLog.i("打开测距模块：", "");
+		try {
+			if (mRD.isOpened() || mRD.openPort()) {
+				try {
+					mRD.addEventListener(mListener);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
+				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				ZillionLog.i("test", MyFunc.cmdGetRangeDistance(pId));
+				sendPortData(mRD, MyFunc.cmdGetRangeDistance(pId), true);
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		} catch (SerialPortException e) {

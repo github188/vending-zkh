@@ -57,7 +57,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	public final String FWDataList = "FWDataList";// 称重模块SP存储数据文件名称
 	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
 	public final String FWUnitList = "FWUnitList";// 称重模块SP存储物品单位重量列表文件名称
-	public final String RDDataList = "RDDataList";// 测距模块SP存储数据文件名称
+//	public final String RDDataList = "RDDataList";// 测距模块SP存储数据文件名称
 	private Map<String, String> WEIGHTLIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
 	private Map<String, String> VENDINGCHNLIST = new LinkedHashMap<String, String>();// 用来储存每个货道库存个数的List
 	private ArrayList<String> WeightArr = new ArrayList<String>();// 用户领料物品名称、个数列表
@@ -628,8 +628,8 @@ public class MC_WeightPickActivity extends BaseActivity
 
 	}
 
-	private void UpdateRangeDistanceDataList(String pId, float pAcount) {
-		final SharedPreferences spUnit = getSharedPreferences(RDDataList, MODE_PRIVATE);
+	private void UpdateFWDataList(String pId, float pAcount) {
+		final SharedPreferences spUnit = getSharedPreferences(FWDataList, MODE_PRIVATE);
 		spUnit.edit().putString(pId, "" + pAcount).commit();
 	}
 
@@ -761,10 +761,10 @@ public class MC_WeightPickActivity extends BaseActivity
 	 * @author junjie.you
 	 */
 	private void GetVendingChnFromSP2List() {
-		final SharedPreferences rdDataList = getSharedPreferences(RDDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+		final SharedPreferences fwDataList = getSharedPreferences(FWDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
 
 		for (int i = 1; i <= maxVendingCount; i++) {
-			VENDINGCHNLIST.put(i + "", rdDataList.getString(i + "", "0.0"));
+			VENDINGCHNLIST.put(i + "", fwDataList.getString(i + "", "0.0"));
 		}
 
 	}
@@ -775,7 +775,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	 * @author junjie.you
 	 */
 	private void ClearVendingChnFromSP() {
-		final SharedPreferences rdDataList = getSharedPreferences(RDDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
+		final SharedPreferences rdDataList = getSharedPreferences(FWDataList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
 		rdDataList.edit().clear().commit();
 	}
 
@@ -834,12 +834,12 @@ public class MC_WeightPickActivity extends BaseActivity
 				count = preVendingChnCount + pDifCount;
 			}
 			VENDINGCHNLIST.put(pId, count + "");
-			UpdateRangeDistanceDataList(pId, count);
+			UpdateFWDataList(pId, count);
 		}
 	}
 
 	private void UpdateVendingChnList(String pId, float pCount) {
-		UpdateRangeDistanceDataList(pId, pCount);
+		UpdateFWDataList(pId, pCount);
 	}
 
 	/**

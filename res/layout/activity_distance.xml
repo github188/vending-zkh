@@ -20,19 +20,51 @@
             android:scrollbars="vertical" >
         </ListView>
 
+        <Button
+            android:id="@+id/btn_distance_material_getdistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/distance_listview_datalist"
+            android:text="获取长度" />
+
+        <Button
+            android:id="@+id/btn_distance_material_stopgetdistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distance_listview_datalist"
+            android:layout_toRightOf="@id/btn_distance_material_getdistance"
+            android:text="停止获取长度" />
+
+        <Button
+            android:id="@+id/btn_distance_return"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distance_listview_datalist"
+            android:layout_toRightOf="@id/btn_distance_material_stopgetdistance"
+            android:text="开始补货" />
+
+        <Button
+            android:id="@+id/btn_distance_exitreturn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distance_listview_datalist"
+            android:layout_toRightOf="@id/btn_distance_return"
+            android:text="停止补货" />
+
         <TextView
             android:id="@+id/tv_distance_material"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/distance_listview_datalist"
+            android:layout_below="@id/btn_distance_material_getdistance"
             android:text="物品单个长度(mm)" />
 
         <EditText
             android:id="@+id/txt_distance_material"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/distance_listview_datalist"
+            android:layout_below="@id/btn_distance_material_getdistance"
             android:layout_toRightOf="@id/tv_distance_material"
             android:inputType="text" />
 
@@ -50,7 +82,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_distance_material"
             android:layout_toRightOf="@id/btn_distance_material_save"
-            android:text="重置" />
+            android:text="获取物品单个长度" />
+         
 
         <TextView
             android:id="@+id/tv_distance_unit_a"
@@ -66,7 +99,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/btn_distance_material_save"
             android:layout_toRightOf="@id/tv_distance_unit_a"
-            android:inputType="text" />
+            android:inputType="text"
+            android:text="5" />
 
         <TextView
             android:id="@+id/tv_distance_unit_b"
@@ -115,6 +149,48 @@
             android:layout_below="@id/tv_distance_unit_c"
             android:layout_toRightOf="@id/btn_distance_material_save"
             android:text="解除锁定" />
+
+        <Button
+            android:id="@+id/btn_distance_material_setzero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_distance_unit_c"
+            android:layout_toRightOf="@id/btn_distance_material_unlock"
+            android:text="模块校准置零" />
+
+        <TextView
+            android:id="@+id/tv_distance_show"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/btn_distance_material_lock"
+            android:text="当前毫米数为：" />
+
+        <EditText
+            android:id="@+id/txt_distance_show"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_distance_material_lock"
+            android:layout_toRightOf="@id/tv_distance_show"
+            android:inputType="text" />
+
+        <ListView
+            android:id="@+id/distance_listview_vendingchnlist"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/tv_distance_show"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical" >
+        </ListView>
+
+        <Button
+            android:id="@+id/btn_clear_distance_vendingchn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/distance_listview_vendingchnlist"
+            android:text="清空货道库存" />
     </RelativeLayout>
 
 </LinearLayout>

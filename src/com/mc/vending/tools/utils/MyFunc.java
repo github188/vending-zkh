@@ -289,7 +289,7 @@ public class MyFunc {
 	 * @return
 	 */
 	public static String cmdGetAllRangeDistance() {
-		String cmdString = "015540";
+		String cmdString = "01CC40";
 		return getRDCommand(cmdString);
 	}
 
