@@ -199,6 +199,7 @@ public class MC_SettingActivity extends BaseActivity
 					case 10:
 						if (Integer.valueOf(
 								Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+							
 						} else {
 							setFinishApp();
 						}
