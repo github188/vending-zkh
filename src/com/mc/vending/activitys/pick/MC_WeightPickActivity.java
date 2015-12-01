@@ -57,7 +57,7 @@ public class MC_WeightPickActivity extends BaseActivity
 	public final String FWDataList = "FWDataList";// 称重模块SP存储数据文件名称
 	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
 	public final String FWUnitList = "FWUnitList";// 称重模块SP存储物品单位重量列表文件名称
-//	public final String RDDataList = "RDDataList";// 测距模块SP存储数据文件名称
+	public final String FWWeightDataList = "FWWeightDataList";// 测距模块SP存储数据文件名称
 	private Map<String, String> WEIGHTLIST = new LinkedHashMap<String, String>();// 用来储存每个称重传感器存储的个数List
 	private Map<String, String> VENDINGCHNLIST = new LinkedHashMap<String, String>();// 用来储存每个货道库存个数的List
 	private ArrayList<String> WeightArr = new ArrayList<String>();// 用户领料物品名称、个数列表
@@ -180,7 +180,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		getParam();
 		initComponents();
 		initObject();
-		startService();
+		// startService();
 		ShowVendingChnList();
 		// resetViews();
 		// foo();
@@ -508,7 +508,7 @@ public class MC_WeightPickActivity extends BaseActivity
 		try {
 			for (int i = 1; i <= maxVendingCount; i++) {
 				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
-				Thread.sleep(20);
+				Thread.sleep(30);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -584,7 +584,7 @@ public class MC_WeightPickActivity extends BaseActivity
 			UpdateSPUnitWeightForFW(pId, ConvertHelper.toInt(pWeight, 0));
 			UpdateUnitWeightForEditText();
 		} else {
-			final SharedPreferences sp = getSharedPreferences(FWDataList, MODE_PRIVATE);
+			final SharedPreferences sp = getSharedPreferences(FWWeightDataList, MODE_PRIVATE);
 			// 获取之前该id内存储的重量
 			String preWeight = sp.getString(pId + "", "0");
 			sp.edit().putString(pId + "", pWeight).commit();
@@ -878,8 +878,11 @@ public class MC_WeightPickActivity extends BaseActivity
 		pNum = Math.abs(pNum);
 		double ceil = Math.ceil(pNum);
 		double floor = Math.floor(pNum);
-		if (((pNum + weightDeviationScalar) > ceil || (pNum - weightDeviationScalar) > floor) && ceil != floor) {
-			flag = true;
+		if (((pNum + weightDeviationScalar) > ceil) && ceil != floor) {
+			if ((pNum - weightDeviationScalar) > 0) {
+				flag = true;
+			}
+
 		}
 		return flag;
 	}

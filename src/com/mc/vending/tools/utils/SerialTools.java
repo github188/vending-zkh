@@ -33,10 +33,10 @@ public class SerialTools {
 
 	private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
-	private static final String PortName_mKeyBoard = "/dev/ttyO5"; // 键盘
+	private static final String PortName_mKeyBoard = "/dev/ttyO7"; // 键盘
 	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
 	private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块
-	private static final String PortName_mRD = "/dev/ttyO7"; // 测距模块
+	private static final String PortName_mRD = "/dev/ttyO5"; // 测距模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
 	public static final int MESSAGE_LOG_mRFIDReader = 2; // 读卡器

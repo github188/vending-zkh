@@ -15,17 +15,13 @@ import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
-import com.mc.vending.data.VendingCardPowerWrapperData;
-import com.mc.vending.data.VendingChnData;
 import com.mc.vending.data.VendingData;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
 import com.mc.vending.service.DataServices;
 import com.mc.vending.tools.ActivityManagerTool;
-import com.mc.vending.tools.AsyncImageLoader;
 import com.mc.vending.tools.ConvertHelper;
-import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.SerialTools;
 import com.zillion.evm.jssc.SerialPortException;
@@ -44,7 +40,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,11 +52,11 @@ public class MC_DistancePickActivity extends BaseActivity
 		implements MC_SerialToolsListener, RequestDataFinishListener, DataParseListener {
 	public DataServices dataServices;
 	public final int deviationScalar = 7;// 材料列表更新的重量摇摆标量
-	public final double weightDeviationScalar = 0.1;
+	public final double lengthDeviationScalar = 0.15;
 	public final int maxVendingCount = 49;// 售货机id，十进制
 
 	/**
-	 * 测距SP存储长度数据文件名称
+	 * 测距SP存储每次比较的基准长度
 	 */
 	public final String RDDataList = "RDDataList";
 	/**
@@ -89,6 +84,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器电路板返回的所有货道数据的List
 	private Map<String, String> DISTANCECHNCOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器库存个数List
 	private Map<String, String> DISTANCECOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器领料个数List
+	private Map<String, String> DISTANCEMEMERY = new LinkedHashMap<String, String>();// 用来储存每个测距传感器补货或领料开始的距离数
 	private ArrayList<String> DistanceArr = new ArrayList<String>();// 领料的Array
 	private ArrayList<String> DistanceChnArr = new ArrayList<String>();// 库存的Array
 	public ListView distance_listview_datalist;
@@ -141,9 +137,9 @@ public class MC_DistancePickActivity extends BaseActivity
 	private String vendCode; // 售货机编号
 
 	private Timer timer;
-	private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
-	private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
-	private int imagePlayerTimeOut;
+	private final int distanceStableTimer = 50; // 进入待机界面心跳。每秒钟执行一次
+	private final int distanceStableTimeCount = 500; // 默认待机默认跳转时间1分钟
+	private int distanceStableTimeOut;
 
 	private TimerTask mTimerTask;
 	private final static int MESSAGE_Image_player = 99; // 跳转到待机
@@ -154,6 +150,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	public boolean isSettingMaterialUnitDistance = false;// 是否校对测量物品单位长度
 	public boolean isReturnMaterial = false;// 是否在做补货
 	public boolean isSettingUnitZero = false;// 是否在对模块校对为0
+	public boolean isDistanceStable = false;
 	/**
 	 * 为小数点位置（0-5）
 	 * 
@@ -186,6 +183,8 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	private boolean isOverload = false;
 
+	private boolean isNeedUpdateDistanceMemery = true;
+
 	@Override
 	public void requestFinished() {
 		// TODO Auto-generated method stub
@@ -208,6 +207,8 @@ public class MC_DistancePickActivity extends BaseActivity
 		initObject();
 		ShowUnitDistance4EditText(maxVendingCount + "");
 		ShowMaterialUnitDistance4EditText(maxVendingCount + "");
+		ShowVendingChnList();
+		openRD();
 		// startService();
 	}
 
@@ -261,6 +262,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
+		startTimerTask();
 		super.onResume();
 	}
 
@@ -363,13 +365,6 @@ public class MC_DistancePickActivity extends BaseActivity
 		alert_msg.setText("");
 		alert_msg_title.setVisibility(View.INVISIBLE);
 		alert_msg.setVisibility(View.INVISIBLE);
-	}
-
-	/**
-	 * 重置累计轮训时间
-	 */
-	private void resetTimer() {
-		imagePlayerTimeOut = 0;
 	}
 
 	/**
@@ -540,6 +535,7 @@ public class MC_DistancePickActivity extends BaseActivity
 			public void onClick(View v) {
 				InitFlag();
 				isReturnMaterial = true;
+				isNeedUpdateDistanceMemery = false;
 				openRD();
 			}
 		});
@@ -550,6 +546,8 @@ public class MC_DistancePickActivity extends BaseActivity
 				// TODO Auto-generated method stub
 				InitFlag();
 				try {
+					// UpdateMaterialListForRD(pId, different);
+					isNeedUpdateDistanceMemery = true;
 					SerialTools.getInstance().closeRD();
 
 				} catch (SerialPortException e) {
@@ -693,15 +691,12 @@ public class MC_DistancePickActivity extends BaseActivity
 					} else if (isReturnMaterial) {
 						ShowReturnMaterialDataList(i, afterCount + "");
 					} else {
-						ShowDistance4EditText(i, afterCount + "");
 						ShowReturnMaterialDataList(i, afterCount + "");
 					}
-
+					ShowDistance4EditText(i, afterCount + "");
 				}
-
 			}
 		}
-
 	}
 
 	// SaveSharedPreferencesForFW(portId, weightValue);
@@ -719,18 +714,18 @@ public class MC_DistancePickActivity extends BaseActivity
 
 		// 获取之前该id内存储的长度
 		String preLength = GetSP(RDDataList, pId, "0");
-		SetSP(RDDataList, pId, pLength);
+		int different = 0;
 		// if (!isReturnMaterial) {
 		int preLengthInt = ConvertHelper.toInt(preLength, 0);
 		int nowLengthInt = ConvertHelper.toInt(pLength, deviationScalar);
 		// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
 		if ((nowLengthInt - deviationScalar) > preLengthInt || (nowLengthInt + deviationScalar) < preLengthInt) {
-			int different = ConvertHelper.toInt(preLength, 0) - ConvertHelper.toInt(pLength, 0);
-			// String unitLength = GetSP(RDMaterialUnitList, pId, "1");
-			// if (FuzzyJudgment(different / ConvertHelper.toFloat(unitLength,
-			// (float) 1))) {
-			UpdateMaterialListForRD(pId, different);
-			// }
+			if (isNeedUpdateDistanceMemery) {
+				SetSP(RDDataList, pId, pLength);
+			} else {
+				different = preLengthInt - nowLengthInt;
+				UpdateMaterialListForRD(pId, different);
+			}
 		}
 	}
 
@@ -813,7 +808,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * 
 	 */
 	private String GetSP(String pSPName, String pId, String defaultValue) {
-		String retStr = null;
+		String retStr = defaultValue;
 		// 先清空SP内的单位重量List
 		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
 		if (spUnit.contains(pId)) {
@@ -859,7 +854,7 @@ public class MC_DistancePickActivity extends BaseActivity
 	 * @param pDifLength
 	 *            变化的长度数值
 	 */
-	private void UpdateMaterialListForRD(String pId, int pDifLength) {
+	private boolean UpdateMaterialListForRD(String pId, int pDifLength) {
 		try {
 			// 获取显示物品列表文件
 			final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
@@ -913,10 +908,13 @@ public class MC_DistancePickActivity extends BaseActivity
 					UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifLength > 0 ? false : true);
 				}
 				ShowVendingChnList();
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 
 	}
 
@@ -947,7 +945,7 @@ public class MC_DistancePickActivity extends BaseActivity
 
 	private void GetVendingChnFromSP2List() {
 		for (int i = maxVendingCount; i <= maxVendingCount; i++) {
-			DISTANCECHNCOUNTLIST.put(i + "", GetSP(RDMaterialChnList, maxVendingCount + ""));
+			DISTANCECHNCOUNTLIST.put(i + "", GetSP(RDMaterialChnList, maxVendingCount + "", "0"));
 		}
 	}
 
@@ -1079,6 +1077,34 @@ public class MC_DistancePickActivity extends BaseActivity
 	}
 
 	/**
+	 * 重置累计轮训时间
+	 */
+	private void resetTimer() {
+		distanceStableTimeOut = 0;
+	}
+
+	private void startTimerTask() {
+		mTimerTask = new TimerTask() {
+
+			@Override
+			public void run() {
+				distanceStableTimeOut += 50;
+				isDistanceStable = false;
+				if (distanceStableTimeOut == distanceStableTimeCount) {
+					isDistanceStable = true;
+				}
+			}
+		};
+		distanceStableTimeOut = 0;
+		timer = new Timer();
+		timer.schedule(mTimerTask, 1, distanceStableTimer);
+	}
+
+	private void cancelImageTask() {
+		mTimerTask.cancel();
+	}
+
+	/**
 	 * 计算变化个数
 	 * 
 	 * @author junjie.you
@@ -1113,7 +1139,7 @@ public class MC_DistancePickActivity extends BaseActivity
 		 */
 		double ceil = Math.ceil(pNum);
 		double floor = Math.floor(pNum);
-		if (((pNum + weightDeviationScalar) > ceil || (pNum - weightDeviationScalar) > floor) && ceil != floor) {
+		if ((pNum + lengthDeviationScalar) > ceil && ceil != floor) {
 			flag = true;
 		}
 		return flag;
