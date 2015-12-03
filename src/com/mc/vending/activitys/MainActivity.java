@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.activitys.pick.MC_DistancePickActivity;
+import com.mc.vending.activitys.pick.MC_IntelligencePickActivity;
 import com.mc.vending.activitys.pick.MC_NormalPickActivity;
 import com.mc.vending.activitys.pick.MC_WeightPickActivity;
 import com.mc.vending.config.Constant;
@@ -235,8 +236,9 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 		Intent intent = new Intent();
 		intent.putExtra("vendCode", vendCode);
 		// intent.setClass(MainActivity.this,MC_NormalPickActivity.class);
-//		intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
-		 intent.setClass(MainActivity.this, MC_DistancePickActivity.class);
+		// intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
+		// intent.setClass(MainActivity.this, MC_DistancePickActivity.class);
+		intent.setClass(MainActivity.this, MC_IntelligencePickActivity.class);
 		startActivity(intent);
 		finish();
 	}

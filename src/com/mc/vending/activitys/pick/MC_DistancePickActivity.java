@@ -84,7 +84,6 @@ public class MC_DistancePickActivity extends BaseActivity
 	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器电路板返回的所有货道数据的List
 	private Map<String, String> DISTANCECHNCOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器库存个数List
 	private Map<String, String> DISTANCECOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器领料个数List
-	private Map<String, String> DISTANCEMEMERY = new LinkedHashMap<String, String>();// 用来储存每个测距传感器补货或领料开始的距离数
 	private ArrayList<String> DistanceArr = new ArrayList<String>();// 领料的Array
 	private ArrayList<String> DistanceChnArr = new ArrayList<String>();// 库存的Array
 	public ListView distance_listview_datalist;
@@ -262,7 +261,6 @@ public class MC_DistancePickActivity extends BaseActivity
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
-		startTimerTask();
 		super.onResume();
 	}
 
@@ -476,7 +474,7 @@ public class MC_DistancePickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				isSettingUnitZero = true;
-				openRD(49);
+				// openRD(49);
 
 			}
 		});
@@ -487,7 +485,7 @@ public class MC_DistancePickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				InitFlag();
-				openRD();
+				// openRD();
 			}
 		});
 		btn_distance_material_stopgetdistance.setOnClickListener(new View.OnClickListener() {
@@ -534,9 +532,15 @@ public class MC_DistancePickActivity extends BaseActivity
 			@Override
 			public void onClick(View v) {
 				InitFlag();
-				isReturnMaterial = true;
-				isNeedUpdateDistanceMemery = false;
-				openRD();
+				try {
+					// UpdateMaterialListForRD(pId, different);
+					// isNeedUpdateDistanceMemery = true;
+					SerialTools.getInstance().closeRD();
+
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		btn_distance_exitreturn.setOnClickListener(new View.OnClickListener() {
@@ -545,15 +549,11 @@ public class MC_DistancePickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				InitFlag();
-				try {
-					// UpdateMaterialListForRD(pId, different);
-					isNeedUpdateDistanceMemery = true;
-					SerialTools.getInstance().closeRD();
+				isNeedUpdateDistanceMemery = true;
+				isReturnMaterial = true;
+				isNeedUpdateDistanceMemery = false;
+				openRD();
 
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 		});
 		btn_clear_distance_vendingchn.setOnClickListener(new View.OnClickListener() {
@@ -567,63 +567,6 @@ public class MC_DistancePickActivity extends BaseActivity
 				distance_listview_vendingchnlist.setAdapter(null);
 			}
 		});
-		// btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// SetZeroSPUnitWeightForFW();
-		// }
-		// });
-		// btn_clearlist.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// distance_listview_datalist.setAdapter(null);
-		// }
-		// });
-		// btn_return.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// isReturnMaterial = true;
-		// // openFW();
-		// }
-		// });
-		// btn_exitWeight.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// try {
-		// SerialTools.getInstance().closeFW();
-		// } catch (SerialPortException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// }
-		// });
-		// btn_exitreturn.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// // TODO Auto-generated method stub
-		// isReturnMaterial = false;
-		// try {
-		// SerialTools.getInstance().closeFW();
-		// } catch (SerialPortException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// }
-		// });
-	}
-
-	private void resetViews() {
-		layout_setting.setVisibility(View.INVISIBLE);
-		layout_show.setVisibility(View.VISIBLE);
 	}
 
 	private void openRD() {
@@ -738,27 +681,6 @@ public class MC_DistancePickActivity extends BaseActivity
 	 */
 	private void UpdateUnitDistanceForEditText(String pId, String pNowLength) {
 		float unitDistance = (float) 0.0;
-		// for (String i : TotalVendingChn) {
-		// if (DISTANCELIST.containsKey(i)) {
-		// String mockDistanceV16 = DISTANCELIST.get(i).replaceAll(" ", "");//
-		// 找到对应的距离参数，16进制
-		// String mockDistanceV10 = Integer.valueOf(mockDistanceV16,
-		// 16).toString();
-		// int acNum = ConvertHelper.toInt(mockDistanceV10, 1) -
-		// ConvertHelper.toInt(GetSP(RdZeroList, i), 1);
-		// if (acNum < 0) {
-		// acNum = 0;
-		// }
-		// mockDistanceV10 = acNum + "";
-		// String denominator = txt_distance_unit_a.getText().toString();
-		// txt_distance_unit_b.setText(mockDistanceV10);
-		// unitDistance = (Integer.parseInt(mockDistanceV10) /
-		// ConvertHelper.toFloat(denominator, (float) 1) / 10);
-		// txt_distance_unit_c.setText(unitDistance + "");
-		// SetSP(RDUnitList, i, unitDistance + "");
-		// // ShowDistance4EditText(mockDistanceV10);
-		// }
-		// }
 		String denominator = txt_distance_unit_a.getText().toString();
 		txt_distance_unit_b.setText(pNowLength);
 		unitDistance = (ConvertHelper.toInt(pNowLength, 0) / ConvertHelper.toFloat(denominator, (float) 1) / 10);
