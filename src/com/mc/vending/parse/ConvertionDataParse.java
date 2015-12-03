@@ -154,6 +154,7 @@ public class ConvertionDataParse implements DataParseListener {
                 data.setCn1Cpid(jsonObj.getString("CN1_Cpid"));
                 data.setCn1Proportion(jsonObj.getString("CN1_Proportion"));
                 data.setCn1Operation(jsonObj.getString("CN1_Operation"));
+                data.setLogVersion(jsonObj.getString("LogVision"));
                 data.setCreateUser(createUser);
                 data.setCreateTime(createTime);
                 data.setModifyUser(modifyUser);

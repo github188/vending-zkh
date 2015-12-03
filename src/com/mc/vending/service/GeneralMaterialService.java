@@ -245,8 +245,8 @@ public class GeneralMaterialService extends BasicService {
 						}
 					}
 					if (total + inputQty > periodQty) {
-						
-							throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
+
+						throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
 					}
 				}
 			} else {
@@ -273,9 +273,17 @@ public class GeneralMaterialService extends BasicService {
 	 */
 	private void handlerMaterialPowerProduct(String vendingId, String skuId, String cardId, int inputQty,
 			String vendingChnCode) {
+		boolean isPackageChn = false;
+		boolean isBasicPckChn = false;
+		Map<String, Object> cpIdWithScaleList = new HashMap<String, Object>();
+		int preInputQty = 0;
+		int scale = 1;
+		String operation = "包";
+		cardId = StringHelper.nullSafeString(cardId).trim();
+		String preSkuId = skuId;
 
+		// f) 根据”售货机卡/密码权限.ID”查询“产品领料权限“表： 如果记录数＝0，继续跳过
 		ProductCardPowerDbOper dbOper = new ProductCardPowerDbOper();
-
 		VendingProLinkData vendingProLink = new VendingProLinkDbOper().getVendingProLinkByVidAndSkuId(vendingId, skuId);
 		if (vendingProLink == null) {
 			throw new BusinessException("售货机产品 不存在!");
@@ -286,6 +294,24 @@ public class GeneralMaterialService extends BasicService {
 		if (list.isEmpty()) {
 			return;
 		}
+
+		ConversionDbOper conversionDbOper = new ConversionDbOper();
+		ConversionData conversionData = conversionDbOper.findConversionByCpid(skuId);// 根据"关联产品ID"查询"单位换算关系表"中有无该产品的换算关系
+		if (conversionData != null) {
+			// 在单位关系表中查询到用户选择的货到存在与“基础物品”的对应关系
+			skuId = conversionData.getCn1Upid();
+			preInputQty = inputQty;// 保存之前输入的用户输入取货量
+			scale = ConvertHelper.toInt(conversionData.getCn1Proportion(), inputQty);
+			inputQty = inputQty * scale;// 将用户输入的取货量乘以该货到所代表的“基础物品”的倍数
+			operation = StringHelper.isEmpty(conversionData.getCn1Operation()) ? "包" : conversionData.getCn1Operation();
+			isPackageChn = true;
+			// modified by junjie.you
+		}
+		cpIdWithScaleList = conversionDbOper.findConversionByUpid(skuId);// 根据"基础产品ID"查询"单位换算关系表"中有无该产品的换算关系
+		if (cpIdWithScaleList != null) {
+			isBasicPckChn = true;
+		}
+
 		if (!list.contains(skuId)) {
 			throw new BusinessException("输入的卡号或密码无权限领料，请重新输入！");
 		}
@@ -318,11 +344,30 @@ public class GeneralMaterialService extends BasicService {
 						String dateStr = DateHelper.format(date, "yyyy-MM-dd HH:mm:ss");
 						try {
 							UsedRecordDbOper usedRecordDbOper = new UsedRecordDbOper();
-							transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId, dateStr);
-							transQtyTotal = transQtyTotal * -1;
 							StockTransactionDbOper stockTransactionDb = new StockTransactionDbOper();
-							int transQtyTotal1 = stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
+							int transQtyTotal1 = 0;
+							// 1.无论如何都要拿一遍基础的领料个数
+							transQtyTotal = usedRecordDbOper.getTransQtyCount(cardId, skuId, dateStr);
+							transQtyTotal1 = stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
 									vendingId, skuId, vendingChnCode, dateStr, cardId);
+							// 2.如果该基础sku有对应的关联sku，则遍历查询是否有关联sku领料记录，如果有就直接转换为基础sku的个数
+							if (cpIdWithScaleList != null) {
+								// 查询该卡领取该货道的交易数据
+								for (Entry<String, Object> entry : cpIdWithScaleList.entrySet()) {
+									// 键：关联产品SKU
+									// 值：对应的倍率
+									String innerCpId = entry.getKey();
+									int innerScale = ConvertHelper.toInt(entry.getValue(), 1);
+									transQtyTotal = transQtyTotal
+											+ (usedRecordDbOper.getTransQtyCount(cardId, innerCpId, dateStr)
+													* innerScale);
+									transQtyTotal1 = transQtyTotal1
+											+ (stockTransactionDb.getTransQtyCount(StockTransactionData.BILL_TYPE_GET,
+													vendingId, innerCpId, vendingChnCode, dateStr, cardId)
+											* innerScale);
+								}
+							}
+							transQtyTotal = transQtyTotal * -1;
 							if (transQtyTotal1 < transQtyTotal) {
 								transQtyTotal = transQtyTotal1;
 							}
@@ -337,9 +382,15 @@ public class GeneralMaterialService extends BasicService {
 
 					int total = transQtyTotal * (-1);
 					if (inputQty > periodQty) {
-						throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "，不允许超领！");
+						if (isPackageChn) {
+							throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "(" + preInputQty
+									+ operation + ")" + "，不允许超领！");
+						} else {
+							throw new BusinessException("你的领料权限是" + periodQty + "，输入了" + inputQty + "，不允许超领！");
+						}
 					}
 					if (total + inputQty > periodQty) {
+
 						throw new BusinessException("你的领料权限是" + periodQty + "，你已领取" + total + "，不允许超领！");
 					}
 				}
