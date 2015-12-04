@@ -238,7 +238,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_distance);
+		setContentView(R.layout.activity_intelligence_pick);
 		ActivityManagerTool.getActivityManager().add(this);
 		getParam();
 		initComponents();
@@ -471,7 +471,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		btn_distance_exitreturn = (Button) this.findViewById(R.id.btn_distance_exitreturn);
 		btn_clear_distance_vendingchn = (Button) this.findViewById(R.id.btn_clear_distance_vendingchn);
 		distance_listview_vendingchnlist = (ListView) this.findViewById(R.id.distance_listview_vendingchnlist);
-
+		btn_distance_material_setzero = (Button) this.findViewById(R.id.btn_distance_material_setzero);
 	}
 
 	/**
