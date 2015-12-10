@@ -4,6 +4,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <ImageView
+        android:id="@+id/iv_intelligence_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/zkh" />
+
+    <TextView
+        android:id="@+id/tv_intelligence_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="刷震坤行智能仓库卡，立即轻松领料" />
+
+    <ListView
+        android:id="@+id/intelligence_listview_datalist"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical" >
+    </ListView>
+    <!--
     <RelativeLayout
         android:name="@+id/relout_weight_show"
         android:layout_width="match_parent"
@@ -11,7 +31,7 @@
         android:visibility="visible" >
 
         <ListView
-            android:id="@+id/weight_listview_datalist"
+            android:id="@+id/intelligence_listview_datalist"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:scrollbarStyle="outsideOverlay"
@@ -23,14 +43,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/weight_listview_datalist"
+            android:layout_below="@id/intelligence_listview_datalist"
             android:text="去皮" />
 
         <Button
             android:id="@+id/btn_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/weight_listview_datalist"
+            android:layout_below="@id/intelligence_listview_datalist"
             android:layout_toRightOf="@id/btn_noSkin"
             android:text="设置" />
 
@@ -38,7 +58,7 @@
             android:id="@+id/btn_setZero"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/weight_listview_datalist"
+            android:layout_below="@id/intelligence_listview_datalist"
             android:layout_toRightOf="@id/btn_setting"
             android:text="置零" />
 
@@ -154,7 +174,7 @@
             android:text="锁定单位重量" />
 
         <ListView
-            android:id="@+id/weight_listview_vendingchnlist"
+            android:id="@+id/intelligence_listview_vendingchnlist"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:layout_alignParentLeft="true"
@@ -168,17 +188,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/weight_listview_vendingchnlist"
+            android:layout_below="@id/intelligence_listview_vendingchnlist"
             android:text="清空货道库存" />
 
-        <ListView
-            android:id="@+id/distance_listview_datalist"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_below="@id/btn_clear_vendingchn"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical" >
-        </ListView>
+        <TextView
+            android:id="@+id/tv_distance_title"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/btn_setting_lock"
+            android:text="测距模块设置部分" />
 
         <Button
             android:id="@+id/btn_distance_material_getdistance"
@@ -332,24 +351,7 @@
             android:layout_below="@id/btn_distance_material_lock"
             android:layout_toRightOf="@id/tv_distance_show"
             android:inputType="text" />
-
-        <ListView
-            android:id="@+id/distance_listview_vendingchnlist"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/tv_distance_show"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical" >
-        </ListView>
-
-        <Button
-            android:id="@+id/btn_clear_distance_vendingchn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/distance_listview_vendingchnlist"
-            android:text="清空货道库存" />
     </RelativeLayout>
+    -->
 
 </LinearLayout>

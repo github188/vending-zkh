@@ -31,7 +31,9 @@ public class SerialTools {
 	// private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块 added by
 	// junjie.you
 
-	private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
+	// private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
+	private static final String PortName_mVender = ""; // 售货机
+	private static final String PortName_mLocker = "/dev/ttyO2"; // 锁模块
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
 	private static final String PortName_mKeyBoard = "/dev/ttyO7"; // 键盘
 	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
@@ -46,11 +48,14 @@ public class SerialTools {
 	public static final int MESSAGE_LOG_mVender_check = 6; // 检查售货机
 	public static final int MESSAGE_LOG_mFw = 7; // 称重模块 added by junjie.you
 	public static final int MESSAGE_LOG_mRD = 8;// 测距模块 added by junjie.you
+	public static final int MESSAGE_LOG_mLocker = 9;// 锁模块 added by junjie.you
 	// 常用指令
 	public static final String cmdOpenKeyBoard = "02303234353033343403"; // 指令打开键盘
 	public static final String cmdCloseKeyBoard = "02303234353030343703"; // 指令关闭键盘
 	public static final String cmdGetSerialNo = "01F0F0"; // 读取卡号
 	public static final String cmdBeep = "030FFF00F0"; // 读卡器声音
+	public static final String cmdOpenLocker = "FFAA005501CC509D0055FFAA";// 指令打开锁
+	public static final String cmdCheckLocker = "FFAA005501CC60AD0055FFAA";// 指令检查锁
 
 	// 循环发送时间间隔
 	private static final int iDelay = 500;
@@ -61,6 +66,7 @@ public class SerialTools {
 	private final SerialPort mVender; // 售货机对象监听
 	private final SerialPort mFw; // 初始化称重模块监听对象
 	private final SerialPort mRD; // 初始化测距模块监听对象
+	private final SerialPort mLocker;
 	// 单例对象
 	private static SerialTools instance = null;
 	private Timer mStoreTimer;
@@ -113,6 +119,7 @@ public class SerialTools {
 		mRFIDReader = new SerialPort(PortName_mRFIDReader); // 初始化读卡器监听对象
 		mStore = new SerialPort(PortName_mStore);// 初始化格子机监听对象
 		mVender = new SerialPort(PortName_mVender);
+		mLocker = new SerialPort(PortName_mLocker);
 		mFw = new SerialPort(PortName_mFw);// 初始化称重模块监听对象 added by junjie.you
 		mRD = new SerialPort(PortName_mRD);// 初始化测距模块监听对象 added by junjie.you
 
@@ -132,6 +139,55 @@ public class SerialTools {
 	 */
 	public void addToolsListener(MC_SerialToolsListener listener) {
 		this.toolsListener = listener;
+	}
+
+	/**
+	 * 打开键盘端口
+	 * 
+	 * @throws SerialPortException
+	 */
+	public void openLocker() {
+		try {
+			if (mLocker.isOpened() || mLocker.openPort()) {
+				try {
+					mLocker.addEventListener(mListener);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				mLocker.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				sendPortData(mLocker, cmdOpenLocker, true);
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		} catch (SerialPortException e) {
+			// e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 关闭键盘端口
+	 * 
+	 * @throws SerialPortException
+	 */
+	public void checkLocker() {
+
+		try {
+			if (mLocker.isOpened() || mLocker.openPort()) {
+				try {
+					mLocker.addEventListener(mListener);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				mLocker.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				sendPortData(mLocker, cmdCheckLocker, true);
+			}
+		} catch (SerialPortException e) {
+			// e.printStackTrace();
+		}
 	}
 
 	/**
@@ -182,19 +238,20 @@ public class SerialTools {
 					// TODO: handle exception
 				}
 
-				VendingDbOper vendingDbOper = new VendingDbOper();
-				String cardtype = vendingDbOper.getVending().getVd1CardType();
-				if (cardtype.equals("1")) {
-					mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-					if (mSendThread == null) {
-						mSendThread = new SendThread();
-						mSendThread.start();
-					}
-
-					mSendThread.setResume(); // 线程唤醒，开始发送
-				} else {
-					mRFIDReader.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				// VendingDbOper vendingDbOper = new VendingDbOper();
+				// String cardtype =
+				// vendingDbOper.getVending().getVd1CardType();
+				// if (cardtype.equals("1")) {
+				mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				if (mSendThread == null) {
+					mSendThread = new SendThread();
+					mSendThread.start();
 				}
+
+				mSendThread.setResume(); // 线程唤醒，开始发送
+				// } else {
+				// mRFIDReader.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				// }
 
 			}
 		} catch (SerialPortException e) {
@@ -457,6 +514,7 @@ public class SerialTools {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * 打开测距模块
 	 * 
@@ -579,6 +637,10 @@ public class SerialTools {
 							obtain = SerialTools.MESSAGE_LOG_mFw;
 							data = mFw.readHexString(event.getEventValue());
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
+						}  else if (PortName_mLocker.equals(event.getPortName())) {
+							obtain = SerialTools.MESSAGE_LOG_mLocker;
+							data = mLocker.readHexString(event.getEventValue());
+							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
 						} else if (PortName_mRD.equals(event.getPortName())) {
 							// by
 							// junjie.you
@@ -668,6 +730,7 @@ public class SerialTools {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
+			case SerialTools.MESSAGE_LOG_mLocker:
 			case SerialTools.MESSAGE_LOG_mRD:
 			case SerialTools.MESSAGE_LOG_mFw:
 				toolsListener.serialReturn((String) msg.obj, msg.what);
