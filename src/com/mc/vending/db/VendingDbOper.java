@@ -5,6 +5,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import com.mc.vending.config.Constant;
 import com.mc.vending.data.VendingData;
 
 /**
@@ -48,6 +49,11 @@ public class VendingDbOper {
         String insertSql = "insert into Vending(VD1_ID,VD1_M02_ID,VD1_CODE,VD1_Manufacturer,VD1_VM1_ID,VD1_LastVersion,VD1_LWHSize,VD1_Color,VD1_InstallAddress,VD1_Coordinate,VD1_ST1_ID,VD1_EmergencyRel,VD1_EmergencyRelPhone,VD1_OnlineStatus,VD1_Status,"
                 + "VD1_CreateUser,VD1_CreateTime,VD1_ModifyUser,VD1_ModifyTime,VD1_RowVersion,VD1_CardType)"
                 + " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
+        	insertSql = "insert into Vending(VD1_ID,VD1_M02_ID,VD1_CODE,VD1_Manufacturer,VD1_VM1_ID,VD1_LastVersion,VD1_LWHSize,VD1_Color,VD1_InstallAddress,VD1_Coordinate,VD1_ST1_ID,VD1_EmergencyRel,VD1_EmergencyRelPhone,VD1_OnlineStatus,VD1_Status,"
+                    + "VD1_CreateUser,VD1_CreateTime,VD1_ModifyUser,VD1_ModifyTime,VD1_RowVersion,VD1_CardType,VD1_LockerStatus)"
+                    + " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		}
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         SQLiteStatement stat = db.compileStatement(insertSql);
         stat.bindString(1, vending.getVd1Id());
@@ -71,6 +77,9 @@ public class VendingDbOper {
         stat.bindString(19, vending.getVd1ModifyTime());
         stat.bindString(20, vending.getVd1RowVersion());
         stat.bindString(21, vending.getVd1CardType());
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
+       	 stat.bindString(22, vending.getVd1LockerStatus());
+		}
         long i = stat.executeInsert();
 
         return i > 0;
@@ -86,6 +95,12 @@ public class VendingDbOper {
         String insertSql = "UPDATE Vending SET VD1_M02_ID=?,VD1_CODE=?,VD1_Manufacturer=?,VD1_VM1_ID=?,VD1_LastVersion=?,VD1_LWHSize=?,VD1_Color=?,"
                 + "VD1_InstallAddress=?,VD1_Coordinate=?,VD1_ST1_ID=?,VD1_EmergencyRel=?,VD1_EmergencyRelPhone=?,VD1_OnlineStatus=?,VD1_Status=?,"
                 + "VD1_CreateUser=?,VD1_CreateTime=?,VD1_ModifyUser=?,VD1_ModifyTime=?,VD1_RowVersion=?,VD1_CardType=? WHERE VD1_ID=?";
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
+        	insertSql = "UPDATE Vending SET VD1_M02_ID=?,VD1_CODE=?,VD1_Manufacturer=?,VD1_VM1_ID=?,VD1_LastVersion=?,VD1_LWHSize=?,VD1_Color=?,"
+                    + "VD1_InstallAddress=?,VD1_Coordinate=?,VD1_ST1_ID=?,VD1_EmergencyRel=?,VD1_EmergencyRelPhone=?,VD1_OnlineStatus=?,VD1_Status=?,"
+                    + "VD1_CreateUser=?,VD1_CreateTime=?,VD1_ModifyUser=?,VD1_ModifyTime=?,VD1_RowVersion=?,VD1_CardType=?,VD1_LockerStatus=? WHERE VD1_ID=?";
+           
+		}
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         SQLiteStatement stat = db.compileStatement(insertSql);
         stat.bindString(1, vending.getVd1M02Id());
@@ -109,6 +124,9 @@ public class VendingDbOper {
         stat.bindString(19, vending.getVd1RowVersion());
         stat.bindString(20, vending.getVd1CardType());
         stat.bindString(21, vending.getVd1Id());
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
+        	 stat.bindString(22, vending.getVd1LockerStatus());
+		}
         long i = stat.executeUpdateDelete();
         return i > 0;
     }

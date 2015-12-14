@@ -32,7 +32,7 @@ public class Constant {
 	public final static String HEADER_VALUE_CONTENT_TYPE = "application/x-www-form-urlencoded"; // content-type
 
 	public final static String HEADER_KEY_CLIENTVER = "client_version"; // client_ver
-	public final static String HEADER_VALUE_CLIENTVER = "2.1.5"; // client_ver
+	public final static String HEADER_VALUE_CLIENTVER = "0.3.14"; // client_ver
 
 	public final static String BODY_KEY_METHOD = "wsid"; // method
 	public final static String BODY_KEY_UDID = "deviceid"; // udid
