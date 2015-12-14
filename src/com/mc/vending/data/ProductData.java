@@ -85,6 +85,20 @@ import java.io.Serializable;
  * <td>计量单位</td>
  * </tr>
  * <tr>
+ * <td>pd1Length</td>
+ * <td>{@link String}</td>
+ * <td>pd1_length</td>
+ * <td>varchar</td>
+ * <td>物料长度</td>
+ * </tr>
+ * <tr>
+ * <td>pd1Weight</td>
+ * <td>{@link String}</td>
+ * <td>pd1Weight</td>
+ * <td>varchar</td>
+ * <td>物料重量</td>
+ * </tr>
+ * <tr>
  * <td>pd1LastImportTime</td>
  * <td>{@link String}</td>
  * <td>pd1_lastImportTime</td>
@@ -213,13 +227,48 @@ public class ProductData extends BaseParseData implements Serializable {
     public void setPd1LastImportTime(String value) {
         this.pd1LastImportTime = value;
     }
+    private String  pd1Length;
+    
+    /**
+	 * @author junjie.you
+	 * @return the pd1Length
+	 */
+	public String getPd1Length() {
+		return pd1Length;
+	}
+
+	/**
+	 * @author junjie.you
+	 * @param pd1Length the pd1Length to set
+	 */
+	public void setPd1Length(String pd1Length) {
+		this.pd1Length = pd1Length;
+	}
+
+	/**
+	 * @author junjie.you
+	 * @return the pd1Weight
+	 */
+	public String getPd1Weight() {
+		return pd1Weight;
+	}
+
+	/**
+	 * @author junjie.you
+	 * @param pd1Weight the pd1Weight to set
+	 */
+	public void setPd1Weight(String pd1Weight) {
+		this.pd1Weight = pd1Weight;
+	}
+
+	private String  pd1Weight;
 
     @Override
     public String toString() {
         return "ProductData [pd1Id=" + pd1Id + ", pd1M02Id=" + pd1M02Id + ", pd1Code=" + pd1Code
                 + ", pd1Name=" + pd1Name + ", pd1Description=" + pd1Description + ", pd1ManufactureModel="
                 + pd1ManufactureModel + ", pd1Size=" + pd1Size + ", pd1Brand=" + pd1Brand + ", pd1Package="
-                + pd1Package + ", pd1Unit=" + pd1Unit + ", pd1LastImportTime=" + pd1LastImportTime + "]";
+                + pd1Package + ", pd1Unit=" + pd1Unit + ", pd1Length=" + pd1Length+ ", pd1Weight=" + pd1Weight+ ", pd1LastImportTime=" + pd1LastImportTime + "]";
     }
 
 }

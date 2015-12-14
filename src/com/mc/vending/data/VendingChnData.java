@@ -119,6 +119,13 @@ import java.io.Serializable;
  * <td>varchar</td>
  * <td>售货机高/格子机门号</td>
  * </tr>
+ *  <tr>
+ * <td>vc1DistanceInitValue</td>
+ * <td>{@link String}</td>
+ * <td>vc1_distanceinitvalue</td>
+ * <td>varchar</td>
+ * <td>距离传感器初始值</td>
+ * </tr>
  * <tr>
  * <td>vc1CreateUser</td>
  * <td>{@link String}</td>
@@ -410,17 +417,36 @@ public class VendingChnData extends BaseParseData implements Serializable {
     public void setInputQty(int inputQty) {
         this.inputQty = inputQty;
     }
+    private String vc1DistanceInitValue;
+	
+    /**
+	 * @author junjie.you
+	 * @return the vc1DistanceInitValue
+	 */
+	public String getVc1DistanceInitValue() {
+		return vc1DistanceInitValue;
+	}
 
-    @Override
+	/**
+	 * @author junjie.you
+	 * @param vc1DistanceInitValue the vc1DistanceInitValue to set
+	 */
+	public void setVc1DistanceInitValue(String vc1DistanceInitValue) {
+		this.vc1DistanceInitValue = vc1DistanceInitValue;
+	}
+
+	@Override
     public String toString() {
         return "VendingChnData [vc1Id=" + vc1Id + ", vc1M02Id=" + vc1M02Id + ", vc1Vd1Id=" + vc1Vd1Id
                 + ", vc1Code=" + vc1Code + ", vc1Type=" + vc1Type + ", vc1Capacity=" + vc1Capacity
                 + ", vc1ThreadSize=" + vc1ThreadSize + ", vc1Pd1Id=" + vc1Pd1Id + ", vc1SaleType="
                 + vc1SaleType + ", vc1Sp1Id=" + vc1Sp1Id + ", vc1BorrowStatus=" + vc1BorrowStatus
                 + ", vc1Status=" + vc1Status + ", vc1LineNum=" + vc1LineNum + ", vc1ColumnNum="
-                + vc1ColumnNum + ", vc1Height=" + vc1Height + ", vc1CreateUser=" + vc1CreateUser
+                + vc1ColumnNum + ", vc1Height=" + vc1Height + ", vc1DistanceInitValue=" + vc1DistanceInitValue+ ", vc1CreateUser=" + vc1CreateUser
                 + ", vc1CreateTime=" + vc1CreateTime + ", vc1ModifyUser=" + vc1ModifyUser
                 + ", vc1ModifyTime=" + vc1ModifyTime + ", vc1RowVersion=" + vc1RowVersion + "]";
     }
+
+
 
 }
