@@ -83,6 +83,10 @@ public class HttpHelper {
         // "=================================param end  ==================================");
         postData.add(new BasicNameValuePair(Constant.BODY_XML_INPUT, json.toString()));
         System.setProperty("http.keepAlive", "false");
+        if (Constant.SERVER_URL==null||Constant.SERVER_URL.equals("")) {
+			ZillionLog.i("SERVER_URL NULL", Constant.SERVER_URL);
+			Constant.SERVER_URL =Tools.getConfigUrl();
+		}
         HttpPost httpPost = new HttpPost(Constant.SERVER_URL);
         httpPost.setHeader(Constant.HEADER_KEY_CONTENT_TYPE,
                 HttpHelper.getHeaderMap().get(Constant.HEADER_KEY_CONTENT_TYPE));
