@@ -216,7 +216,7 @@ public class MyFunc {
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
 		return (noBlankCMD + bcc).toUpperCase();
 	}
-
+	
 	// 生成测距模块控制指令，参数为命令字加数据包
 	public static String getRDCommand(String cmd) {
 		String noBlankCMD = cmd.replaceAll(" ", "");

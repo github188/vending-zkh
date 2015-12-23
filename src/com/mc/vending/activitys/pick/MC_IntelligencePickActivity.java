@@ -15,13 +15,17 @@ import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.ProductData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.data.VendingChnData;
 import com.mc.vending.data.VendingData;
+import com.mc.vending.db.ProductDbOper;
+import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
 import com.mc.vending.service.DataServices;
+import com.mc.vending.service.GeneralMaterialService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
 import com.mc.vending.tools.ConvertHelper;
@@ -59,7 +63,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	public DataServices dataServices;
 	public final int deviationScalar = 5;// 材料列表更新的重量摇摆标量
 	public final double weightDeviationScalar = 0.1;
-	public final int maxVendingCount = 3;// 售货机id，十进制
+	public final int maxVendingCount = 120;// 售货机id，十进制
 
 	public final String FWDataList = "FWDataList";// 称重模块SP存储数据文件名称
 	public final String FWShowList = "FWShowList";// 称重模块SP存储物品显示列表文件名称
@@ -222,7 +226,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private boolean isOverload = false;
 
-	private boolean isNeedUpdateDistanceMemery = true;
+	private boolean isNeedUpdateDataMemery = true;
 
 	@Override
 	public void requestFinished() {
@@ -250,6 +254,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		// ShowVendingChnList();
 
 		openRD();
+		openFW();
 		openRFID();
 
 	}
@@ -359,12 +364,12 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
 
 				boolean isAdmin = false;
-				if (!isAdmin) {
-					// 普通员工领料流程
-					handler.sendMessage(msg);
-				} else {
-					// 跳转管理员补货界面
+				// foo要判断卡号是不是管理员
+				// isAdmin = foo();
+				if (isAdmin) {
+					isReturnMaterial = true;
 				}
+				handler.sendMessage(msg);
 			}
 			break;
 		case SerialTools.MESSAGE_LOG_mRD:
@@ -390,8 +395,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			String[] portRtnStrList = null;
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
-				SerialTools.getInstance().openLocker();
-				isNeedUpdateDistanceMemery = false;
+				try {
+					SerialTools.getInstance().closeRD();
+					SerialTools.getInstance().closeFW();
+					SerialTools.getInstance().openLocker();
+					isNeedUpdateDataMemery = false;
+				} catch (SerialPortException e) {
+					// TODO Auto-generated catch block
+					openRD();
+					openFW();
+					e.printStackTrace();
+				}
 				break;
 			case SerialTools.MESSAGE_LOG_mLocker:
 				portRtnStrList = ((String) msg.obj).replaceAll(Constant.RDSERVETAILWITHBLANK, "")
@@ -400,17 +414,22 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					int result = LockerSerialPortReturnStrHandler(portRtnStrList[1]);
 					// 正常开门
 					if (result == 0 || result == 8) {
-						isNeedUpdateDistanceMemery = false;
+						isNeedUpdateDataMemery = false;
 						closeRFID();
 						SerialTools.getInstance().checkLocker();
-						openFW();
 					}
 					// 正常关门
 					if (result == 11) {
-						isNeedUpdateDistanceMemery = true;
 						openRFID();
+						openRD();
+						openFW();
+						ShowMaterialList();
+						SaveVendingStock();
+						// UpdateVendingChnList(pId, difCount, afterCount,
+						// preCount, pDifWeight > 0 ? true : false);
 					}
 					// 其他异常情况如下操作
+					// balabalabala
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mRD:
@@ -772,9 +791,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				InitFlag();
-				isNeedUpdateDistanceMemery = true;
+				isNeedUpdateDataMemery = true;
 				isReturnMaterial = true;
-				isNeedUpdateDistanceMemery = false;
+				isNeedUpdateDataMemery = false;
 				openRD();
 
 			}
@@ -824,7 +843,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		isSettingUnitDistance = false;
 		isSettingUnitZero = false;
 		isSettingMaterialUnitDistance = false;
-		isNeedUpdateDistanceMemery = true;
+		isNeedUpdateDataMemery = true;
 	}
 
 	/**
@@ -890,7 +909,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			// }
 			// }
 			for (int i = 0; i < 60; i++) {
-				DISTANCELIST.put((i + 1) + "", pReturnString.substring(6 * i, 6 * i + 6));
+				DISTANCELIST.put((i + 1 + 60) + "", pReturnString.substring(6 * i, 6 * i + 6));// i+1+60:再加上称重模块的货道数量
 			}
 			pReturnString = null;
 			for (String i : TotalVendingChn) {
@@ -898,7 +917,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 					// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
 					String mockDistanceV16 = DISTANCELIST.get(i).replaceAll(" ", "");// 找到对应的距离参数，16进制
-					String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();
+					String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();// 转为10进制
 					float afterCount = CalcDistance(i, mockDistanceV10);
 					ShowReturnMaterialDataList(i, afterCount + "");
 					// if (isSettingUnitDistance) {
@@ -939,11 +958,12 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		int nowLengthInt = ConvertHelper.toInt(pLength, deviationScalar);
 		// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
 		if ((nowLengthInt - deviationScalar) > preLengthInt || (nowLengthInt + deviationScalar) < preLengthInt) {
-			if (isNeedUpdateDistanceMemery) {
+			if (isNeedUpdateDataMemery) {
 				SetSP(RDDataList, pId, pLength);
 			} else {
 				different = preLengthInt - nowLengthInt;
 				UpdateMaterialListForRD(pId, different);
+				isNeedUpdateDataMemery = true;
 			}
 		}
 	}
@@ -1033,6 +1053,14 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private void InitSPRDShowList() {
 		final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 		for (int i = 1; i <= maxVendingCount; i++) {
+			VendingChnData vendingChnData = new VendingChnDbOper().getVendingChnByCode(i + "");
+			if (vendingChnData != null) {
+				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
+				if (productData != null) {
+					sp.edit().putString(i + "", productData.getPd1Name()).commit();
+					continue;
+				}
+			}
 			sp.edit().putString(i + "", i + "号货道").commit();
 		}
 	}
@@ -1078,33 +1106,34 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				afterCount = LengthCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
 				// if (pDifWeight > 0) {
-				// afterCount = preCount + afterCount;
-				// } else {
+				afterCount = preCount + afterCount;
+			} else {
 				if (!isReturnMaterial) {
 					afterCount = preCount - afterCount;
 				} else {
 					afterCount += preCount;
 				}
 
-				// }
-				if (isReturnMaterial) {
-					// 将变化的个数更新该ID对应的显示个数
-					if (afterCount == 0) {
-						DISTANCECHNCOUNTLIST.remove(pId);
-					} else {
-						DISTANCECHNCOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
-					}
-					SetSP(RDMaterialChnList, pId, afterCount + "");
+			}
+			if (isReturnMaterial) {
+				// 将变化的个数更新该ID对应的显示个数
+				if (afterCount == 0) {
+					DISTANCECHNCOUNTLIST.remove(pId);
 				} else {
-					// 将变化的个数更新该ID对应的显示个数
-					if (afterCount == 0) {
-						DISTANCECOUNTLIST.remove(pId);
-					} else {
-						DISTANCECOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
-					}
-					ShowMaterialList();
-					UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifLength > 0 ? false : true);
+					DISTANCECHNCOUNTLIST.put(pId, "" + afterCount);//
+					// 把显示LIST中的对应数据进行更新
 				}
+				SetSP(RDMaterialChnList, pId, afterCount + "");
+			} else {
+				// 将变化的个数更新该ID对应的显示个数
+				if (afterCount == 0) {
+					DISTANCECOUNTLIST.remove(pId);
+				} else {
+					DISTANCECOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+				}
+				ShowMaterialList();
+				UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifLength > 0 ? false : true);
+				// }
 				ShowVendingChnList();
 
 			}
@@ -1144,6 +1173,21 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private void GetVendingChnFromSP2List() {
 		for (int i = maxVendingCount; i <= maxVendingCount; i++) {
 			DISTANCECHNCOUNTLIST.put(i + "", GetSP(RDMaterialChnList, maxVendingCount + "", "0"));
+		}
+	}
+
+	/**
+	 * 保存领料记录
+	 * 
+	 * @author junjie.you
+	 */
+	private void SaveVendingStock() {
+		Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
+		while (it.hasNext()) {
+			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+			vendingChn.setVc1Code(entry.getKey().toString());
+			GeneralMaterialService.getInstance().saveStockTransaction(ConvertHelper.toInt(entry.getValue(), 0),
+					vendingChn, wrapperData);
 		}
 	}
 
@@ -1270,12 +1314,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
 		while (it.hasNext()) {
 			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			DistanceArr.add(entry.getKey() + "号货道		X" + entry.getValue());
+			DistanceArr.add(entry.getKey() + "		X" + entry.getValue());
 		}
-
+		it = WEIGHTLIST.entrySet().iterator();
+		while (it.hasNext()) {
+			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+			DistanceArr.add(entry.getKey() + "		X" + entry.getValue());
+		}
 		intelligence_listview_datalist
 				.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
-
 	}
 
 	/**
@@ -1408,9 +1455,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		// if (!isReturnMaterial) {
 		int preWeightInt = ConvertHelper.toInt(preWeight, 0);
 		int nowWeightInt = ConvertHelper.toInt(pWeight, deviationScalar);
+		int different = preWeightInt - nowWeightInt;
 		// 给出一个误差范围：如果之前的重量在现在重量加减误差标量之间则不更新材料列表
 		if ((nowWeightInt - deviationScalar) > preWeightInt || (nowWeightInt + deviationScalar) < preWeightInt) {
-			UpdateMaterialList(pId + "", ConvertHelper.toInt(preWeight, 0) - ConvertHelper.toInt(pWeight, 0));
+			if (isNeedUpdateDataMemery) {
+				SetSP(FWWeightDataList, pId + "", pWeight);
+			} else {
+				UpdateMaterialList(pId + "", different);
+				isNeedUpdateDataMemery = true;
+			}
 			// }
 			// }
 		}
@@ -1431,7 +1484,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private void openFW() {
 		SerialTools.getInstance().addToolsListener(this);
 		try {
-			for (int i = 1; i <= maxVendingCount; i++) {
+			for (int i = 1; i <= 1; i++) {
 				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
 				Thread.sleep(30);
 			}
@@ -1491,27 +1544,28 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					afterCount += preCount;
 				}
 
-				// }
-				if (isReturnMaterial) {
-					// 将变化的个数更新该ID对应的显示个数
-					if (afterCount == 0) {
-						VENDINGCHNLIST.remove(pId);
-					} else {
-						VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
-					}
-					UpdateVendingChnList(pId, afterCount);
+			}
+			if (isReturnMaterial) {
+				// 将变化的个数更新该ID对应的显示个数
+				if (afterCount == 0) {
+					VENDINGCHNLIST.remove(pId);
 				} else {
-					// 将变化的个数更新该ID对应的显示个数
-					if (afterCount == 0) {
-						WEIGHTLIST.remove(pId);
-					} else {
-						WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
-					}
-					ShowMaterialList();
-					UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifWeight > 0 ? true : false);
+					VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
+				UpdateVendingChnList(pId, afterCount);
+			} else {
+				// 将变化的个数更新该ID对应的显示个数
+				if (afterCount == 0) {
+					WEIGHTLIST.remove(pId);
+				} else {
+					WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+				}
+				// ShowMaterialList();
+				// UpdateVendingChnList(pId, difCount, afterCount, preCount,
+				// pDifWeight > 0 ? true : false);
+				// }
 
-				ShowVendingChnList();
+				// ShowVendingChnList();
 			}
 
 		} catch (Exception e) {

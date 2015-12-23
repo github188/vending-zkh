@@ -33,12 +33,12 @@ public class SerialTools {
 
 	// private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
 	private static final String PortName_mVender = ""; // 售货机
-	private static final String PortName_mLocker = "/dev/ttyO2"; // 锁模块
+	private static final String PortName_mLocker = "/dev/ttyO3"; // 锁模块
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
-	private static final String PortName_mKeyBoard = "/dev/ttyO7"; // 键盘
-	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
-	private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块
-	private static final String PortName_mRD = "/dev/ttyO5"; // 测距模块
+	private static final String PortName_mKeyBoard = ""; // 键盘
+	private static final String PortName_mStore = ""; // 格子机
+	private static final String PortName_mFw = "/dev/ttyO5"; // 称重模块
+	private static final String PortName_mRD = "/dev/ttyO3"; // 测距模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
 	public static final int MESSAGE_LOG_mRFIDReader = 2; // 读卡器
@@ -85,6 +85,7 @@ public class SerialTools {
 	public static final String FUNCTION_KEY_CONFIRM = "0D"; // 确认
 
 	public Object userInfo;
+	private boolean isLockerOperiting = false;
 
 	static {
 		keymap = new HashMap<String, String>();
@@ -156,6 +157,7 @@ public class SerialTools {
 				}
 				mLocker.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				sendPortData(mLocker, cmdOpenLocker, true);
+				isLockerOperiting = true;
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
@@ -184,6 +186,7 @@ public class SerialTools {
 				}
 				mLocker.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				sendPortData(mLocker, cmdCheckLocker, true);
+				isLockerOperiting = true;
 			}
 		} catch (SerialPortException e) {
 			// e.printStackTrace();
@@ -233,7 +236,7 @@ public class SerialTools {
 		try {
 			if (mRFIDReader.isOpened() || mRFIDReader.openPort()) {
 				try {
-					mRFIDReader.addEventListener(listener);
+					mRFIDReader.addEventListener(mListener);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -499,8 +502,8 @@ public class SerialTools {
 				}
 				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
 				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				ZillionLog.i("test", MyFunc.cmdGetAllRangeDistance());
 				sendPortData(mRD, MyFunc.cmdGetAllRangeDistance(), true);
+				isLockerOperiting = false;
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
@@ -631,26 +634,53 @@ public class SerialTools {
 				if (event.getEventValue() > 0) {
 					try {
 						String data = null;
+						// SerialPort serialPort = null;
+						// if (mFw.isOpened()) {
+						// serialPort = mFw;
+						// } else if (mLocker.isOpened()) {
+						// serialPort = mLocker;
+						// } else if (isRFIDOperiting) {
+						// serialPort = mRFIDReader;
+						// } else if (!isRFIDOperiting) {
+						// serialPort = mRD;
+						// }
+						// if (serialPort != null) {
+						// String portStr =
+						// serialPort.readHexString(event.getEventValue());
+						// if (ValidateBcc(portStr,
+						// Constant.RDSERVEHEADWITHBLANK,
+						// Constant.RDSERVETAILWITHBLANK)
+						// || ValidateBcc(portStr, "FF", "FF")) {
 						if (PortName_mFw.equals(event.getPortName())) { // added
 							// by
 							// junjie.you
 							obtain = SerialTools.MESSAGE_LOG_mFw;
 							data = mFw.readHexString(event.getEventValue());
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
-						}  else if (PortName_mLocker.equals(event.getPortName())) {
-							obtain = SerialTools.MESSAGE_LOG_mLocker;
-							data = mLocker.readHexString(event.getEventValue());
+						} else if (PortName_mLocker.equals(event.getPortName())
+								|| PortName_mRD.equals(event.getPortName())) {
+							if (isLockerOperiting) {
+								obtain = SerialTools.MESSAGE_LOG_mLocker;
+								data = mLocker.readHexString(event.getEventValue());
+							} else {
+								obtain = SerialTools.MESSAGE_LOG_mRD;
+								data = mRD.readHexString(event.getEventValue());
+							}
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
-						} else if (PortName_mRD.equals(event.getPortName())) {
-							// by
-							// junjie.you
-							obtain = SerialTools.MESSAGE_LOG_mRD;
-							data = mRD.readHexString(event.getEventValue());
+						} else if (PortName_mRFIDReader.equals(event.getPortName())) {
+							data = mRFIDReader.readHexString(event.getEventValue());
+							obtain = SerialTools.MESSAGE_LOG_mRFIDReader;
 							Log.i(TAG, "Receive " + data.length() + " Bytes: " + data);
+							// if (data != null && data.equals("18")) {
+							// rfidReaderPote = 9600;
+							// openRFIDReader();
+							// }
 						}
 						Message m = Message.obtain(mHandler, obtain);
 						m.obj = data;
 						mHandler.sendMessage(m);
+						// }
+						// }
 
 					} catch (SerialPortException e) {
 						e.printStackTrace();
@@ -788,7 +818,6 @@ public class SerialTools {
 						} catch (InterruptedException e) {
 						}
 					}
-
 				} else {
 					msg.what = mStore.getRequestMethod();
 					if (toolsListener != null && toolsListener instanceof MC_CombinationPickDetailActivity) {
@@ -805,6 +834,29 @@ public class SerialTools {
 
 		}
 	};
+
+	/**
+	 * 根据传入的规则进行校验位的校验
+	 * 
+	 * @author junjie.you
+	 * @param pValue
+	 * @return
+	 */
+	private boolean ValidateBcc(String pValue, String headBcc, String tailBcc) {
+		if (pValue.contains(headBcc) && pValue.contains(tailBcc)) {
+			pValue = pValue.replaceAll(headBcc, "").replaceAll(tailBcc, "");
+			String strToBeValidate = pValue.substring(1, pValue.lastIndexOf(" ") - 3);
+			String strOfBcc = pValue.substring(pValue.lastIndexOf(" "), pValue.length());
+			String strOfCalculatedBcc = null;
+			if (strToBeValidate != null) {
+				strOfCalculatedBcc = Integer.toHexString(MyFunc.getBCC(strToBeValidate));
+			}
+			if (strOfCalculatedBcc != null && strOfCalculatedBcc.equals(strOfBcc)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * rfid 线程监听线程
