@@ -29,6 +29,7 @@ import com.mc.vending.service.GeneralMaterialService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.MyFunc;
@@ -80,6 +81,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private EditText et_channle_number; // 步骤1输入框
 	private EditText et_pick_number; // 步骤2输入框
 	private TextView tv_intelligence_dialog; // 显示用户提示内容
+	private ImageView iv_intelligence_img;// 展示的图片
 
 	private TextView txt_weight_msg; // 重量数值内容
 	private Button btn_out; // 隐藏按钮
@@ -186,7 +188,10 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 	private TimerTask mTimerTask;
 	private final static int MESSAGE_Image_player = 99; // 跳转到待机
-	private final static String[] TotalVendingChn = { "49" };// 总共有多少测距货道
+	private final static String[] TotalVendingChn = { "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71",
+			"72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
+			"90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100", "101", "102", "103", "104", "105", "106",
+			"107", "108", "109", "110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120" };// 总共有多少测距货道
 	boolean isOperating = false; // 是否再操作中
 	private boolean isStoreChecked; // 格子机验证返回
 	public boolean isSettingUnitDistance = false;// 是否校对测距模块单位毫米电压数
@@ -247,16 +252,38 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		ActivityManagerTool.getActivityManager().add(this);
 		getParam();
 		initComponents();
-		// initObject();
+		initObject();
 		InitFlag();
+		InitList();
+		InitView();
 		// ShowUnitDistance4EditText(maxVendingCount + "");
 		// ShowMaterialUnitDistance4EditText(maxVendingCount + "");
 		// ShowVendingChnList();
-
 		openRD();
-		openFW();
+		try {
+			for (int i = 1; i <= 60; i++) {
+				openFW(i);
+				Thread.sleep(30);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		openRFID();
 
+	}
+
+	private void InitView() {
+		iv_intelligence_img.setVisibility(View.VISIBLE);
+		tv_intelligence_dialog.setVisibility(View.VISIBLE);
+		intelligence_listview_datalist.setVisibility(View.GONE);
+	}
+
+	private void InitList() {
+		DISTANCECOUNTLIST.clear();
+		WEIGHTLIST.clear();
+		intelligence_listview_datalist.setAdapter(null);
 	}
 
 	/**
@@ -361,11 +388,14 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			// 查询卡类型：管理员还是普通员工
 
 			value = MyFunc.getRFIDSerialNo(value);
+			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
+			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
 
 				boolean isAdmin = false;
 				// foo要判断卡号是不是管理员
-				// isAdmin = foo();
+
+				isAdmin = ValidateCardPower(value);
 				if (isAdmin) {
 					isReturnMaterial = true;
 				}
@@ -397,13 +427,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
 				try {
 					SerialTools.getInstance().closeRD();
-					SerialTools.getInstance().closeFW();
+					// SerialTools.getInstance().closeFW();
+					Thread.sleep(500);
 					SerialTools.getInstance().openLocker();
 					isNeedUpdateDataMemery = false;
 				} catch (SerialPortException e) {
 					// TODO Auto-generated catch block
 					openRD();
-					openFW();
+					// openFW();
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				break;
@@ -412,24 +446,33 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				if (portRtnStrList != null && portRtnStrList.length > 1) {
 					int result = LockerSerialPortReturnStrHandler(portRtnStrList[1]);
+					ZillionLog.i("yjjtest", "当前锁result状态：：" + result);
+					ZillionLog.i("yjjtestLockerStatus", "当前锁result状态：：" + result);
 					// 正常开门
-					if (result == 0 || result == 8) {
+					if (result == 0 || result == 8 || result == 9) {
 						isNeedUpdateDataMemery = false;
-						closeRFID();
 						SerialTools.getInstance().checkLocker();
 					}
 					// 正常关门
-					if (result == 11) {
+					if (result == 10) {
+						try {
+							SerialTools.getInstance().closeCheckLocker();
+						} catch (SerialPortException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						openRFID();
 						openRD();
-						openFW();
-						ShowMaterialList();
-						SaveVendingStock();
+						// openFW();
+
 						// UpdateVendingChnList(pId, difCount, afterCount,
 						// preCount, pDifWeight > 0 ? true : false);
 					}
 					// 其他异常情况如下操作
 					// balabalabala
+					if (result == -1) {
+						ZillionLog.i("yjjtest", "锁打开失败");
+					}
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mRD:
@@ -459,7 +502,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					FWSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				openFW();
+				// openFW();
 				break;
 			default:
 				break;
@@ -470,6 +513,20 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	@Override
 	public void serialReturn(String value, int serialType, Object userInfo) {
 		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * 检查卡权限
+	 * 
+	 * @param pCardValue
+	 *            卡号
+	 * @return
+	 */
+	private boolean ValidateCardPower(String pCardValue) {
+		if (pCardValue != null && pCardValue.equals("2960251873")) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -493,6 +550,8 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void initComponents() {
 		intelligence_listview_datalist = (ListView) this.findViewById(R.id.intelligence_listview_datalist);
+		iv_intelligence_img = (ImageView) this.findViewById(R.id.iv_intelligence_img);
+		tv_intelligence_dialog = (TextView) this.findViewById(R.id.tv_intelligence_dialog);
 		// intelligence_listview_vendingchnlist = (ListView)
 		// this.findViewById(R.id.intelligence_listview_vendingchnlist);
 		// btn_noSkin = (Button) this.findViewById(R.id.btn_noSkin);
@@ -563,252 +622,262 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void initObject() {
 		InitSPFWShowList();
-		UpdateUnitWeightForEditText();
+		// UpdateUnitWeightForEditText();
 		InitSPRDShowList();
-		btn_getWeight.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				WeightArr.clear();
-				openFW();
-			}
-		});
-		btn_setting.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-
-			}
-		});
-		btn_setting_lock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingUnitWeight = false;
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_setting_unlock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				openFwSetUnit();
-			}
-		});
-		btn_setZero.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingZero = true;
-				SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				SetZeroSPUnitWeightForFW();
-			}
-		});
-		btn_clearlist.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				WeightArr.clear();
-				InitSP(FWDataList);
-				intelligence_listview_datalist.setAdapter(null);
-			}
-		});
-		btn_return.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isReturnMaterial = true;
-				VendingChnArr.clear();
-				WEIGHTLIST.clear();
-				openFW();
-			}
-		});
-		btn_exitWeight.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_exitreturn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isReturnMaterial = false;
-				try {
-					SerialTools.getInstance().closeFW();
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_clear_vendingchn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				VendingChnArr.clear();
-				VENDINGCHNLIST.clear();
-				InitSP(FWDataList);
-				intelligence_listview_vendingchnlist.setAdapter(null);
-			}
-		});
-		btn_distance_material_lock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				InitFlag();
-				try {
-					SerialTools.getInstance().closeRD();
-
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_distance_material_unlock.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingUnitDistance = true;
-				openRdSetUnit();
-			}
-		});
-		btn_distance_material_setzero.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingUnitZero = true;
-				// openRD(49);
-
-			}
-		});
-
-		btn_distance_material_getdistance.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				InitFlag();
-				// openRD();
-			}
-		});
-		btn_distance_material_stopgetdistance.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				InitFlag();
-				try {
-					SerialTools.getInstance().closeRD();
-
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_distance_material_reset.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				isSettingMaterialUnitDistance = true;
-				openRD();
-			}
-		});
-		btn_distance_material_save.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				InitFlag();
-				try {
-					SerialTools.getInstance().closeRD();
-
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_distance_return.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				InitFlag();
-				try {
-					// UpdateMaterialListForRD(pId, different);
-					// isNeedUpdateDistanceMemery = true;
-					SerialTools.getInstance().closeRD();
-
-				} catch (SerialPortException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		btn_distance_exitreturn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				InitFlag();
-				isNeedUpdateDataMemery = true;
-				isReturnMaterial = true;
-				isNeedUpdateDataMemery = false;
-				openRD();
-
-			}
-		});
-		btn_clear_distance_vendingchn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				DISTANCECHNCOUNTLIST.clear();
-				DistanceChnArr.clear();
-				ClearSP(RDMaterialChnList);
-				intelligence_listview_vendingchnlist.setAdapter(null);
-			}
-		});
+		// btn_getWeight.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// WeightArr.clear();
+		// openFW();
+		// }
+		// });
+		// btn_setting.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// });
+		// btn_setting_lock.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingUnitWeight = false;
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_setting_unlock.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// openFwSetUnit();
+		// }
+		// });
+		// btn_setZero.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingZero = true;
+		// SerialTools.getInstance().openFW(0, Constant.FW_SET_ZERO);
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_setting_unit_zero.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// SetZeroSPUnitWeightForFW();
+		// }
+		// });
+		// btn_clearlist.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// WeightArr.clear();
+		// InitSP(FWDataList);
+		// intelligence_listview_datalist.setAdapter(null);
+		// }
+		// });
+		// btn_return.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isReturnMaterial = true;
+		// VendingChnArr.clear();
+		// WEIGHTLIST.clear();
+		// openFW();
+		// }
+		// });
+		// btn_exitWeight.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_exitreturn.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isReturnMaterial = false;
+		// try {
+		// SerialTools.getInstance().closeFW();
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_clear_vendingchn.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// VendingChnArr.clear();
+		// VENDINGCHNLIST.clear();
+		// InitSP(FWDataList);
+		// intelligence_listview_vendingchnlist.setAdapter(null);
+		// }
+		// });
+		// btn_distance_material_lock.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// InitFlag();
+		// try {
+		// SerialTools.getInstance().closeRD();
+		//
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_distance_material_unlock.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingUnitDistance = true;
+		// openRdSetUnit();
+		// }
+		// });
+		// btn_distance_material_setzero.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingUnitZero = true;
+		// // openRD(49);
+		//
+		// }
+		// });
+		//
+		// btn_distance_material_getdistance.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// InitFlag();
+		// // openRD();
+		// }
+		// });
+		// btn_distance_material_stopgetdistance.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// InitFlag();
+		// try {
+		// SerialTools.getInstance().closeRD();
+		//
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_distance_material_reset.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// isSettingMaterialUnitDistance = true;
+		// openRD();
+		// }
+		// });
+		// btn_distance_material_save.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// InitFlag();
+		// try {
+		// SerialTools.getInstance().closeRD();
+		//
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_distance_return.setOnClickListener(new View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// InitFlag();
+		// try {
+		// // UpdateMaterialListForRD(pId, different);
+		// // isNeedUpdateDistanceMemery = true;
+		// SerialTools.getInstance().closeRD();
+		//
+		// } catch (SerialPortException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// });
+		// btn_distance_exitreturn.setOnClickListener(new View.OnClickListener()
+		// {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// InitFlag();
+		// isNeedUpdateDataMemery = true;
+		// isReturnMaterial = true;
+		// isNeedUpdateDataMemery = false;
+		// openRD();
+		//
+		// }
+		// });
+		// btn_clear_distance_vendingchn.setOnClickListener(new
+		// View.OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// DISTANCECHNCOUNTLIST.clear();
+		// DistanceChnArr.clear();
+		// ClearSP(RDMaterialChnList);
+		// intelligence_listview_vendingchnlist.setAdapter(null);
+		// }
+		// });
 	}
 
 	private void openRFID() {
@@ -912,27 +981,38 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				DISTANCELIST.put((i + 1 + 60) + "", pReturnString.substring(6 * i, 6 * i + 6));// i+1+60:再加上称重模块的货道数量
 			}
 			pReturnString = null;
-			for (String i : TotalVendingChn) {
-				if (DISTANCELIST.containsKey(i)) {
+			Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// entry.getKey();
+				// entry.getValue();
 
-					// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
-					String mockDistanceV16 = DISTANCELIST.get(i).replaceAll(" ", "");// 找到对应的距离参数，16进制
-					String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();// 转为10进制
-					float afterCount = CalcDistance(i, mockDistanceV10);
-					ShowReturnMaterialDataList(i, afterCount + "");
-					// if (isSettingUnitDistance) {
-					// UpdateUnitDistanceForEditText(i, afterCount + "");
-					// } else if (isSettingUnitZero) {
-					// SetSP(RdZeroList, i, mockDistanceV10);
-					// } else if (isSettingMaterialUnitDistance) {
-					// ShowMaterialUnitDistance(i, afterCount + "");
-					// } else if (isReturnMaterial) {
-					// ShowReturnMaterialDataList(i, afterCount + "");
-					// } else {
-					// ShowReturnMaterialDataList(i, afterCount + "");
-					// }
-					// ShowDistance4EditText(i, afterCount + "");
-				}
+				// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
+				String mockDistanceV16 = DISTANCELIST.get(entry.getKey().toString()).replaceAll(" ", "");// 找到对应的距离参数，16进制
+				String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();// 转为10进制
+				float afterCount = CalcDistance(entry.getKey().toString(), mockDistanceV10);
+				ShowReturnMaterialDataList(entry.getKey().toString(), afterCount + "");
+				// if (isSettingUnitDistance) {
+				// UpdateUnitDistanceForEditText(i, afterCount + "");
+				// } else if (isSettingUnitZero) {
+				// SetSP(RdZeroList, i, mockDistanceV10);
+				// } else if (isSettingMaterialUnitDistance) {
+				// ShowMaterialUnitDistance(i, afterCount + "");
+				// } else if (isReturnMaterial) {
+				// ShowReturnMaterialDataList(i, afterCount + "");
+				// } else {
+				// ShowReturnMaterialDataList(i, afterCount + "");
+				// }
+				// ShowDistance4EditText(i, afterCount + "");
+			}
+			if (isReturnMaterial) {
+				ShowChnMaterialList();
+				DISTANCECHNCOUNTLIST.clear();
+				VENDINGCHNLIST.clear();
+			} else {
+				ShowMaterialList();
+				DISTANCECOUNTLIST.clear();
+				WEIGHTLIST.clear();
 			}
 		}
 	}
@@ -963,7 +1043,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			} else {
 				different = preLengthInt - nowLengthInt;
 				UpdateMaterialListForRD(pId, different);
-				isNeedUpdateDataMemery = true;
+
 			}
 		}
 	}
@@ -1082,16 +1162,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private boolean UpdateMaterialListForRD(String pId, int pDifLength) {
 		try {
-			// 获取显示物品列表文件
-			final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
-			// 获取该id在之前的显示列表内的个数，没有则为0
-			String idName = sp.getString(pId, "0");
-			if (idName.equals("0")) {
-				idName = pId + "号模块文件名获取失败";
-			}
 
-			// 获取该物品锁对应的单位重量，没有则为1
-			String idUnitLength = GetSP(RDMaterialUnitList, pId, "1");// 之前该id内存储的值
+			String idUnitLength = "50";
+			// 获取该物品锁对应的单位长度，没有则为50
+			VendingChnData vendingChnData = new VendingChnDbOper()
+					.getVendingChnByCode((ConvertHelper.toInt(pId, 0) + 60) + "");// 61开始才是测距模块的第一个
+			if (vendingChnData != null) {
+				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
+				if (productData != null && productData.getPd1Length() != null) {
+					idUnitLength = productData.getPd1Length();
+				}
+			}
 			int preCount = 0;
 			if (!isReturnMaterial) {
 				preCount = ConvertHelper.toInt(DISTANCECOUNTLIST.get(pId), 0);
@@ -1105,15 +1186,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (afterCount != 0) {
 				afterCount = LengthCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
-				// if (pDifWeight > 0) {
-				afterCount = preCount + afterCount;
-			} else {
-				if (!isReturnMaterial) {
-					afterCount = preCount - afterCount;
+				if (pDifLength < 0) {
+					afterCount = preCount - difCount;
 				} else {
-					afterCount += preCount;
+					afterCount = preCount + difCount;
 				}
-
 			}
 			if (isReturnMaterial) {
 				// 将变化的个数更新该ID对应的显示个数
@@ -1131,10 +1208,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				} else {
 					DISTANCECOUNTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
-				ShowMaterialList();
-				UpdateVendingChnList(pId, difCount, afterCount, preCount, pDifLength > 0 ? false : true);
-				// }
-				ShowVendingChnList();
+				// ShowMaterialList();
+				// UpdateVendingChnList(pId, difCount, afterCount, preCount,
+				// pDifLength > 0 ? false : true);
+				// // }
+				// ShowVendingChnList();
 
 			}
 		} catch (Exception e) {
@@ -1181,14 +1259,47 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 * 
 	 * @author junjie.you
 	 */
-	private void SaveVendingStock() {
-		Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
-		while (it.hasNext()) {
-			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			vendingChn.setVc1Code(entry.getKey().toString());
-			GeneralMaterialService.getInstance().saveStockTransaction(ConvertHelper.toInt(entry.getValue(), 0),
-					vendingChn, wrapperData);
+	private boolean SaveVendingStock() {
+		if (!DISTANCECOUNTLIST.isEmpty() || !WEIGHTLIST.isEmpty()) {
+			Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 判断货到状态－类型，返回商品id，货道id
+				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService.getInstance().checkVendingChn(
+						(ConvertHelper.toInt(entry.getKey(), 1) + 60) + "", VendingChnData.VENDINGCHN_METHOD_GENERAL);
+				if (!vendingResult.isSuccess()) {
+					resetAlertMsg(vendingResult.getMessage());
+					return false;
+				}
+				vendingChn = vendingResult.getResult();
+				GeneralMaterialService.getInstance().saveStockTransaction(ConvertHelper.toInt(entry.getValue(), 0),
+						vendingChn, wrapperData);
+			}
+			it = WEIGHTLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 判断货到状态－类型，返回商品id，货道id
+				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService.getInstance().checkVendingChn(
+						ConvertHelper.toInt(entry.getKey(), 1) + "", VendingChnData.VENDINGCHN_METHOD_GENERAL);
+				if (!vendingResult.isSuccess()) {
+					resetAlertMsg(vendingResult.getMessage());
+					return false;
+				}
+				vendingChn = vendingResult.getResult();
+				GeneralMaterialService.getInstance().saveStockTransaction(ConvertHelper.toInt(entry.getValue(), 0),
+						vendingChn, wrapperData);
+			}
 		}
+		// Iterator<Entry<String, String>> it =
+		// DISTANCECOUNTLIST.entrySet().iterator();
+		// while (it.hasNext()) {
+		// java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+		// vendingChn.setVc1Code(entry.getKey().toString());
+		// GeneralMaterialService.getInstance().saveStockTransaction(ConvertHelper.toInt(entry.getValue(),
+		// 0),
+		// vendingChn, wrapperData);
+		// }
+		return true;
 	}
 
 	/**
@@ -1250,7 +1361,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	}
 
 	private float CalcDistanceCount(String pId, float pNowLength) {
-		String unit = GetSP(RDUnitList, pId);
+		String unit = "7.3";
 		float denominator = ConvertHelper.toFloat(unit, (float) 0.00);
 		float afterCount = Math.abs(pNowLength) / denominator;
 		return afterCount;
@@ -1307,22 +1418,99 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	}
 
 	/**
-	 * 将DISTANCECHNCOUNTLIST绑定到ListView上，同时更新界面
+	 * 将ChnCOUNTLIST绑定到ListView上，同时更新界面
+	 */
+	private void ShowChnMaterialList() {
+		DistanceArr.clear();
+		if (!DISTANCECHNCOUNTLIST.isEmpty() || !VENDINGCHNLIST.isEmpty()) {
+			Iterator<Entry<String, String>> it = DISTANCECHNCOUNTLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 获取显示物品列表文件
+				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
+				// 获取该id在之前的显示列表内的个数，没有则为0
+				String idName = sp.getString((ConvertHelper.toInt(entry.getKey(), 61) + 60) + "", "0");
+				if (idName.equals("0")) {
+					idName = entry.getKey() + "号";
+				}
+				DistanceArr.add(idName + "		X" + entry.getValue());
+			}
+			it = VENDINGCHNLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 获取显示物品列表文件
+				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
+				String idName = sp.getString(ConvertHelper.toInt(entry.getKey(), 61) + "", "0");
+				if (idName.equals("0")) {
+					idName = entry.getKey() + "号";
+				}
+				DistanceArr.add(idName + "		X" + entry.getValue());
+			}
+			if (DistanceArr != null && !DistanceArr.isEmpty()) {
+				iv_intelligence_img.setVisibility(View.GONE);
+				tv_intelligence_dialog.setVisibility(View.GONE);
+				intelligence_listview_datalist.setVisibility(View.VISIBLE);
+				intelligence_listview_datalist
+						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
+				isNeedUpdateDataMemery = true;
+				isReturnMaterial = false;
+			}
+			boolean isSuccess = SaveVendingStock();
+			if (isSuccess) {
+				InitList();
+				InitView();
+			} else {
+				// 记录错误日志
+			}
+		}
+	}
+
+	/**
+	 * 将COUNTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowMaterialList() {
 		DistanceArr.clear();
-		Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
-		while (it.hasNext()) {
-			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			DistanceArr.add(entry.getKey() + "		X" + entry.getValue());
+		if (!DISTANCECOUNTLIST.isEmpty() || !WEIGHTLIST.isEmpty()) {
+			Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 获取显示物品列表文件
+				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
+				// 获取该id在之前的显示列表内的个数，没有则为0
+				String idName = sp.getString((ConvertHelper.toInt(entry.getKey(), 61) + 60) + "", "0");
+				if (idName.equals("0")) {
+					idName = entry.getKey() + "号";
+				}
+				DistanceArr.add(idName + "		X" + entry.getValue());
+			}
+			it = WEIGHTLIST.entrySet().iterator();
+			while (it.hasNext()) {
+				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+				// 获取显示物品列表文件
+				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
+				String idName = sp.getString(ConvertHelper.toInt(entry.getKey(), 61) + "", "0");
+				if (idName.equals("0")) {
+					idName = entry.getKey() + "号";
+				}
+				DistanceArr.add(idName + "		X" + entry.getValue());
+			}
+			if (DistanceArr != null && !DistanceArr.isEmpty()) {
+				iv_intelligence_img.setVisibility(View.GONE);
+				tv_intelligence_dialog.setVisibility(View.GONE);
+				intelligence_listview_datalist.setVisibility(View.VISIBLE);
+				intelligence_listview_datalist
+						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
+				isNeedUpdateDataMemery = true;
+
+			}
+			boolean isSuccess = SaveVendingStock();
+			if (isSuccess) {
+				InitList();
+				InitView();
+			} else {
+				// 记录错误日志
+			}
 		}
-		it = WEIGHTLIST.entrySet().iterator();
-		while (it.hasNext()) {
-			java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-			DistanceArr.add(entry.getKey() + "		X" + entry.getValue());
-		}
-		intelligence_listview_datalist
-				.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
 	}
 
 	/**
@@ -1431,6 +1619,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					}
 				}
 			}
+			openFW(portId);
 		}
 	}
 
@@ -1462,7 +1651,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				SetSP(FWWeightDataList, pId + "", pWeight);
 			} else {
 				UpdateMaterialList(pId + "", different);
-				isNeedUpdateDataMemery = true;
+				// isNeedUpdateDataMemery = true;
 			}
 			// }
 			// }
@@ -1481,23 +1670,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		spUnit.edit().putString(pId + "", "" + pWeight).commit();
 	}
 
-	private void openFW() {
+	private void openFW(int pId) {
 		SerialTools.getInstance().addToolsListener(this);
-		try {
-			for (int i = 1; i <= 1; i++) {
-				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
-				Thread.sleep(30);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		SerialTools.getInstance().openFW(pId, Constant.FW_GET_WEIGHT);
 	}
 
-	private void openFwSetUnit() {
-		isSettingUnitWeight = true;
-		openFW();
-	}
+	// private void openFwSetUnit() {
+	// isSettingUnitWeight = true;
+	// openFW();
+	// }
 
 	/**
 	 * 更新最终显示的List，例如： 称重模块A X2 称重模块B X1
@@ -1518,10 +1699,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				idName = pId + "号模块文件名获取失败";
 			}
 			// 获取物品单位标准重量
-			final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);// 这语句会不会频繁开关SP?是不是影响性能？
 
 			// 获取该物品锁对应的单位重量，没有则为0
-			String idUnitWeight = spUnit.getString(pId, "1");// 之前该id内存储的值
+			String idUnitWeight = "100";// 之前该id内存储的值
+			VendingChnData vendingChnData = new VendingChnDbOper()
+					.getVendingChnByCode(ConvertHelper.toInt(pId, 0) + "");
+			if (vendingChnData != null) {
+				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
+				if (productData != null && productData.getPd1Weight() != null) {
+					idUnitWeight = productData.getPd1Weight();
+				}
+			}
 			int preCount = 0;
 			if (!isReturnMaterial) {
 				preCount = ConvertHelper.toInt(WEIGHTLIST.get(pId), 0);
@@ -1531,17 +1719,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			// 根据重量变化值和单位重量计算出变化的个数
 			float denominator = ConvertHelper.toFloat(idUnitWeight, (float) 0.00);
 			float afterCount = pDifWeight / denominator;
-			int difCount = 0;
+			int difCount = Math.abs((int) afterCount);
 			if (afterCount != 0) {
 				afterCount = WeightCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
 				// if (pDifWeight > 0) {
 				// afterCount = preCount + afterCount;
 				// } else {
-				if (isReturnMaterial) {
-					afterCount = preCount - afterCount;
+				if (pDifWeight < 0) {
+					afterCount = preCount + difCount;
 				} else {
-					afterCount += preCount;
+					afterCount = preCount - difCount;
 				}
 
 			}
@@ -1552,7 +1740,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				} else {
 					VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
-				UpdateVendingChnList(pId, afterCount);
+				// UpdateVendingChnList(pId, afterCount);
 			} else {
 				// 将变化的个数更新该ID对应的显示个数
 				if (afterCount == 0) {
@@ -1616,7 +1804,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private void InitSPFWShowList() {
 		final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
 		for (int i = 1; i <= maxVendingCount; i++) {
-			sp.edit().putString(i + "", i + "号托盘").commit();
+			VendingChnData vendingChnData = new VendingChnDbOper().getVendingChnByCode(i + "");
+			if (vendingChnData != null) {
+				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
+				if (productData != null) {
+					sp.edit().putString(i + "", productData.getPd1Name()).commit();
+					continue;
+				}
+			}
+			sp.edit().putString(i + "", i + "号货道").commit();
 		}
 	}
 
