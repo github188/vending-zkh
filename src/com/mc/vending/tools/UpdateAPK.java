@@ -64,7 +64,7 @@ public class UpdateAPK {
         num = (TextView) activity.findViewById(R.id.progressNum);
         this.strURL = strURL;
         //        this.strURL = "http://developer.zillionstar.com:8090/Upload/apk/vending.apk";
-        this.cacheFilePath = "/mnt/sdcard/Download/";
+        this.cacheFilePath = Constant.DOWNLOAD_URL;
         //        this.cacheFilePath = String.format("/data/data/%s/download/",
         //            this.activity.getApplicationInfo().packageName);
         //        this.cacheFilePath = Environment.getExternalStorageDirectory() + "/ckh_evm/apk/";

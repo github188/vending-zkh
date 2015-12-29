@@ -45,11 +45,11 @@ public class MC_SetAdapter extends BaseAdapter {
             viewHodler = (ViewHodler) convertView.getTag();
         }
         viewHodler.set_name.setText((String) getItem(position));
-        if (position == 0) {
+        if (position == 0 ||position == 3 ) {
             //一键补货
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_replenishment));
-        } else if (position == 1) {
+        } else if (position == 1 ||position == 4) {
             //差异补货
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_replenishment));
@@ -57,26 +57,26 @@ public class MC_SetAdapter extends BaseAdapter {
             //紧急补货
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_urgent_replenishment));
-        } else if (position == 3) {
+        } else if (position == 5) {
             //盘点
             viewHodler.set_icon.setImageDrawable(context.getResources()
                     .getDrawable(R.drawable.icon_inventory));
-        } else if (position == 4) {
+        } else if (position == 6) {
             //退货（正向）
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_returns_forward));
-        } else if (position == 5) {
+        } else if (position == 7) {
             //退货（反向）
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_returns_forward));
-        } else if (position == 6) {
+        } else if (position == 8) {
             //领料测试
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(R.drawable.icon_test));
-        } else if (position == 7) {
+        } else if (position == 9) {
             //库存 同步
             viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                     R.drawable.icon_synchronous));
-        } else if (position == 8) {
+        } else if (position == 10) {
             //数据同步
             if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                 viewHodler.set_icon
@@ -85,7 +85,7 @@ public class MC_SetAdapter extends BaseAdapter {
                 viewHodler.set_icon.setImageDrawable(context.getResources().getDrawable(
                         R.drawable.icon_synchronous));
             }
-        } else if (position == 9) {
+        } else if (position == 11) {
             //初始化
             if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
                 viewHodler.set_icon
@@ -94,7 +94,7 @@ public class MC_SetAdapter extends BaseAdapter {
                 viewHodler.set_icon
                         .setImageDrawable(context.getResources().getDrawable(R.drawable.icon_init));
             }
-        } else if (position == 10) {
+        } else if (position == 12) {
             //退出应用
             if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
             } else {

@@ -31,8 +31,9 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.3.2";                               
-    public final static int                 VERSION_STOCK_SYNC                           = 233;                               
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.3.7";                               
+    public final static int                 VERSION_STOCK_SYNC                           = 250;                               
+    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
 
     public final static String              BODY_KEY_METHOD                              = "wsid";                                // method
     public final static String              BODY_KEY_UDID                                = "deviceid";                            // udid
@@ -129,7 +130,9 @@ public class Constant {
     public final static String              METHOD_WSID_PRODUCTCARDPOWER                 = "610cc826-5da6-4d94-83e2-2b839f5a0299"; // 3.41卡产品权限
     public final static String              METHOD_WSID_USEDRECORD                       = "c3d76872-6905-4231-821f-67f575cf0e07"; // 3.42卡产品领用
     public final static String              METHOD_WSID_VENDINGRUNERROR                  = "564000F1-D704-476B-8E1B-D0218668B712"; // 3.43错误日志
-    public final static String 				METHOD_WSID_CONVERSION						 = "B090547D-CF3A-4F71-8121-1E22C8B7D093"; //单位换算关系表	
+    
+    public final static String              METHOD_WSID_CONVERSION                       = "B090547D-CF3A-4F71-8121-1E22C8B7D093"; //单位换算关系表    
+
     // APP接口调用返回
     // 接口返回状态
     public final static String              RETURNCODE_SUCCESS                           = "0";                                   // 成功
@@ -144,15 +147,6 @@ public class Constant {
     public static final int                 REQUEST_TIMEOUT                              = 30 * 1000;                             //设置请求超时10秒钟  
     public static final int                 SO_TIMEOUT                                   = 30 * 1000;                             //设置等待数据超时时间10秒钟  
 
-    /**
-     * 隐藏运行Android 4.0以上系统的平板的屏幕下方的状态栏
-     */
-    public static String HIDE_STATUSBAR_CMD = "su -c service call activity 42 s16 com.android.systemui";
-    /**
-     * 恢复运行Android 4.0以上系统的平板的屏幕下方的状态栏
-     */
-    public static String SHOW_STATUSBAR_CMD = "su -c am startservice -n com.android.systemui/.SystemUIService";
-    
     public final static Map<String, String> WSIDNAMEMAP                                  = new HashMap<String, String>() {
                                                                                              private static final long serialVersionUID = 1L;
                                                                                              {
@@ -222,7 +216,6 @@ public class Constant {
                                                                                                          "卡产品领用接口");
                                                                                                  put(METHOD_WSID_PRODUCTCARDPOWER,
                                                                                                          "卡产品权限接口");
-                                                                                                 put(METHOD_WSID_CONVERSION,"单位换算关系");
                                                                                              }
                                                                                          };
 

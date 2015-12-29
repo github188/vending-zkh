@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.data.ReplenishmentDetailWrapperData;
+import com.mc.vending.tools.ZillionLog;
 
 public class MC_DifferenceReplenishmentAdapter extends BaseAdapter {
 
@@ -63,7 +64,7 @@ public class MC_DifferenceReplenishmentAdapter extends BaseAdapter {
         viewHodler.sku_name.setText(data.getProductName());
         viewHodler.replenishment_number.setText(String.valueOf(data.getReplenishmentDetail()
             .getRh2ActualQty()));
-        viewHodler.difference_number.setText("0");
+        viewHodler.difference_number.setText(String.valueOf(data.getReplenishmentDetail().getRh2DifferentiaQty()));
         viewHodler.btn_sub.setTag(position);
         viewHodler.btn_sum.setTag(100 + position);
 

@@ -17,6 +17,7 @@ import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.adapter.MC_DifferenceReplenishmentAdapter;
 import com.mc.vending.data.ReplenishmentDetailWrapperData;
 import com.mc.vending.data.ReplenishmentHeadData;
+import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.service.ReplenishmentService;
 import com.mc.vending.tools.ActivityManagerTool;
@@ -166,7 +167,7 @@ public class MC_DifferenceReplenishmentActivity extends BaseActivity {
             public void run() {
 
                 ServiceResult<Boolean> result = ReplenishmentService.getInstance()
-                    .updateReplenishmentDetail(headData, dataList, wrapperData);
+                    .updateReplenishmentDetail(headData, dataList, wrapperData,StockTransactionData.BILL_TYPE_DIFF);
                 if (!result.isSuccess()) {
 
                     Message msg = handler.obtainMessage();

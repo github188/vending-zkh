@@ -6,6 +6,8 @@ import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 
+import com.mc.vending.config.Constant;
+
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -24,7 +26,7 @@ public class AsyncImageLoader {
     public AsyncImageLoader() {
 
         imageCache = new HashMap<String, SoftReference<Drawable>>();
-        this.filePath = "/mnt/sdcard0/Download/";
+        this.filePath = Constant.DOWNLOAD_URL;
     }
 
     public AsyncImageLoader(String filePath) {

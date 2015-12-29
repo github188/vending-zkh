@@ -54,6 +54,10 @@ public class StockTransactionData implements Serializable {
     public static final String BILL_TYPE_GET              = "4";                 //领料
     public static final String BILL_TYPE_RETURN           = "5";                 //退货
     public static final String BILL_TYPE_BORROW           = "6";                 //借还
+    
+    public static final String BILL_TYPE_All              = "7";                 //一键补满
+    public static final String BILL_TYPE_DIFFAll          = "8";                 //补满差异
+    
 
     private String             ts1Id;
 
@@ -235,4 +239,16 @@ public class StockTransactionData implements Serializable {
         this.ts1RowVersion = value;
     }
 
+    @Override
+    public String toString() {
+        return "StockTransactionData [ts1Id=" + ts1Id + ", ts1M02Id=" + ts1M02Id + ", ts1BillType="
+                + ts1BillType + ", ts1BillCode=" + ts1BillCode + ", ts1Cd1Id=" + ts1Cd1Id + ", ts1Vd1Id="
+                + ts1Vd1Id + ", ts1Pd1Id=" + ts1Pd1Id + ", ts1Vc1Code=" + ts1Vc1Code + ", ts1TransQty="
+                + ts1TransQty + ", ts1TransType=" + ts1TransType + ", ts1Sp1Code=" + ts1Sp1Code
+                + ", ts1Sp1Name=" + ts1Sp1Name + ", ts1UploadStatus=" + ts1UploadStatus + ", ts1CreateUser="
+                + ts1CreateUser + ", ts1CreateTime=" + ts1CreateTime + ", ts1ModifyUser=" + ts1ModifyUser
+                + ", ts1ModifyTime=" + ts1ModifyTime + ", ts1RowVersion=" + ts1RowVersion + "]";
+    }
+
+    
 }

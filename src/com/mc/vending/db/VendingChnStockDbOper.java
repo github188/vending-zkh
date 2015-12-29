@@ -46,6 +46,46 @@ public class VendingChnStockDbOper {
         }
         return list;
     }
+    public List<VendingChnStockData> findAllByChn() {
+        List<VendingChnStockData> list = new ArrayList<VendingChnStockData>();
+        SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM VendingChnStock vcs "
+                + "left join VendingChn vc on vcs.VS1_PD1_ID = vc.VC1_PD1_ID and vcs.VS1_VC1_CODE = vc.VC1_CODE "
+                + "where vc.VC1_Status="+VendingChnData.VENDINGCHN_STATUS_NORMAL, null);
+        while (c.moveToNext()) {
+            VendingChnStockData vendingChnStock = new VendingChnStockData();
+            vendingChnStock.setVs1Id(c.getString(c.getColumnIndex("VS1_ID")));
+            vendingChnStock.setVs1M02Id(c.getString(c.getColumnIndex("VS1_M02_ID")));
+            vendingChnStock.setVs1Vd1Id(c.getString(c.getColumnIndex("VS1_VD1_ID")));
+            vendingChnStock.setVs1Vc1Code(c.getString(c.getColumnIndex("VS1_VC1_CODE")));
+            vendingChnStock.setVs1Pd1Id(c.getString(c.getColumnIndex("VS1_PD1_ID")));
+            vendingChnStock.setVs1Quantity(c.getInt(c.getColumnIndex("VS1_Quantity")));
+            vendingChnStock.setVs1CreateUser(c.getString(c.getColumnIndex("VS1_CreateUser")));
+            vendingChnStock.setVs1CreateTime(c.getString(c.getColumnIndex("VS1_CreateTime")));
+            vendingChnStock.setVs1ModifyUser(c.getString(c.getColumnIndex("VS1_ModifyUser")));
+            vendingChnStock.setVs1ModifyTime(c.getString(c.getColumnIndex("VS1_ModifyTime")));
+            vendingChnStock.setVs1RowVersion(c.getString(c.getColumnIndex("VS1_RowVersion")));
+            list.add(vendingChnStock);
+            
+        }
+        return list;
+    }
+    
+    /**
+     * 获取所有的货道库存量 key为货道编号,value为货道库存
+     * @return
+     */
+    public Map<String, VendingChnStockData> getStockDataMap() {
+//        List<VendingChnStockData> chnStockDatas = findAll();
+        List<VendingChnStockData> chnStockDatas = findAllByChn();
+
+        Map<String, VendingChnStockData> map = new HashMap<String, VendingChnStockData>();
+        for (VendingChnStockData vendingChnStockData : chnStockDatas) {
+            map.put(vendingChnStockData.getVs1Vc1Code(), vendingChnStockData);
+        }
+        
+        return map;
+    }
 
     /**
      * 获取所有的货道库存量 key为货道编号,value为货道库存量
@@ -272,6 +312,31 @@ public class VendingChnStockDbOper {
         } catch (SQLException e) {
             //结束事物，在这里没有设置成功标志，结束后不保存
             ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            db.endTransaction();
+            e.printStackTrace();
+        }
+        return flag;
+    }
+    
+    public boolean batchDeleteVendingChnStock(List<VendingChnStockData> list) {
+        boolean flag = false;
+        String updateSql = "delete from VendingChnStock  WHERE VS1_VC1_CODE = ?";
+        SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+        try {
+            //开启事务
+            db.beginTransaction();
+            for (VendingChnStockData vendingChnStock : list) {
+                SQLiteStatement stat = db.compileStatement(updateSql);
+                stat.bindString(1, vendingChnStock.getVs1Vc1Code());
+                stat.executeUpdateDelete();
+            }
+            //数据插入成功，设置事物成功标志  
+            db.setTransactionSuccessful();
+            //保存数据
+            db.endTransaction();
+            flag = true;
+        } catch (SQLException e) {
+            //结束事物，在这里没有设置成功标志，结束后不保存
             db.endTransaction();
             e.printStackTrace();
         }

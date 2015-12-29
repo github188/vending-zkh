@@ -210,10 +210,16 @@ public class DataServices extends Service implements DataParseRequestListener, S
     private TimerTask vendingPasswordTask = null;
     private Map<String, String> taskMap;
 
-    private String sql201 = "ALTER TABLE "
-            + "Vending add COLUMN VD1_CardType varchar(10) not null DEFAULT '1';";
-    private String sql210 = "ALTER TABLE "
-            + "Card add COLUMN CD1_ProductPower varchar(1) not null DEFAULT '0';";
+    private String sql201 = "ALTER TABLE Vending add COLUMN VD1_CardType varchar(10) not null DEFAULT '1';";
+    private String sql210 = "ALTER TABLE Card add COLUMN CD1_ProductPower varchar(1) not null DEFAULT '0';";
+    
+//    private String sql201 = "if NOT exists(select * from syscolumns where id=object_id('Vending') and name='VD1_CardType') "
+//            + "begin ALTER TABLE Vending add COLUMN VD1_CardType varchar(10) not null DEFAULT '1' "
+//            + "end;";
+//    private String sql210 = "if NOT exists(select * from syscolumns where id=object_id('Card') and name='CD1_ProductPower')"
+//            + "begin ALTER TABLE Card add COLUMN CD1_ProductPower varchar(1) not null DEFAULT '0' "
+//            + "end;";
+    
     private String sql2101 = "CREATE TABLE if not exists "
             + "ProductCardPower ( "
             + "PC1_ID  varchar(100) NOT NULL, "
@@ -251,13 +257,13 @@ public class DataServices extends Service implements DataParseRequestListener, S
             + "ModifyTime  varchar(100), "
             + "RowVersion  varchar(100), "
             + "PRIMARY KEY (UR1_ID) );";
-    
+
     /**
      * @author junjie.you
      */
     private String sql2103 = "CREATE TABLE if not exists "
             + "Conversion ( "
-    		+ "CN1_ID varchar(100) NOT NULL ,"
+            + "CN1_ID varchar(100) NOT NULL ,"
             + "CN1_Upid varchar(100),"
             + "CN1_Cpid varchar(100),"
             + "CN1_Proportion varchar(100),"
@@ -269,22 +275,24 @@ public class DataServices extends Service implements DataParseRequestListener, S
             + "CN1_RowVersion  varchar(100), "
             + "PRIMARY KEY (CN1_ID) );";
     private String sql2104 = "alter table VendingChn add column VC1_CN1_ID varchar(50)";
+
 //    private String sql202 = "CREATE TABLE if not exists ReturnForward ( id  varchar(100) NOT NULL, RT1_M02_ID  varchar(100), RT1_RTCode  varchar(100), RT1_Type  varchar(10), RT1_CU1_ID  varchar(100), RT1_VD1_ID  varchar(100), RT1_CE1_ID  varchar(100), RT1_Status  varchar(10), CreateUser  varchar(100), CreateTime  varchar(100), ModifyUser  varchar(100), ModifyTime  varchar(100), RowVersion  varchar(100), PRIMARY KEY (id) );";
 
     @Override
     public void onCreate() {
 
-        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 201) {
-            VersionDbOper.exec(sql201);
-        }
-        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 210) {
-            VersionDbOper.exec(sql210);
-            VersionDbOper.exec(sql2101);
-            VersionDbOper.exec(sql2102);
+//        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 201) {
+//            VersionDbOper.exec(sql201);
+//        }
+//        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 210) {
+//            VersionDbOper.exec(sql210);
+//            VersionDbOper.exec(sql2101);
+//            VersionDbOper.exec(sql2102);
+//        }
+        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 230) {
             VersionDbOper.exec(sql2103);
             VersionDbOper.exec(sql2104);
         }
-
         taskMap = new HashMap<String, String>();
         super.onCreate();
     }
