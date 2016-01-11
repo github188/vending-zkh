@@ -218,7 +218,7 @@ public class BaseActivity extends Activity {
      */
     public void showToast(String message) {
 
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast = Toast.makeText(getApplicationContext(), message, 100);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
         // Toast.makeText(this, message, Toast.LENGTH_LONG).show();

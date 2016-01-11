@@ -388,10 +388,10 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					SerialTools.getInstance().closeRD();
 					Thread.sleep(500);
 					SerialTools.getInstance().openLocker();
-					
-//					 SaveSharedPreferencesForRD("11", "100");
-//					 SaveSharedPreferencesForFW(70, "800");
-					 
+
+					SaveSharedPreferencesForRD("11", "100");
+					SaveSharedPreferencesForFW(70, "800");
+
 					isNeedUpdateDataMemery = false;
 				} catch (SerialPortException e) {
 					// TODO Auto-generated catch block
@@ -408,31 +408,34 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				if (portRtnStrList != null && portRtnStrList.length > 1) {
 					int result = LockerSerialPortReturnStrHandler(portRtnStrList[1]);
+					showToast("当前锁状态值是：" + result + "");
 					ZillionLog.i("yjjtest", "当前锁result状态：：" + result);
 					ZillionLog.i("yjjtestLockerStatus", "当前锁result状态：：" + result);
 					// 正常开门
-					if (result == 0 || result == 8 ) {
+					if (result == 0 || result == 8) {
+						// showToast("当前锁状态值是：" + result + ""+"正常开门");
 						isNeedUpdateDataMemery = false;
+						
 						SerialTools.getInstance().checkLocker();
-
 					}
 					// 正常关门
 					if (result == 9) {
+						showToast("当前锁状态值是：" + result + "" + "电磁锁闭合，正常关门");
 						try {
 							SerialTools.getInstance().closeCheckLocker();
 
-//							 SaveSharedPreferencesForRD("11", "1000");
-//							
-//							 SaveSharedPreferencesForFW(70, "80");
-//							 if (isReturnMaterial) {
-//							 ShowChnMaterialList();
-//							 DISTANCECHNCOUNTLIST.clear();
-//							 VENDINGCHNLIST.clear();
-//							 } else {
-//							 ShowMaterialList();
-//							 DISTANCECOUNTLIST.clear();
-//							 WEIGHTLIST.clear();
-//							 }
+							SaveSharedPreferencesForRD("11", "1000");
+
+							SaveSharedPreferencesForFW(70, "80");
+							if (isReturnMaterial) {
+								ShowChnMaterialList();
+								DISTANCECHNCOUNTLIST.clear();
+								VENDINGCHNLIST.clear();
+							} else {
+								ShowMaterialList();
+								DISTANCECOUNTLIST.clear();
+								WEIGHTLIST.clear();
+							}
 						} catch (SerialPortException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -445,6 +448,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					}
 					// 其他异常情况如下操作
 					if (result == -1) {
+						showToast("当前锁状态值是：" + result + "");
 						try {
 							isNeedUpdateDataMemery = true;
 							SerialTools.getInstance().closeCheckLocker();
@@ -458,7 +462,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						
+
 					}
 				}
 				break;
@@ -603,9 +607,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (strArrayReturnHex[3].equals("1C")) {
 				result += 1;
 			}
-//			if (strArrayReturnHex[4].equals("2C")) {
-//				result += 2;
-//			}
+			// if (strArrayReturnHex[4].equals("2C")) {
+			// result += 2;
+			// }
 			if (strArrayReturnHex[5].equals("3C")) {
 				result += 4;
 			}
