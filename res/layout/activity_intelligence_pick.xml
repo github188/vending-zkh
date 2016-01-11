@@ -2,19 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#FFEEEE" >
 
     <ImageView
         android:id="@+id/iv_intelligence_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/zkh" />
-
-    <TextView
-        android:id="@+id/tv_intelligence_dialog"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:text="刷震坤行智能仓库卡，立即轻松领料" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/version1" />
 
     <ListView
         android:id="@+id/intelligence_listview_datalist"
@@ -351,7 +346,7 @@
             android:layout_below="@id/btn_distance_material_lock"
             android:layout_toRightOf="@id/tv_distance_show"
             android:inputType="text" />
-    </RelativeLayout>
+    </RelativeLayout>
     -->
 
 </LinearLayout>

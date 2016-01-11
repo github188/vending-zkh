@@ -45,9 +45,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -87,9 +85,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -111,13 +107,8 @@ public class VendingChnDbOper {
 		VendingChnData vendingChn = null;
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		Cursor c = db.rawQuery(
-				"SELECT VC1_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height FROM VendingChn WHERE VC1_CODE=?  limit 1",
+				"SELECT VC1_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,VC1_DistanceInitValue FROM VendingChn WHERE VC1_CODE=?  limit 1",
 				new String[] { vendingChnCode });
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			c = db.rawQuery(
-					"SELECT VC1_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,VC1_DistanceInitValue FROM VendingChn WHERE VC1_CODE=?  limit 1",
-					new String[] { vendingChnCode });
-		}
 		while (c.moveToNext()) {
 			vendingChn = new VendingChnData();
 			vendingChn.setVc1Id(c.getString(c.getColumnIndex("VC1_ID")));
@@ -132,9 +123,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
 			break;
 		}
 		return vendingChn;
@@ -171,9 +160,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -216,9 +203,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -270,9 +255,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
-			}
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -293,13 +276,8 @@ public class VendingChnDbOper {
 	 */
 	public boolean addVendingChn(VendingChnData vendingChn) {
 		String insertSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
-				+ "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
-				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			insertSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
 					+ "VC1_DistanceInitValue,VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
 					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		}
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		SQLiteStatement stat = db.compileStatement(insertSql);
 		stat.bindString(1, vendingChn.getVc1Id());
@@ -322,9 +300,7 @@ public class VendingChnDbOper {
 		stat.bindString(18, vendingChn.getVc1ModifyUser());
 		stat.bindString(19, vendingChn.getVc1ModifyTime());
 		stat.bindString(20, vendingChn.getVc1RowVersion());
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 			stat.bindString(21, vendingChn.getVc1DistanceInitValue());
-		}
 		long i = stat.executeInsert();
 
 		return i > 0;
@@ -338,13 +314,8 @@ public class VendingChnDbOper {
 	public boolean batchAddVendingChn(List<VendingChnData> list) {
 		boolean flag = false;
 		String chnSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
-				+ "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
-				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			chnSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
 					+ "VC1_DistanceInitValue,VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
 					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		}
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		try {
 			// 开启事务
@@ -371,9 +342,7 @@ public class VendingChnDbOper {
 				stat.bindString(18, vendingChn.getVc1ModifyUser());
 				stat.bindString(19, vendingChn.getVc1ModifyTime());
 				stat.bindString(20, vendingChn.getVc1RowVersion());
-				if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
 					stat.bindString(21, vendingChn.getVc1DistanceInitValue());
-				}
 				stat.executeInsert();
 
 			}

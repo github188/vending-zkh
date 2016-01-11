@@ -340,7 +340,7 @@ public class VendingData extends BaseParseData implements Serializable {
 	 * @return the vd1LockerStatus
 	 */
 	public String getVd1LockerStatus() {
-		return vd1LockerStatus;
+		return vd1LockerStatus == null ? "0" : vd1LockerStatus;
 	}
 
 	/**

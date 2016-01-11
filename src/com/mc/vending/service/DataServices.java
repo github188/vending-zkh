@@ -251,10 +251,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
 	// RT1_CE1_ID varchar(100), RT1_Status varchar(10), CreateUser varchar(100),
 	// CreateTime varchar(100), ModifyUser varchar(100), ModifyTime
 	// varchar(100), RowVersion varchar(100), PRIMARY KEY (id) );";
-	private String sql2201 = "ALTER TABLE " + "VendingChn add COLUMN VC1_DistanceInitValue varchar(50);";
-	private String sql2202 = "ALTER TABLE " + "Product add COLUMN PD1_Length varchar(50);";
-	private String sql2203 = "ALTER TABLE " + "Product add COLUMN PD1_Length varchar(50);";
-	private String sql2204 = "ALTER TABLE " + "Vending add COLUMN VD1_LockerStatus varchar(50);";
 
 	@Override
 	public void onCreate() {
@@ -269,12 +265,6 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			VersionDbOper.exec(sql2103);// added by junjie.you from 2015-10-13
 			// VersionDbOper.exec(sql2104);// added by junjie.you from
 			// 2015-10-19
-		}
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 220) {
-			VersionDbOper.exec(sql2201);
-			VersionDbOper.exec(sql2202);
-			VersionDbOper.exec(sql2203);
-			VersionDbOper.exec(sql2204);
 		}
 		taskMap = new HashMap<String, String>();
 		super.onCreate();
