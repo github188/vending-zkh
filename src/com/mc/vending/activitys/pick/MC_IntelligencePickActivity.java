@@ -213,17 +213,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		initObject();
 		InitFlag();
 		InitView();
-		openRD();
 
-		try {
-			for (int i = FWstartNum; i <= FWendNum; i++) {
-				openFW(i);
-				Thread.sleep(30);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		openRD();
+		openAllFW();
 		openRFID();
 	}
 
@@ -385,12 +377,13 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
 				try {
+					// SerialTools.getInstance().closeFW();
 					SerialTools.getInstance().closeRD();
 					Thread.sleep(500);
 					SerialTools.getInstance().openLocker();
 
-					SaveSharedPreferencesForRD("11", "100");
-					SaveSharedPreferencesForFW(70, "800");
+					// SaveSharedPreferencesForRD("11", "100");
+					// SaveSharedPreferencesForFW(70, "800");
 
 					isNeedUpdateDataMemery = false;
 				} catch (SerialPortException e) {
@@ -411,31 +404,33 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					showToast("当前锁状态值是：" + result + "");
 					ZillionLog.i("yjjtest", "当前锁result状态：：" + result);
 					ZillionLog.i("yjjtestLockerStatus", "当前锁result状态：：" + result);
+					isNeedUpdateDataMemery = false;
+
+					SerialTools.getInstance().checkLocker();
 					// 正常开门
 					if (result == 0 || result == 8) {
 						// showToast("当前锁状态值是：" + result + ""+"正常开门");
-						isNeedUpdateDataMemery = false;
-						
-						SerialTools.getInstance().checkLocker();
+						// isNeedUpdateDataMemery = false;
+						// SerialTools.getInstance().checkLocker();
 					}
 					// 正常关门
 					if (result == 9) {
 						showToast("当前锁状态值是：" + result + "" + "电磁锁闭合，正常关门");
 						try {
 							SerialTools.getInstance().closeCheckLocker();
-
-							SaveSharedPreferencesForRD("11", "1000");
-
-							SaveSharedPreferencesForFW(70, "80");
-							if (isReturnMaterial) {
-								ShowChnMaterialList();
-								DISTANCECHNCOUNTLIST.clear();
-								VENDINGCHNLIST.clear();
-							} else {
-								ShowMaterialList();
-								DISTANCECOUNTLIST.clear();
-								WEIGHTLIST.clear();
-							}
+							//
+							// SaveSharedPreferencesForRD("11", "1000");
+							//
+							// SaveSharedPreferencesForFW(70, "80");
+							// if (isReturnMaterial) {
+							// ShowChnMaterialList();
+							// DISTANCECHNCOUNTLIST.clear();
+							// VENDINGCHNLIST.clear();
+							// } else {
+							// ShowMaterialList();
+							// DISTANCECOUNTLIST.clear();
+							// WEIGHTLIST.clear();
+							// }
 						} catch (SerialPortException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -470,9 +465,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				portRtnStrList = ((String) msg.obj).replaceAll(Constant.RDSERVETAILWITHBLANK, "")
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
-					// RdSerialPortReturnStrHandler(portRtnStrList[i]);
+					RdSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				openRD();
+				// openRD();
 				// if (isSettingUnitZero) {
 				// try {
 				// InitFlag();
@@ -493,7 +488,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					FWSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				// openFW();
+				openAllFW();
 				break;
 			default:
 				break;
@@ -636,7 +631,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		if (pReturnString.length() == 370 || pReturnString.length() == 16) {
 			pReturnString = pReturnString.substring(6);
 			for (int i = RDstartNum; i <= RDendNum; i++) {
-				DISTANCELIST.put(i + "", pReturnString.substring(6 * i, 6 * i + 6));
+				DISTANCELIST.put(i + "", pReturnString.substring(6 * (i - RDstartNum), 6 * (i - RDstartNum) + 6));
 			}
 			pReturnString = null;
 			Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
@@ -660,6 +655,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				DISTANCECOUNTLIST.clear();
 				WEIGHTLIST.clear();
 			}
+			openRD();
 		}
 	}
 
@@ -816,11 +812,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (afterCount != 0) {
 				afterCount = LengthCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
-				// if (pDifLength > 0) {
-				// afterCount = preCount - difCount;
-				// } else {
-				// afterCount = preCount + difCount;
-				// }
 			}
 			if (isReturnMaterial) {
 				// 将变化的个数更新该ID对应的显示个数
@@ -960,7 +951,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	}
 
 	private float CalcDistanceCount(String pId, float pNowLength) {
-		String unit = "7.3";
+		String unit = "6.5";
 		float denominator = ConvertHelper.toFloat(unit, (float) 0.00);
 		float afterCount = Math.abs(pNowLength) / denominator;
 		return afterCount;
@@ -1020,7 +1011,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			boolean isSuccess = SaveVendingStock();
 			if (isSuccess) {
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(10000);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -1036,8 +1027,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 * 将COUNTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowMaterialList() {
-		DistanceArr.clear();
+
 		if (!DISTANCECOUNTLIST.isEmpty() || !WEIGHTLIST.isEmpty()) {
+			DistanceArr.clear();
 			Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
@@ -1069,16 +1061,16 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				isNeedUpdateDataMemery = true;
 
 			}
-			new Handler().postDelayed(new Runnable() {
-
-				public void run() {
-
-					// execute the task
-					InitList();
-					InitView();
-				}
-
-			}, 5000);
+			 new Handler().postDelayed(new Runnable() {
+			
+			 public void run() {
+			
+			 // execute the task
+			 InitList();
+			 InitView();
+			 }
+			
+			 }, 10000);
 			// boolean isSuccess = SaveVendingStock();
 			// if (isSuccess) {
 			// try {
@@ -1200,8 +1192,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					}
 				}
 			}
-			openFW(portId);
+			// openFW(portId);
 		}
+//		if (isReturnMaterial) {
+//			ShowChnMaterialList();
+//			DISTANCECHNCOUNTLIST.clear();
+//			VENDINGCHNLIST.clear();
+//		} else {
+//			ShowMaterialList();
+//			DISTANCECOUNTLIST.clear();
+//			WEIGHTLIST.clear();
+//		}
 	}
 
 	/**
@@ -1249,6 +1250,19 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		SerialTools.getInstance().openFW(pId, Constant.FW_GET_WEIGHT);
 	}
 
+	private void openAllFW() {
+		SerialTools.getInstance().addToolsListener(this);
+		try {
+			for (int i = 1; i <= 5; i++) {
+				SerialTools.getInstance().openFW(i , Constant.FW_GET_WEIGHT);
+				Thread.sleep(42);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	// private void openFwSetUnit() {
 	// isSettingUnitWeight = true;
 	// openFW();
@@ -1265,19 +1279,19 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void UpdateMaterialList(String pId, int pDifWeight) {
 		try {
+			int FwId = ConvertHelper.toInt(pId, 0) + FWstartNum - 1;
 			// 获取显示物品列表文件
 			final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
 			// 获取该id在之前的显示列表内的个数，没有则为0
-			String idName = sp.getString(pId, "0");
+			String idName = sp.getString(FwId + "", "0");
 			if (idName.equals("0")) {
-				idName = pId + "号模块文件名获取失败";
+				idName = FwId + "号模块文件名获取失败";
 			}
 			// 获取物品单位标准重量
 
 			// 获取该物品锁对应的单位重量，没有则为0
 			String idUnitWeight = "100";// 之前该id内存储的值
-			VendingChnData vendingChnData = new VendingChnDbOper()
-					.getVendingChnByCode(ConvertHelper.toInt(pId, 0) + "");
+			VendingChnData vendingChnData = new VendingChnDbOper().getVendingChnByCode(FwId + "");
 			if (vendingChnData != null) {
 				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
 				if (productData != null && productData.getPd1Weight() != null) {
@@ -1307,17 +1321,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (isReturnMaterial) {
 				// 将变化的个数更新该ID对应的显示个数
 				if (afterCount <= 0) {
-					VENDINGCHNLIST.remove(pId);
+					VENDINGCHNLIST.remove(FwId);
 				} else {
-					VENDINGCHNLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					VENDINGCHNLIST.put(FwId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
 				// UpdateVendingChnList(pId, afterCount);
 			} else {
 				// 将变化的个数更新该ID对应的显示个数
 				if (afterCount <= 0) {
-					WEIGHTLIST.remove(pId);
+					WEIGHTLIST.remove(FwId);
 				} else {
-					WEIGHTLIST.put(pId, "" + afterCount);// 把显示LIST中的对应数据进行更新
+					WEIGHTLIST.put(FwId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
 				// ShowMaterialList();
 				// UpdateVendingChnList(pId, difCount, afterCount, preCount,

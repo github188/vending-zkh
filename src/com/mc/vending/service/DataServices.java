@@ -211,34 +211,51 @@ public class DataServices extends Service implements DataParseRequestListener, S
 	private TimerTask vendingPasswordTask = null;
 	private Map<String, String> taskMap;
 
-	private String sql201 = "ALTER TABLE " + "Vending add COLUMN VD1_CardType varchar(10) not null DEFAULT '1';";
-	private String sql210 = "ALTER TABLE " + "Card add COLUMN CD1_ProductPower varchar(1) not null DEFAULT '0';";
-	private String sql2101 = "CREATE TABLE if not exists " + "ProductCardPower ( " + "PC1_ID  varchar(100) NOT NULL, "
-			+ "PC1_VD1_ID varchar(100)," + "PC1_M02_ID varchar(100)," + "PC1_CU1_ID varchar(100),"
-			+ "PC1_CD1_ID varchar(100)," + "PC1_VP1_ID varchar(100)," + "PC1_Power  varchar(100),"
-			+ "PC1_OnceQty varchar(100)," + "PC1_Period varchar(100)," + "PC1_IntervalStart  varchar(100),"
-			+ "PC1_IntervalFinish varchar(100)," + "PC1_StartDate  varchar(100)," + "PC1_PeriodQty  varchar(100), "
-			+ "CreateUser  varchar(100), " + "CreateTime  varchar(100), " + "ModifyUser  varchar(100), "
-			+ "ModifyTime  varchar(100), " + "RowVersion  varchar(100), " + "PRIMARY KEY (PC1_ID) );";
-
-	// private String sql2101 = "drop table ProductCardPower;";
-	private String sql2102 = "CREATE TABLE if not exists " + "UsedRecord ( UR1_ID varchar(100) NOT NULL ,"
-			+ "UR1_M02_ID varchar(100)," + "UR1_CD1_ID varchar(100)," + "UR1_VD1_ID varchar(100),"
-			+ "UR1_PD1_ID varchar(100)," + "UR1_Quantity   varchar(100),"
-			+ "uploadStatus varchar(1) not null DEFAULT '0', " + "CreateUser  varchar(100), "
-			+ "CreateTime  varchar(100), " + "ModifyUser  varchar(100), " + "ModifyTime  varchar(100), "
-			+ "RowVersion  varchar(100), " + "PRIMARY KEY (UR1_ID) );";
-
-	/**
-	 * 添加 单位换算关系表
-	 * 
-	 * @author junjie.you
-	 */
-	private String sql2103 = "CREATE TABLE if not exists " + "Conversion ( " + "CN1_ID varchar(100) NOT NULL ,"
-			+ "CN1_Upid varchar(100)," + "CN1_Cpid varchar(100)," + "CN1_Proportion varchar(100),"
-			+ "CN1_Operation varchar(100)," + "CN1_CreateUser  varchar(100), " + "CN1_CreateTime  varchar(100), "
-			+ "CN1_ModifyUser  varchar(100), " + "CN1_ModifyTime  varchar(100), " + "CN1_RowVersion  varchar(100), "
-			+ "PRIMARY KEY (CN1_ID) );";
+	// private String sql201 = "ALTER TABLE " + "Vending add COLUMN VD1_CardType
+	// varchar(10) not null DEFAULT '1';";
+	// private String sql210 = "ALTER TABLE " + "Card add COLUMN
+	// CD1_ProductPower varchar(1) not null DEFAULT '0';";
+	// private String sql2101 = "CREATE TABLE if not exists " +
+	// "ProductCardPower ( " + "PC1_ID varchar(100) NOT NULL, "
+	// + "PC1_VD1_ID varchar(100)," + "PC1_M02_ID varchar(100)," + "PC1_CU1_ID
+	// varchar(100),"
+	// + "PC1_CD1_ID varchar(100)," + "PC1_VP1_ID varchar(100)," + "PC1_Power
+	// varchar(100),"
+	// + "PC1_OnceQty varchar(100)," + "PC1_Period varchar(100)," +
+	// "PC1_IntervalStart varchar(100),"
+	// + "PC1_IntervalFinish varchar(100)," + "PC1_StartDate varchar(100)," +
+	// "PC1_PeriodQty varchar(100), "
+	// + "CreateUser varchar(100), " + "CreateTime varchar(100), " + "ModifyUser
+	// varchar(100), "
+	// + "ModifyTime varchar(100), " + "RowVersion varchar(100), " + "PRIMARY
+	// KEY (PC1_ID) );";
+	//
+	// // private String sql2101 = "drop table ProductCardPower;";
+	// private String sql2102 = "CREATE TABLE if not exists " + "UsedRecord (
+	// UR1_ID varchar(100) NOT NULL ,"
+	// + "UR1_M02_ID varchar(100)," + "UR1_CD1_ID varchar(100)," + "UR1_VD1_ID
+	// varchar(100),"
+	// + "UR1_PD1_ID varchar(100)," + "UR1_Quantity varchar(100),"
+	// + "uploadStatus varchar(1) not null DEFAULT '0', " + "CreateUser
+	// varchar(100), "
+	// + "CreateTime varchar(100), " + "ModifyUser varchar(100), " + "ModifyTime
+	// varchar(100), "
+	// + "RowVersion varchar(100), " + "PRIMARY KEY (UR1_ID) );";
+	//
+	// /**
+	// * 添加 单位换算关系表
+	// *
+	// * @author junjie.you
+	// */
+	// private String sql2103 = "CREATE TABLE if not exists " + "Conversion ( "
+	// + "CN1_ID varchar(100) NOT NULL ,"
+	// + "CN1_Upid varchar(100)," + "CN1_Cpid varchar(100)," + "CN1_Proportion
+	// varchar(100),"
+	// + "CN1_Operation varchar(100)," + "CN1_CreateUser varchar(100), " +
+	// "CN1_CreateTime varchar(100), "
+	// + "CN1_ModifyUser varchar(100), " + "CN1_ModifyTime varchar(100), " +
+	// "CN1_RowVersion varchar(100), "
+	// + "PRIMARY KEY (CN1_ID) );";
 
 	// 添加测试数据
 	// private String sql2104 = "INSERT INTO
@@ -254,18 +271,18 @@ public class DataServices extends Service implements DataParseRequestListener, S
 
 	@Override
 	public void onCreate() {
-
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 201) {
-			VersionDbOper.exec(sql201);
-		}
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 210) {
-			VersionDbOper.exec(sql210);
-			VersionDbOper.exec(sql2101);
-			VersionDbOper.exec(sql2102);
-			VersionDbOper.exec(sql2103);// added by junjie.you from 2015-10-13
-			// VersionDbOper.exec(sql2104);// added by junjie.you from
-			// 2015-10-19
-		}
+//
+//		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 201) {
+//			VersionDbOper.exec(sql201);
+//		}
+//		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 210) {
+//			VersionDbOper.exec(sql210);
+//			VersionDbOper.exec(sql2101);
+//			VersionDbOper.exec(sql2102);
+//			VersionDbOper.exec(sql2103);// added by junjie.you from 2015-10-13
+//			// VersionDbOper.exec(sql2104);// added by junjie.you from
+//			// 2015-10-19
+//		}
 		taskMap = new HashMap<String, String>();
 		super.onCreate();
 	}

@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Timer;
 
 import com.mc.vending.activitys.pick.MC_CombinationPickDetailActivity;
-import com.mc.vending.activitys.pick.MC_WeightPickActivity;
 import com.mc.vending.config.Constant;
+import com.mc.vending.data.VendingData;
 import com.mc.vending.db.VendingDbOper;
 import com.zillion.evm.jssc.SerialPort;
 import com.zillion.evm.jssc.SerialPortEvent;
@@ -37,7 +37,7 @@ public class SerialTools {
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
 	private static final String PortName_mKeyBoard = ""; // 键盘
 	private static final String PortName_mStore = ""; // 格子机
-	private static final String PortName_mFw = "/dev/ttyO5"; // 称重模块
+	private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块
 	private static final String PortName_mRD = "/dev/ttyO3"; // 测距模块
 
 	public static final int MESSAGE_LOG_mKeyBoard = 1; // 键盘
@@ -184,6 +184,7 @@ public class SerialTools {
 			if (mLocker.isOpened() || mLocker.openPort()) {
 				try {
 					mLocker.addEventListener(mListener);
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
@@ -191,9 +192,11 @@ public class SerialTools {
 				sendPortData(mLocker, cmdCheckLocker, true);
 				isLockerOperiting = true;
 				ZillionLog.d("发送检查指令" + cmdCheckLocker);
+				ZillionLog.i("yjjtestLockerCheck", "发送检查状态：" + cmdCheckLocker);
 			}
 		} catch (SerialPortException e) {
 			// e.printStackTrace();
+			ZillionLog.i("yjjtestLockerCheck", "发送检查状态发生异常，" + e.getMessage().toString());
 		}
 	}
 
@@ -255,20 +258,18 @@ public class SerialTools {
 					// TODO: handle exception
 				}
 
-				// VendingDbOper vendingDbOper = new VendingDbOper();
-				// String cardtype =
-				// vendingDbOper.getVending().getVd1CardType();
-				// if (cardtype.equals("1")) {
-				mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				// if (mSendThread == null) {
-				// mSendThread = new SendThread();
-				// mSendThread.start();
-				// }
-				//
-				// mSendThread.setResume(); // 线程唤醒，开始发送
-				// } else {
-				// mRFIDReader.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				// }
+				VendingDbOper vendingDbOper = new VendingDbOper();
+				VendingData vendingData = vendingDbOper.getVending();
+				String cardtype = "1";
+				if (vendingData != null) {
+					cardtype = vendingDbOper.getVending().getVd1CardType();
+				}
+
+				if (cardtype.equals("1")) {
+					mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				} else {
+					mRFIDReader.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				}
 				sendPortData(mRFIDReader, cmdGetSerialNo, true);
 			}
 		} catch (SerialPortException e) {
@@ -283,10 +284,6 @@ public class SerialTools {
 	 */
 	public void closeRFIDReader() throws SerialPortException {
 		try {
-			if (!mSendThread.isInterrupted()) {
-				mSendThread.setSuspendFlag(); // 线程暂停
-				// mSendThread.interrupt();
-			}
 			if (mRFIDReader.isOpened()) {
 				mRFIDReader.closePort();
 			}
@@ -529,6 +526,7 @@ public class SerialTools {
 
 		} catch (SerialPortException e) {
 			ZillionLog.e("打开测距模块发生异常：", e.getExceptionType().toString());
+			openALLRD();
 			ZillionLog.i("yjjtest", "打开测距发生异常");
 			ZillionLog.i("yjjtestExeption", "打开测距发生异常");
 			e.printStackTrace();
@@ -657,28 +655,12 @@ public class SerialTools {
 				if (event.getEventValue() > 0) {
 					try {
 						String data = null;
-						// SerialPort serialPort = null;
-						// if (mFw.isOpened()) {
-						// serialPort = mFw;
-						// } else if (mLocker.isOpened()) {
-						// serialPort = mLocker;
-						// } else if (isRFIDOperiting) {
-						// serialPort = mRFIDReader;
-						// } else if (!isRFIDOperiting) {
-						// serialPort = mRD;
-						// }
-						// if (serialPort != null) {
-						// String portStr =
-						// serialPort.readHexString(event.getEventValue());
-						// if (ValidateBcc(portStr,
-						// Constant.RDSERVEHEADWITHBLANK,
-						// Constant.RDSERVETAILWITHBLANK)
-						// || ValidateBcc(portStr, "FF", "FF")) {
 						if (PortName_mFw.equals(event.getPortName())) { // added
 							// by
 							// junjie.you
 							obtain = SerialTools.MESSAGE_LOG_mFw;
 							data = mFw.readHexString(event.getEventValue());
+							ZillionLog.i("yjjtestWeight", "称重模块返回值：" + data);
 							ZillionLog.i("yjjtest", "称重模块返回值：" + data);
 							// Log.i(TAG, "Receive " + data.length() + " Bytes:
 							// " + data);
@@ -692,12 +674,13 @@ public class SerialTools {
 								obtain = SerialTools.MESSAGE_LOG_mRD;
 								data = mRD.readHexString(event.getEventValue());
 								ZillionLog.i("yjjtest", "测距模块返回值：" + data);
+								ZillionLog.i("yjjtestDistance", "测距模块返回值：" + data);
 							}
 							// Log.i(TAG, "Receive " + data.length() + " Bytes:
 							// " + data);
 						} else if (PortName_mRFIDReader.equals(event.getPortName())) {
 							data = mRFIDReader.readHexString(event.getEventValue());
-							if (!data.contains("01 08")) {
+							if (!data.contains("01 08") && !data.contains("01 09")) {
 								closeRFIDReader();
 							} else {
 								openRFIDReader();

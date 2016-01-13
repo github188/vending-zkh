@@ -64,10 +64,8 @@ public class ProductDbOper {
 			product.setPd1Name(c.getString(c.getColumnIndex("PD1_Name")));
 			product.setPd1Description(c.getString(c.getColumnIndex("PD1_Description")));
 			product.setPd1ManufactureModel(c.getString(c.getColumnIndex("PD1_ManufactureModel")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-				product.setPd1Length(c.getString(c.getColumnIndex("PD1_Length")));
-				product.setPd1Weight(c.getString(c.getColumnIndex("PD1_Weight")));
-			}
+			product.setPd1Length(c.getString(c.getColumnIndex("PD1_Length")));
+			product.setPd1Weight(c.getString(c.getColumnIndex("PD1_Weight")));
 			product.setPd1Size(c.getString(c.getColumnIndex("PD1_Size")));
 			product.setPd1Brand(c.getString(c.getColumnIndex("PD1_Brand")));
 			product.setPd1Package(c.getString(c.getColumnIndex("PD1_Package")));
@@ -99,10 +97,8 @@ public class ProductDbOper {
 			product.setPd1ManufactureModel(c.getString(c.getColumnIndex("PD1_ManufactureModel")));
 			product.setPd1Size(c.getString(c.getColumnIndex("PD1_Size")));
 			product.setPd1Brand(c.getString(c.getColumnIndex("PD1_Brand")));
-			if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-				product.setPd1Length(c.getString(c.getColumnIndex("PD1_Length")));
-				product.setPd1Weight(c.getString(c.getColumnIndex("PD1_Weight")));
-			}
+			product.setPd1Length(c.getString(c.getColumnIndex("PD1_Length")));
+			product.setPd1Weight(c.getString(c.getColumnIndex("PD1_Weight")));
 			product.setPd1Package(c.getString(c.getColumnIndex("PD1_Package")));
 			product.setPd1Unit(c.getString(c.getColumnIndex("PD1_Unit")));
 			product.setPd1LastImportTime(c.getString(c.getColumnIndex("PD1_LastImportTime")));
@@ -118,12 +114,8 @@ public class ProductDbOper {
 	 * @return
 	 */
 	public boolean addProduct(ProductData product) {
-		String insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime)"
-				+ " values(?,?,?,?,?,?,?,?,?,?,?)";
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime,PD1_Length,PD1_Weight)"
-					+ " values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		}
+		String insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime,PD1_Length,PD1_Weight)"
+				+ " values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		SQLiteStatement stat = db.compileStatement(insertSql);
 		stat.bindString(1, product.getPd1Id());
@@ -138,10 +130,8 @@ public class ProductDbOper {
 		stat.bindString(9, product.getPd1Package());
 		stat.bindString(10, product.getPd1Unit());
 		stat.bindString(11, product.getPd1LastImportTime());
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			stat.bindString(12, product.getPd1Length());
-			stat.bindString(13, product.getPd1Weight());
-		}
+		stat.bindString(12, product.getPd1Length());
+		stat.bindString(13, product.getPd1Weight());
 		long i = stat.executeInsert();
 		return i > 0;
 	}
@@ -153,12 +143,8 @@ public class ProductDbOper {
 	 */
 	public boolean batchAddProduct(List<ProductData> list) {
 		boolean flag = false;
-		String insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime)"
-				+ "values(?,?,?,?,?,?,?,?,?,?,?)";
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime,PD1_Length,PD1_Weight)"
-					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		}
+		String insertSql = "insert into Product(PD1_ID,PD1_M02_ID,PD1_CODE,PD1_Name,PD1_Description,PD1_ManufactureModel,PD1_Size,PD1_Brand,PD1_Package,PD1_Unit,PD1_LastImportTime,PD1_Length,PD1_Weight)"
+				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		try {
 			// 开启事务
@@ -176,10 +162,8 @@ public class ProductDbOper {
 				stat.bindString(9, product.getPd1Package());
 				stat.bindString(10, product.getPd1Unit());
 				stat.bindString(11, product.getPd1LastImportTime());
-				if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-					stat.bindString(12, product.getPd1Length());
-					stat.bindString(13, product.getPd1Weight());
-				}
+				stat.bindString(12, product.getPd1Length());
+				stat.bindString(13, product.getPd1Weight());
 				stat.executeInsert();
 			}
 			// 数据插入成功，设置事物成功标志
@@ -202,12 +186,8 @@ public class ProductDbOper {
 	 */
 	public boolean batchUpdateProduct(List<ProductData> list) {
 		boolean flag = false;
-		String updateSql = "UPDATE Product SET PD1_M02_ID=?,PD1_CODE=?,PD1_Name=?,PD1_Description=?,PD1_ManufactureModel=?,PD1_Size=?,PD1_Brand=?,PD1_Package=?,PD1_Unit=?,PD1_LastImportTime=?"
+		String updateSql = "UPDATE Product SET PD1_M02_ID=?,PD1_CODE=?,PD1_Name=?,PD1_Description=?,PD1_ManufactureModel=?,PD1_Size=?,PD1_Brand=?,PD1_Package=?,PD1_Unit=?,PD1_LastImportTime=?,PD1_Length=?,PD1_Weight=?"
 				+ " WHERE PD1_ID=?";
-		if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-			updateSql = "UPDATE Product SET PD1_M02_ID=?,PD1_CODE=?,PD1_Name=?,PD1_Description=?,PD1_ManufactureModel=?,PD1_Size=?,PD1_Brand=?,PD1_Package=?,PD1_Unit=?,PD1_LastImportTime=?,PD1_Length=?,PD1_Weight=?"
-					+ " WHERE PD1_ID=?";
-		}
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		try {
 			// 开启事务
@@ -225,10 +205,8 @@ public class ProductDbOper {
 				stat.bindString(9, product.getPd1Unit());
 				stat.bindString(10, product.getPd1LastImportTime());
 				stat.bindString(11, product.getPd1Id());
-				if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-					stat.bindString(12, product.getPd1Length());
-					stat.bindString(13, product.getPd1Weight());
-				}
+				stat.bindString(12, product.getPd1Length());
+				stat.bindString(13, product.getPd1Weight());
 				stat.executeUpdateDelete();
 			}
 			// 数据插入成功，设置事物成功标志
