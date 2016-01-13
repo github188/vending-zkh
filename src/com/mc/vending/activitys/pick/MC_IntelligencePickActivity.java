@@ -15,8 +15,10 @@ import java.util.TimerTask;
 import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.activitys.VersionActivity;
+import com.mc.vending.activitys.setting.MC_SettingActivity;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.ProductData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.data.VendingChnData;
@@ -31,6 +33,7 @@ import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
 import com.mc.vending.service.DataServices;
 import com.mc.vending.service.GeneralMaterialService;
+import com.mc.vending.service.ReplenishmentService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
 import com.mc.vending.tools.ConvertHelper;
@@ -339,17 +342,12 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			// 查询卡类型：管理员还是普通员工
 			stopLoading();
 			value = MyFunc.getRFIDSerialNo(value);
+			msg.obj = value;
 			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
 			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
 
-				boolean isAdmin = false;
-				// foo要判断卡号是不是管理员
-
-				isAdmin = ValidateCardPower(value);
-				if (isAdmin) {
-					isReturnMaterial = true;
-				}
+				setValidate(value);
 				handler.sendMessage(msg);
 			}
 			break;
@@ -377,15 +375,21 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
 				try {
-					// SerialTools.getInstance().closeFW();
-					SerialTools.getInstance().closeRD();
-					Thread.sleep(500);
-					SerialTools.getInstance().openLocker();
+					boolean validateResult = cardPasswordValidate(msg.obj.toString());
+					if (validateResult) {
+						// SerialTools.getInstance().closeFW();
+						SerialTools.getInstance().closeRD();
+						Thread.sleep(500);
+						SerialTools.getInstance().openLocker();
 
-					// SaveSharedPreferencesForRD("11", "100");
-					// SaveSharedPreferencesForFW(70, "800");
+						// SaveSharedPreferencesForRD("11", "100");
+						// SaveSharedPreferencesForFW(70, "800");
 
-					isNeedUpdateDataMemery = false;
+						isNeedUpdateDataMemery = false;
+					} else {
+						openRFID();
+					}
+
 				} catch (SerialPortException e) {
 					// TODO Auto-generated catch block
 					openRD();
@@ -418,19 +422,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						showToast("当前锁状态值是：" + result + "" + "电磁锁闭合，正常关门");
 						try {
 							SerialTools.getInstance().closeCheckLocker();
-							//
-							// SaveSharedPreferencesForRD("11", "1000");
-							//
-							// SaveSharedPreferencesForFW(70, "80");
-							// if (isReturnMaterial) {
-							// ShowChnMaterialList();
-							// DISTANCECHNCOUNTLIST.clear();
-							// VENDINGCHNLIST.clear();
-							// } else {
-							// ShowMaterialList();
-							// DISTANCECOUNTLIST.clear();
-							// WEIGHTLIST.clear();
-							// }
 						} catch (SerialPortException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -467,21 +458,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					RdSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
-				// openRD();
-				// if (isSettingUnitZero) {
-				// try {
-				// InitFlag();
-				// SerialTools.getInstance().closeRD();
-				//
-				// } catch (SerialPortException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				// } else if (isSettingUnitDistance) {
-				// openRdSetUnit();
-				// } else {
-				// openRD();
-				// }
 				break;
 			case SerialTools.MESSAGE_LOG_mFw:
 				portRtnStrList = ((String) msg.obj).split("FF");
@@ -495,6 +471,65 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			}
 		}
 	};
+
+	private boolean cardPasswordValidate(String cardValue) {
+		closeRFID();
+		if (StringHelper.isEmpty(cardValue, true)) {
+			showToast(getResources().getString(R.string.placeholder_card_pwd));
+			return false;
+		} else {
+			// 检查卡/密码-权限
+			ServiceResult<VendingCardPowerWrapperData> result = GeneralMaterialService.getInstance().checkCardPowerOut(
+					// isRFID ? CardData.CARD_SERIALNO_PARAM :
+					// CardData.CARD_PASSWORD_PARAM,
+					CardData.CARD_SERIALNO_PARAM, cardValue, vendingChn.getVc1Vd1Id());
+			if (!result.isSuccess()) {
+				resetAlertMsg(result.getMessage());
+				return false;
+			}
+			return true;
+		}
+	}
+
+	/**
+	 * 点击设置后输入的密码验证
+	 */
+	private void setValidate(String cardValue) {
+		closeRFID();
+		if (StringHelper.isEmpty(cardValue, true)) {
+			resetAlertMsg(getResources().getString(R.string.placeholder_card_pwd));
+		} else {
+			ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance().checkVending();
+			// 判断售货机状态－－验证是否可用
+			if (!vendResult.isSuccess()) {
+				resetAlertMsg(vendResult.getMessage());
+				return;
+			}
+			vendData = vendResult.getResult();
+			// 检查卡/密码-权限,进入设置只能刷卡
+			ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService.getInstance()
+					.checkCardPowerInner(cardValue, vendData.getVd1Id());
+			if (!result.isSuccess()) {
+				resetAlertMsg(result.getMessage());
+				return;
+			}
+			wrapperData = result.getResult();
+
+			hiddenAlertMsg();
+
+			Intent intent = new Intent();
+			Bundle bundle = new Bundle();
+
+			intent.putExtra("wrapperData", wrapperData);
+			intent.putExtra("vendData", vendData);
+
+			intent.putExtras(bundle);
+			intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
+			startActivityForResult(intent, 1000);
+			// startActivity(intent);
+
+		}
+	}
 
 	@Override
 	public void serialReturn(String value, int serialType, Object userInfo) {
@@ -1061,16 +1096,16 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				isNeedUpdateDataMemery = true;
 
 			}
-			 new Handler().postDelayed(new Runnable() {
-			
-			 public void run() {
-			
-			 // execute the task
-			 InitList();
-			 InitView();
-			 }
-			
-			 }, 10000);
+			new Handler().postDelayed(new Runnable() {
+
+				public void run() {
+
+					// execute the task
+					InitList();
+					InitView();
+				}
+
+			}, 10000);
 			// boolean isSuccess = SaveVendingStock();
 			// if (isSuccess) {
 			// try {
@@ -1194,15 +1229,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			}
 			// openFW(portId);
 		}
-//		if (isReturnMaterial) {
-//			ShowChnMaterialList();
-//			DISTANCECHNCOUNTLIST.clear();
-//			VENDINGCHNLIST.clear();
-//		} else {
-//			ShowMaterialList();
-//			DISTANCECOUNTLIST.clear();
-//			WEIGHTLIST.clear();
-//		}
+		// if (isReturnMaterial) {
+		// ShowChnMaterialList();
+		// DISTANCECHNCOUNTLIST.clear();
+		// VENDINGCHNLIST.clear();
+		// } else {
+		// ShowMaterialList();
+		// DISTANCECOUNTLIST.clear();
+		// WEIGHTLIST.clear();
+		// }
 	}
 
 	/**
@@ -1254,7 +1289,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		SerialTools.getInstance().addToolsListener(this);
 		try {
 			for (int i = 1; i <= 5; i++) {
-				SerialTools.getInstance().openFW(i , Constant.FW_GET_WEIGHT);
+				SerialTools.getInstance().openFW(i, Constant.FW_GET_WEIGHT);
 				Thread.sleep(42);
 			}
 		} catch (InterruptedException e) {
