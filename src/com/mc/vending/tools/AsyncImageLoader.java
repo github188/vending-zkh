@@ -82,7 +82,6 @@ public class AsyncImageLoader {
 
             SoftReference<Drawable> softReference = imageCache.get(imageUrl);
             Drawable drawable = softReference.get();
-//            ZillionLog.i("imageCache", drawable);
             if (drawable != null) {
                 return drawable;
             }

@@ -14,6 +14,7 @@ import java.util.TimerTask;
 
 import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
+import com.mc.vending.activitys.MC_ImagePlayerActivity;
 import com.mc.vending.activitys.VersionActivity;
 import com.mc.vending.activitys.setting.MC_SettingActivity;
 import com.mc.vending.config.Constant;
@@ -23,10 +24,12 @@ import com.mc.vending.data.ProductData;
 import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.data.VendingChnData;
 import com.mc.vending.data.VendingData;
+import com.mc.vending.data.VendingPictureData;
 import com.mc.vending.data.VersionData;
 import com.mc.vending.db.ProductDbOper;
 import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.db.VendingDbOper;
+import com.mc.vending.db.VendingPictureDbOper;
 import com.mc.vending.parse.VersionDataParse;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -99,8 +102,10 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private int stockCount; // 库存数量
 	private AsyncImageLoader asyncImageLoader;
 
-	private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
-	private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
+	// private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
+	// private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
+	private final int imagePlayerTimer = 100; // 进入待机界面心跳。每秒钟执行一次
+	private final int imagePlayerTimeCount = 1000; // 默认待机默认跳转时间1分钟
 	private int imagePlayerTimeOut;
 
 	public boolean isSettingUnitWeight = false;
@@ -144,9 +149,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private String vendCode; // 售货机编号
 
 	private Timer timer;
-	private final int distanceStableTimer = 50; // 进入待机界面心跳。每秒钟执行一次
-	private final int distanceStableTimeCount = 500; // 默认待机默认跳转时间1分钟
-	private int distanceStableTimeOut;
 	private List<VendingChnData> VendingChnDataList;
 
 	private TimerTask mTimerTask;
@@ -220,6 +222,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		openRD();
 		openAllFW();
 		openRFID();
+		// startTimerTask(); // This Foo is run in OnResume()
 	}
 
 	private void requestGetClientVersionServer() {
@@ -290,6 +293,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		startTimerTask();
 	}
 
 	/*
@@ -311,7 +315,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
+		ActivityManagerTool.getActivityManager().removeActivity(this);
 		super.onDestroy();
+		this.unbindService(conn);
 	}
 
 	/*
@@ -323,6 +329,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
+		cancelImageTask();
 	}
 
 	@Override
@@ -372,9 +379,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			String[] portRtnStrList = null;
+			resetTimer();
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
 				try {
+					resetTimer();
 					boolean validateResult = cardPasswordValidate(msg.obj.toString());
 					if (validateResult) {
 						// SerialTools.getInstance().closeFW();
@@ -401,6 +410,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mLocker:
+				resetTimer();
 				portRtnStrList = ((String) msg.obj).replaceAll(Constant.RDSERVETAILWITHBLANK, "")
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				if (portRtnStrList != null && portRtnStrList.length > 1) {
@@ -426,8 +436,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						openRFID();
-						openRD();
+						// openRFID();
+						// openRD(); //These two Foos run in new
+						// Handler().postDelayed
 
 						// UpdateVendingChnList(pId, difCount, afterCount,
 						// preCount, pDifWeight > 0 ? true : false);
@@ -453,6 +464,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mRD:
+				resetTimer();
 				portRtnStrList = ((String) msg.obj).replaceAll(Constant.RDSERVETAILWITHBLANK, "")
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
@@ -460,12 +472,15 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mFw:
+				resetTimer();
 				portRtnStrList = ((String) msg.obj).split("FF");
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					FWSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
 				openAllFW();
 				break;
+			case MC_IntelligencePickActivity.MESSAGE_Image_player:
+				goImagePlayerAcitvity();
 			default:
 				break;
 			}
@@ -672,9 +687,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-				// entry.getKey();
-				// entry.getValue();
-
 				// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
 				String mockDistanceV16 = DISTANCELIST.get(entry.getKey().toString()).replaceAll(" ", "");// 找到对应的距离参数，16进制
 				String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();// 转为10进制
@@ -1043,18 +1055,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				isNeedUpdateDataMemery = true;
 				isReturnMaterial = false;
 			}
-			boolean isSuccess = SaveVendingStock();
-			if (isSuccess) {
-				try {
-					Thread.sleep(10000);
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
-				InitList();
-				InitView();
-			} else {
-				// 记录错误日志
-			}
+			RunningDelayTask();
 		}
 	}
 
@@ -1096,36 +1097,47 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				isNeedUpdateDataMemery = true;
 
 			}
-			new Handler().postDelayed(new Runnable() {
+			RunningDelayTask();
 
-				public void run() {
-
-					// execute the task
-					InitList();
-					InitView();
-				}
-
-			}, 10000);
-			// boolean isSuccess = SaveVendingStock();
-			// if (isSuccess) {
-			// try {
-			// Thread.sleep(5000);
-			// } catch (Exception e) {
-			// // TODO: handle exception
-			// }
-			// InitList();
-			// InitView();
-			// } else {
-			// // 记录错误日志
-			// }
 		}
+	}
+
+	private void RunningDelayTask() {
+		new Handler().postDelayed(new Runnable() {
+
+			public void run() {
+
+				// execute the task
+				InitList();
+				InitView();
+				openRFID();
+				openRD();
+			}
+
+		}, 10000);
+		SavingVendingStock();
+	}
+
+	private void SavingVendingStock() {
+		// boolean isSuccess = SaveVendingStock();
+		// if (isSuccess) {
+		// try {
+		// Thread.sleep(5000);
+		// } catch (Exception e) {
+		// // TODO: handle exception
+		// }
+		// InitList();
+		// InitView();
+		// } else {
+		// // 记录错误日志
+		// }
 	}
 
 	/**
 	 * 重置累计轮训时间
 	 */
 	private void resetTimer() {
-		distanceStableTimeOut = 0;
+		imagePlayerTimeOut = 0;
 	}
 
 	private void startTimerTask() {
@@ -1133,16 +1145,18 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 			@Override
 			public void run() {
-				distanceStableTimeOut += 50;
+				imagePlayerTimeOut += 50;
 				isDistanceStable = false;
-				if (distanceStableTimeOut == distanceStableTimeCount) {
-					isDistanceStable = true;
+				if (imagePlayerTimeOut == imagePlayerTimeCount) {
+					Message msg = new Message();
+					msg.what = MESSAGE_Image_player;
+					handler.sendMessage(msg);
 				}
 			}
 		};
-		distanceStableTimeOut = 0;
+		imagePlayerTimeOut = 0;
 		timer = new Timer();
-		timer.schedule(mTimerTask, 1, distanceStableTimer);
+		timer.schedule(mTimerTask, 1, imagePlayerTimer);
 	}
 
 	private void cancelImageTask() {
@@ -1268,18 +1282,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		}
 	}
 
-	/**
-	 * 更新每个秤盘单位重量
-	 * 
-	 * @author junjie.you
-	 * @param pId
-	 * @param pWeight
-	 */
-	private void UpdateSPUnitWeightForFW(int pId, int pWeight) {
-		final SharedPreferences spUnit = getSharedPreferences(FWUnitList, MODE_PRIVATE);
-		spUnit.edit().putString(pId + "", "" + pWeight).commit();
-	}
-
 	private void openFW(int pId) {
 		SerialTools.getInstance().addToolsListener(this);
 		SerialTools.getInstance().openFW(pId, Constant.FW_GET_WEIGHT);
@@ -1297,11 +1299,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			e.printStackTrace();
 		}
 	}
-
-	// private void openFwSetUnit() {
-	// isSettingUnitWeight = true;
-	// openFW();
-	// }
 
 	/**
 	 * 更新最终显示的List，例如： 称重模块A X2 称重模块B X1
@@ -1368,12 +1365,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				} else {
 					WEIGHTLIST.put(FwId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
-				// ShowMaterialList();
-				// UpdateVendingChnList(pId, difCount, afterCount, preCount,
-				// pDifWeight > 0 ? true : false);
-				// }
-
-				// ShowVendingChnList();
 			}
 
 		} catch (Exception e) {
@@ -1478,6 +1469,19 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			}
 		}
 
+	}
+
+	/**
+	 * 进入待机界面
+	 */
+	private void goImagePlayerAcitvity() {
+		VendingPictureDbOper db = new VendingPictureDbOper();
+		List<VendingPictureData> pictrueList = db.findVendingPicture();
+		if (pictrueList.size() > 0) {
+			Intent intent = new Intent();
+			intent.setClass(MC_IntelligencePickActivity.this, MC_ImagePlayerActivity.class);
+			startActivity(intent);
+		}
 	}
 
 	/*
