@@ -31,9 +31,9 @@ import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.db.VendingPictureDbOper;
 import com.mc.vending.parse.VersionDataParse;
-import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.parse.listener.RequestDataFinishListener;
+import com.mc.vending.service.CompositeMaterialService;
 import com.mc.vending.service.DataServices;
 import com.mc.vending.service.GeneralMaterialService;
 import com.mc.vending.service.ReplenishmentService;
@@ -48,8 +48,11 @@ import com.mc.vending.tools.utils.SerialTools;
 import com.zillion.evm.jssc.SerialPortException;
 import com.zillionstar.tools.ZillionLog;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -57,7 +60,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.InputType;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,7 +70,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * @author junjie.you
@@ -88,6 +92,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private ArrayList<String> VendingChnArr = new ArrayList<String>();// 货到存放物品名称、个数列表
 	public ListView intelligence_listview_datalist;
 	public ListView intelligence_listview_vendingchnlist;
+	private RelativeLayout relativelayout_intelli_pick;
 
 	private ImageView iv_sku; // 商品图片
 	private ImageView iv_intelligence_img;// 展示的图片
@@ -95,6 +100,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private int RDendNum = 69;
 	private int FWstartNum = 70;
 	private int FWendNum = 129;
+	private Button btn_out; // 隐藏按钮
+	private Button btn_intlli_confirm;
+	private EditText password; // 密码输入框
 
 	private VendingData vendData; // 售货机对象
 	private VendingChnData vendingChn; // 售货机货道对象
@@ -105,7 +113,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	// private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
 	// private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
 	private final int imagePlayerTimer = 100; // 进入待机界面心跳。每秒钟执行一次
-	private final int imagePlayerTimeCount = 1000; // 默认待机默认跳转时间1分钟
+	private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
 	private int imagePlayerTimeOut;
 
 	public boolean isSettingUnitWeight = false;
@@ -145,6 +153,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private ArrayList<String> DistanceChnArr = new ArrayList<String>();// 库存的Array
 	public ListView distance_listview_datalist;
 	private TextView alert_msg_title; // 提示标题
+	private TextView tv_pick_result_title;
 	private TextView alert_msg; // 提示内容
 	private String vendCode; // 售货机编号
 
@@ -234,7 +243,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 	private void InitView() {
 		iv_intelligence_img.setVisibility(View.VISIBLE);
-		intelligence_listview_datalist.setVisibility(View.GONE);
+		relativelayout_intelli_pick.setVisibility(View.GONE);
 	}
 
 	private void InitList() {
@@ -273,7 +282,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void resetVendStatus() {
 		if (!isAccessNetwork()) {
-			resetAlertMsg("没有链接到网络，请检查网络链接！");
+			showToast("没有链接到网络，请检查网络链接！");
 			return;
 		}
 		VendingData vending = new VendingDbOper().getVending();
@@ -353,9 +362,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
 			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
-
-				setValidate(value);
-				handler.sendMessage(msg);
+				if (!setValidate(value)) {
+					handler.sendMessage(msg);
+				} else {
+					openRFID();
+				}
 			}
 			break;
 		case SerialTools.MESSAGE_LOG_mRD:
@@ -391,8 +402,8 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						Thread.sleep(500);
 						SerialTools.getInstance().openLocker();
 
-						// SaveSharedPreferencesForRD("11", "100");
-						// SaveSharedPreferencesForFW(70, "800");
+						SaveSharedPreferencesForRD("11", "100");
+						SaveSharedPreferencesForFW(70, "800");
 
 						isNeedUpdateDataMemery = false;
 					} else {
@@ -435,6 +446,18 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						} catch (SerialPortException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+						}
+						SaveSharedPreferencesForRD("11", "1000");
+
+						SaveSharedPreferencesForFW(70, "80");
+						if (isReturnMaterial) {
+							ShowChnMaterialList();
+							DISTANCECHNCOUNTLIST.clear();
+							VENDINGCHNLIST.clear();
+						} else {
+							ShowMaterialList();
+							DISTANCECOUNTLIST.clear();
+							WEIGHTLIST.clear();
 						}
 						// openRFID();
 						// openRD(); //These two Foos run in new
@@ -497,11 +520,12 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			ServiceResult<VendingCardPowerWrapperData> result = GeneralMaterialService.getInstance().checkCardPowerOut(
 					// isRFID ? CardData.CARD_SERIALNO_PARAM :
 					// CardData.CARD_PASSWORD_PARAM,
-					CardData.CARD_SERIALNO_PARAM, cardValue, vendingChn.getVc1Vd1Id());
+					CardData.CARD_SERIALNO_PARAM, cardValue, vendData.getVd1Id());
 			if (!result.isSuccess()) {
-				resetAlertMsg(result.getMessage());
+				showToast(result.getMessage());
 				return false;
 			}
+			wrapperData = result.getResult();
 			return true;
 		}
 	}
@@ -509,28 +533,32 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	/**
 	 * 点击设置后输入的密码验证
 	 */
-	private void setValidate(String cardValue) {
+	private boolean setValidate(String cardValue) {
 		closeRFID();
+		ServiceResult<VendingData> result = CompositeMaterialService.getInstance().checkVending();
+		if (!result.isSuccess()) {
+			showToast(result.getMessage());
+			return false;
+		}
 		if (StringHelper.isEmpty(cardValue, true)) {
-			resetAlertMsg(getResources().getString(R.string.placeholder_card_pwd));
+			showToast(getResources().getString(R.string.placeholder_card_pwd));
+			return false;
 		} else {
 			ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance().checkVending();
 			// 判断售货机状态－－验证是否可用
 			if (!vendResult.isSuccess()) {
-				resetAlertMsg(vendResult.getMessage());
-				return;
+				showToast(vendResult.getMessage());
+				return false;
 			}
 			vendData = vendResult.getResult();
 			// 检查卡/密码-权限,进入设置只能刷卡
-			ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService.getInstance()
-					.checkCardPowerInner(cardValue, vendData.getVd1Id());
-			if (!result.isSuccess()) {
-				resetAlertMsg(result.getMessage());
-				return;
+			ServiceResult<VendingCardPowerWrapperData> VendingCardPowerWrapperDataResult = ReplenishmentService
+					.getInstance().checkCardPowerInner(cardValue, vendData.getVd1Id());
+			if (!VendingCardPowerWrapperDataResult.isSuccess()) {
+				showToast(VendingCardPowerWrapperDataResult.getMessage());
+				return false;
 			}
-			wrapperData = result.getResult();
-
-			hiddenAlertMsg();
+			wrapperData = VendingCardPowerWrapperDataResult.getResult();
 
 			Intent intent = new Intent();
 			Bundle bundle = new Bundle();
@@ -542,8 +570,8 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
 			startActivityForResult(intent, 1000);
 			// startActivity(intent);
-
 		}
+		return true;
 	}
 
 	@Override
@@ -586,7 +614,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void initComponents() {
 		intelligence_listview_datalist = (ListView) this.findViewById(R.id.intelligence_listview_datalist);
+		relativelayout_intelli_pick = (RelativeLayout) this.findViewById(R.id.relativelayout_intelli_pick);
 		iv_intelligence_img = (ImageView) this.findViewById(R.id.iv_intelligence_img);
+		btn_out = (Button) this.findViewById(R.id.btn_intlli_out);
+		btn_intlli_confirm = (Button) this.findViewById(R.id.btn_intlli_confirm);
+		tv_pick_result_title = (TextView) this.findViewById(R.id.tv_pick_result_title);
 	}
 
 	/**
@@ -598,6 +630,75 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		}
 		InitSPFWShowList();
 		InitSPRDShowList();
+		btn_intlli_confirm.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				InitList();
+				InitView();
+				openRFID();
+				openRD();
+			}
+		});
+		btn_out.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View arg0) {
+				password = new EditText(MC_IntelligencePickActivity.this);
+				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				final Builder dialog = new AlertDialog.Builder(MC_IntelligencePickActivity.this).setTitle("请输入密码")
+						.setView(password).setCancelable(false)
+						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!StringHelper.isEmpty(password.getText().toString(), true)) {
+
+							ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance().checkVending();
+							// 判断售货机状态－－验证是否可用
+							if (!vendResult.isSuccess()) {
+								showToast(vendResult.getMessage());
+								return;
+							}
+							vendData = vendResult.getResult();
+							// 检查卡/密码-权限,进入设置只能刷卡
+							ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService.getInstance()
+									.checkCardPowerInner(password.getText().toString(), vendData.getVd1Id());
+							if (!result.isSuccess()) {
+								showToast(result.getMessage());
+								return;
+							}
+							wrapperData = result.getResult();
+
+							Intent intent = new Intent();
+							Bundle bundle = new Bundle();
+
+							intent.putExtra("wrapperData", wrapperData);
+							intent.putExtra("vendData", vendData);
+
+							intent.putExtras(bundle);
+							intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
+							startActivityForResult(intent, 1000);
+							// startActivity(intent);
+
+							// VendingPasswordData data = new
+							// VendingPasswordDbOper()
+							// .getVendingPasswordByPassword(password.getText().toString());
+							// if (data == null) {
+							// showToast("密码错误");
+							// } else {
+							// ActivityManagerTool.getActivityManager().exit();
+							// finish();
+							// }
+						} else {
+							showToast("密码不能为空!");
+						}
+					}
+				}).setNegativeButton("取消", null);
+				dialog.show();
+
+				return false;
+			}
+		});
 	}
 
 	private void openRFID() {
@@ -625,15 +726,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private void InitFlag() {
 		isReturnMaterial = false;
 		isNeedUpdateDataMemery = true;
-	}
-
-	/**
-	 * 现实提示信息
-	 */
-	private void resetAlertMsg(String msg) {
-		alert_msg.setText(msg);
-		alert_msg_title.setVisibility(View.VISIBLE);
-		alert_msg.setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -748,8 +840,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		// 先清空SP内的单位重量List
 		final SharedPreferences spUnit = getSharedPreferences(pSPName, MODE_PRIVATE);
 		spUnit.edit().clear().commit();
-		// 再调用更新方法来更新单位重量显示
-		// UpdateUnitWeightForEditText();
 	}
 
 	/**
@@ -766,8 +856,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		if (spUnit.contains(pId)) {
 			retStr = spUnit.getString(pId, "");
 		}
-		// 再调用更新方法来更新单位重量显示
-		// UpdateUnitWeightForEditText();
 		return retStr;
 	}
 
@@ -785,8 +873,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		if (spUnit.contains(pId)) {
 			retStr = spUnit.getString(pId, defaultValue);
 		}
-		// 再调用更新方法来更新单位重量显示
-		// UpdateUnitWeightForEditText();
 		return retStr;
 	}
 
@@ -927,9 +1013,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
 				// 判断货到状态－类型，返回商品id，货道id
 				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService.getInstance().checkVendingChn(
-						(ConvertHelper.toInt(entry.getKey(), 1) + 60) + "", VendingChnData.VENDINGCHN_METHOD_GENERAL);
+						(ConvertHelper.toInt(entry.getKey(), 1)) + "", VendingChnData.VENDINGCHN_METHOD_GENERAL);
 				if (!vendingResult.isSuccess()) {
-					resetAlertMsg(vendingResult.getMessage());
+					showToast(vendingResult.getMessage());
 					return false;
 				}
 				vendingChn = vendingResult.getResult();
@@ -943,7 +1029,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				ServiceResult<VendingChnData> vendingResult = GeneralMaterialService.getInstance().checkVendingChn(
 						ConvertHelper.toInt(entry.getKey(), 1) + "", VendingChnData.VENDINGCHN_METHOD_GENERAL);
 				if (!vendingResult.isSuccess()) {
-					resetAlertMsg(vendingResult.getMessage());
+					showToast(vendingResult.getMessage());
 					return false;
 				}
 				vendingChn = vendingResult.getResult();
@@ -1049,7 +1135,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (DistanceArr != null && !DistanceArr.isEmpty()) {
 				iv_intelligence_img.setVisibility(View.GONE);
 				// tv_intelligence_dialog.setVisibility(View.GONE);
-				intelligence_listview_datalist.setVisibility(View.VISIBLE);
+				relativelayout_intelli_pick.setVisibility(View.VISIBLE);
 				intelligence_listview_datalist
 						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
 				isNeedUpdateDataMemery = true;
@@ -1091,46 +1177,27 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			}
 			if (DistanceArr != null && !DistanceArr.isEmpty()) {
 				iv_intelligence_img.setVisibility(View.GONE);
-				intelligence_listview_datalist.setVisibility(View.VISIBLE);
+				relativelayout_intelli_pick.setVisibility(View.VISIBLE);
 				intelligence_listview_datalist
 						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
 				isNeedUpdateDataMemery = true;
-
 			}
 			RunningDelayTask();
-
 		}
 	}
 
 	private void RunningDelayTask() {
+		SaveVendingStock();
 		new Handler().postDelayed(new Runnable() {
 
 			public void run() {
-
 				// execute the task
 				InitList();
 				InitView();
 				openRFID();
 				openRD();
 			}
-
 		}, 10000);
-		SavingVendingStock();
-	}
-
-	private void SavingVendingStock() {
-		// boolean isSuccess = SaveVendingStock();
-		// if (isSuccess) {
-		// try {
-		// Thread.sleep(5000);
-		// } catch (Exception e) {
-		// // TODO: handle exception
-		// }
-		// InitList();
-		// InitView();
-		// } else {
-		// // 记录错误日志
-		// }
 	}
 
 	/**
@@ -1311,19 +1378,18 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void UpdateMaterialList(String pId, int pDifWeight) {
 		try {
-			int FwId = ConvertHelper.toInt(pId, 0) + FWstartNum - 1;
 			// 获取显示物品列表文件
 			final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
 			// 获取该id在之前的显示列表内的个数，没有则为0
-			String idName = sp.getString(FwId + "", "0");
+			String idName = sp.getString(pId, "0");
 			if (idName.equals("0")) {
-				idName = FwId + "号模块文件名获取失败";
+				idName = pId + "号模块文件名获取失败";
 			}
 			// 获取物品单位标准重量
 
 			// 获取该物品锁对应的单位重量，没有则为0
 			String idUnitWeight = "100";// 之前该id内存储的值
-			VendingChnData vendingChnData = new VendingChnDbOper().getVendingChnByCode(FwId + "");
+			VendingChnData vendingChnData = new VendingChnDbOper().getVendingChnByCode(pId + "");
 			if (vendingChnData != null) {
 				ProductData productData = new ProductDbOper().getProductById(vendingChnData.getVc1Pd1Id());
 				if (productData != null && productData.getPd1Weight() != null) {
@@ -1353,17 +1419,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (isReturnMaterial) {
 				// 将变化的个数更新该ID对应的显示个数
 				if (afterCount <= 0) {
-					VENDINGCHNLIST.remove(FwId);
+					VENDINGCHNLIST.remove(pId);
 				} else {
-					VENDINGCHNLIST.put(FwId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
+					VENDINGCHNLIST.put(pId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
 				// UpdateVendingChnList(pId, afterCount);
 			} else {
 				// 将变化的个数更新该ID对应的显示个数
 				if (afterCount <= 0) {
-					WEIGHTLIST.remove(FwId);
+					WEIGHTLIST.remove(pId);
 				} else {
-					WEIGHTLIST.put(FwId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
+					WEIGHTLIST.put(pId + "", "" + afterCount);// 把显示LIST中的对应数据进行更新
 				}
 			}
 
@@ -1458,7 +1524,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				String version = versionData.getVersion().replace(".", "");
 				String locaVersion = Constant.HEADER_VALUE_CLIENTVER.replace(".", "");
 				if (Integer.parseInt(version) > Integer.parseInt(locaVersion)) {
-					// resetAlertMsg("有新版本，请更新！");
+					// showToast("有新版本，请更新！");
 					Intent intent = new Intent(MC_IntelligencePickActivity.this, VersionActivity.class);
 					intent.putExtra("url", versionData.getDownloadURL());
 					intent.putExtra("vermsg", versionData.getVersion() + "");
