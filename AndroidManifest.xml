@@ -27,7 +27,7 @@
             android:name="com.mc.vending.activitys.MainActivity"
             android:label="@string/app_name"
             android:noHistory="true"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -57,6 +57,39 @@ public class VendingChnDbOper {
 		return vendingChnList;
 	}
 
+	public List<VendingChnData> findAllUsefull() {
+		List<VendingChnData> vendingChnList = new ArrayList<VendingChnData>();
+		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+		Cursor c = db.rawQuery("SELECT * FROM VendingChn WHERE  VC1_PD1_ID <>''", null);
+		while (c.moveToNext()) {
+			VendingChnData vendingChn = new VendingChnData();
+			vendingChn.setVc1Id(c.getString(c.getColumnIndex("VC1_ID")));
+			vendingChn.setVc1M02Id(c.getString(c.getColumnIndex("VC1_M02_ID")));
+			vendingChn.setVc1Vd1Id(c.getString(c.getColumnIndex("VC1_VD1_ID")));
+			vendingChn.setVc1Code(c.getString(c.getColumnIndex("VC1_CODE")));
+			vendingChn.setVc1Type(c.getString(c.getColumnIndex("VC1_Type")));
+			vendingChn.setVc1Capacity(c.getInt(c.getColumnIndex("VC1_Capacity")));
+			vendingChn.setVc1ThreadSize(c.getString(c.getColumnIndex("VC1_ThreadSize")));
+			vendingChn.setVc1Pd1Id(c.getString(c.getColumnIndex("VC1_PD1_ID")));
+			vendingChn.setVc1SaleType(c.getString(c.getColumnIndex("VC1_SaleType")));
+			vendingChn.setVc1Sp1Id(c.getString(c.getColumnIndex("VC1_SP1_ID")));
+			vendingChn.setVc1BorrowStatus(c.getString(c.getColumnIndex("VC1_BorrowStatus")));
+			vendingChn.setVc1Status(c.getString(c.getColumnIndex("VC1_Status")));
+			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
+			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
+			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
+			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
+			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
+			vendingChn.setVc1ModifyTime(c.getString(c.getColumnIndex("VC1_ModifyTime")));
+			vendingChn.setVc1RowVersion(c.getString(c.getColumnIndex("VC1_RowVersion")));
+
+			vendingChnList.add(vendingChn);
+		}
+		return vendingChnList;
+	}
+
 	/**
 	 * 根据销售类型售货机货道.销售类型<>借/还）查询所有的售货机货道
 	 * 
@@ -85,7 +118,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -123,7 +156,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			break;
 		}
 		return vendingChn;
@@ -160,7 +193,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -203,7 +236,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -255,7 +288,7 @@ public class VendingChnDbOper {
 			vendingChn.setVc1LineNum(c.getString(c.getColumnIndex("VC1_LineNum")));
 			vendingChn.setVc1ColumnNum(c.getString(c.getColumnIndex("VC1_ColumnNum")));
 			vendingChn.setVc1Height(c.getString(c.getColumnIndex("VC1_Height")));
-				vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
+			vendingChn.setVc1DistanceInitValue(c.getString(c.getColumnIndex("VC1_DistanceInitValue")));
 			vendingChn.setVc1CreateUser(c.getString(c.getColumnIndex("VC1_CreateUser")));
 			vendingChn.setVc1CreateTime(c.getString(c.getColumnIndex("VC1_CreateTime")));
 			vendingChn.setVc1ModifyUser(c.getString(c.getColumnIndex("VC1_ModifyUser")));
@@ -276,8 +309,8 @@ public class VendingChnDbOper {
 	 */
 	public boolean addVendingChn(VendingChnData vendingChn) {
 		String insertSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
-					+ "VC1_DistanceInitValue,VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
-					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion,VC1_DistanceInitValue)"
+				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		SQLiteStatement stat = db.compileStatement(insertSql);
 		stat.bindString(1, vendingChn.getVc1Id());
@@ -300,7 +333,7 @@ public class VendingChnDbOper {
 		stat.bindString(18, vendingChn.getVc1ModifyUser());
 		stat.bindString(19, vendingChn.getVc1ModifyTime());
 		stat.bindString(20, vendingChn.getVc1RowVersion());
-			stat.bindString(21, vendingChn.getVc1DistanceInitValue());
+		stat.bindString(21, vendingChn.getVc1DistanceInitValue());
 		long i = stat.executeInsert();
 
 		return i > 0;
@@ -314,8 +347,8 @@ public class VendingChnDbOper {
 	public boolean batchAddVendingChn(List<VendingChnData> list) {
 		boolean flag = false;
 		String chnSql = "insert into VendingChn(VC1_ID,VC1_M02_ID,VC1_VD1_ID,VC1_CODE,VC1_Type,VC1_Capacity,VC1_ThreadSize,VC1_PD1_ID,VC1_SaleType,VC1_SP1_ID,VC1_BorrowStatus,VC1_Status,VC1_LineNum,VC1_ColumnNum,VC1_Height,"
-					+ "VC1_DistanceInitValue,VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion)"
-					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "VC1_CreateUser,VC1_CreateTime,VC1_ModifyUser,VC1_ModifyTime,VC1_RowVersion,VC1_DistanceInitValue)"
+				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 		try {
 			// 开启事务
@@ -342,7 +375,7 @@ public class VendingChnDbOper {
 				stat.bindString(18, vendingChn.getVc1ModifyUser());
 				stat.bindString(19, vendingChn.getVc1ModifyTime());
 				stat.bindString(20, vendingChn.getVc1RowVersion());
-					stat.bindString(21, vendingChn.getVc1DistanceInitValue());
+				stat.bindString(21, vendingChn.getVc1DistanceInitValue());
 				stat.executeInsert();
 
 			}

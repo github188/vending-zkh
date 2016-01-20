@@ -37,14 +37,16 @@ public final class R {
         public static final int icon_urgent_replenishment=0x7f02000f;
         public static final int input_bg=0x7f020010;
         public static final int logo=0x7f020011;
-        public static final int probackground0=0x7f020012;
-        public static final int probackground1=0x7f020013;
-        public static final int progress_barcolor=0x7f020014;
-        public static final int sku=0x7f020015;
-        public static final int text_bg=0x7f020016;
-        public static final int version1=0x7f020017;
-        public static final int yuanjiao_btn_white=0x7f020018;
-        public static final int zkh=0x7f020019;
+        public static final int logo2=0x7f020012;
+        public static final int probackground0=0x7f020013;
+        public static final int probackground1=0x7f020014;
+        public static final int progress_barcolor=0x7f020015;
+        public static final int sku=0x7f020016;
+        public static final int text_bg=0x7f020017;
+        public static final int version1=0x7f020018;
+        public static final int version2=0x7f020019;
+        public static final int yuanjiao_btn_white=0x7f02001a;
+        public static final int zkh=0x7f02001b;
     }
     public static final class id {
         public static final int alert_msg=0x7f070014;

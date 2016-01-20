@@ -240,7 +240,8 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 		// intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
 		// intent.setClass(MainActivity.this, MC_DistancePickActivity.class);
 		intent.setClass(MainActivity.this, MC_IntelligencePickActivity.class);
-//		intent.setClass(MainActivity.this, MC_ReturnsReverseActivity.class);
+		// intent.setClass(MainActivity.this, MC_ReturnsReverseActivity.class);
+//		intent.setClass(MainActivity.this, MC_ImagePlayerActivity.class);
 		startActivity(intent);
 		finish();
 	}
