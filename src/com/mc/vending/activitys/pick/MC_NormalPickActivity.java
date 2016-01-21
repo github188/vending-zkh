@@ -1,5 +1,6 @@
 package com.mc.vending.activitys.pick;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -872,10 +873,26 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
-                // SerialTools.getInstance().openStore(2, 1, 1);
+                
+                //不判断返回信号，直接打开格子机
+                openStoreDirect();
             }
         }
+    }
+    
+    /**
+     * 直接打开格子机
+     */
+    private void openStoreDirect() {
 
+        pickSuccess(stockCount, vendingChn);
+        resetInputStatus();
+        ZillionLog.i("格子机领料", "成功");
+        resetAlertMsg("领料成功！");
+        stockCount = 0;
+        isStoreChecked = true;
+
+        isOperating = false;
     }
 
     /**
@@ -961,25 +978,64 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
      * @param input
      */
     private void openedStore(String input) {
-        if (input != null && !isStoreChecked) {
-            String[] array = input.split(" ");
-            if (array.length > 7 && array.length >= ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7) {
-                if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
-                    pickSuccess(stockCount, vendingChn);
-                    resetInputStatus();
-                    ZillionLog.i("格子机领料","成功");
-                    resetAlertMsg("领料成功！");
-                    stockCount = 0;
-                    isStoreChecked = true;
-                } else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
-                    resetInputStatus();
-                    ZillionLog.i("格子机领料","失败");
-                    resetAlertMsg("领料失败！");
-                }
-                isOperating = false;
-            }
 
-        }
+//        boolean success = false;
+//        List<String> storeMsgList = SerialTools.getInstance().storeMsg;
+//        String [] storeMsg = storeMsgList.toString().replace("[", "").replace("]", "").replace(",", "").split(" ");
+////        00 02 00 01 A1 01 00 A5 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6
+//        ZillionLog.i(storeMsgList);
+//        
+//        if (storeMsgList != null && storeMsgList.size() > 0 && (storeMsg.length - 8) % 27 == 0) {
+//            for (int i = 0; i < (storeMsg.length - 8) / 27; i++) {
+//                String[] arrayB = Arrays.copyOfRange(storeMsg, 8 + 27 * i, 8 + 27 * (i + 1));
+//                ZillionLog.i(TAG, "i=" + i + " " + Arrays.asList(arrayB).toString());
+//                if (vendingChn == null) {
+//                    ZillionLog.i(TAG,"vendingChn null");
+//                    return;
+//                }
+//                success = arrayB[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00");
+//                if (success) {
+//                  pickSuccess(stockCount, vendingChn);
+//                  resetInputStatus();
+//                  ZillionLog.i("格子机领料","成功");
+//                  resetAlertMsg("领料成功！");
+//                  stockCount = 0;
+//                  isStoreChecked = true;
+//                  
+//                  isOperating = false;
+//                }
+//            }
+//        }
+//
+//        if (!success) {
+//          resetInputStatus();
+//          ZillionLog.i("格子机领料","失败");
+//          resetAlertMsg("领料失败！");
+//          
+//          isOperating = false;
+//        }
+////        
+////        if (input != null && !isStoreChecked) {
+////            String[] array = input.split(" ");
+////            if (array.length > 7 && array.length >= ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7) {
+////                if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
+////                    pickSuccess(stockCount, vendingChn);
+////                    resetInputStatus();
+////                    ZillionLog.i("格子机领料","成功");
+////                    resetAlertMsg("领料成功！");
+////                    stockCount = 0;
+////                    isStoreChecked = true;
+////                } else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
+////                    resetInputStatus();
+////                    ZillionLog.i("格子机领料","失败");
+////                    resetAlertMsg("领料失败！");
+////                }
+////                isOperating = false;
+////            }
+////
+////        }
     }
 
     /**

@@ -31,9 +31,10 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.3.7";                               
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.1";                               
     public final static int                 VERSION_STOCK_SYNC                           = 250;                               
-    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
+    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard0/Download/";                               
+//    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
 
     public final static String              BODY_KEY_METHOD                              = "wsid";                                // method
     public final static String              BODY_KEY_UDID                                = "deviceid";                            // udid
