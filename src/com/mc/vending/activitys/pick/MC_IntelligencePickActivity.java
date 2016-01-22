@@ -428,7 +428,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						SerialTools.getInstance().openLocker();
 
 						SaveSharedPreferencesForRD("11", "100");
-						SaveSharedPreferencesForFW(70, "800");
+						SaveSharedPreferencesForFW(71, "800");
 
 						isNeedUpdateDataMemery = false;
 					} else {
@@ -474,7 +474,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						}
 						SaveSharedPreferencesForRD("11", "1000");
 
-						SaveSharedPreferencesForFW(70, "80");
+						SaveSharedPreferencesForFW(71, "80");
+						openRFID();
+						openRD();
 						// if (isReturnMaterial) {
 						// ShowChnMaterialList();
 						// DISTANCECHNCOUNTLIST.clear();
@@ -484,10 +486,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						// DISTANCECOUNTLIST.clear();
 						// WEIGHTLIST.clear();
 						// }
-						// openRFID();
-						// openRD(); //These two Foos run in new
-						// Handler().postDelayed
-
 						// UpdateVendingChnList(pId, difCount, afterCount,
 						// preCount, pDifWeight > 0 ? true : false);
 					}
@@ -1232,8 +1230,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				// execute the task
 				InitList();
 				InitView();
-				openRFID();
-				openRD();
+				
 			}
 		}, 10000);
 	}
