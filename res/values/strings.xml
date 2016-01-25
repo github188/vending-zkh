@@ -56,6 +56,7 @@
     
     <!--设置 -->
     <string name="set_vending_number">售货机编号：</string>
+     <string name="set_intel_replenishment">二代机补货</string>
     <string name="set_replenishment">一键补货</string>
     <string name="set_difference_replenishment">差异补货</string>
     <string name="set_urgent_replenishment">紧急补货</string>

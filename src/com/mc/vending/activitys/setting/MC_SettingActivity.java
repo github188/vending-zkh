@@ -26,6 +26,8 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
+import com.mc.vending.activitys.pick.MC_IntelligencePickActivity;
+import com.mc.vending.activitys.pick.MC_WeightPickActivity;
 import com.mc.vending.adapter.MC_SetAdapter;
 import com.mc.vending.config.Constant;
 import com.mc.vending.config.MC_Config;
@@ -119,6 +121,7 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         back.setVisibility(View.VISIBLE);
         back.setEnabled(true);
         dataList = new ArrayList<String>();
+        dataList.add(getResources().getString(R.string.set_intel_replenishment));
         dataList.add(getResources().getString(R.string.set_replenishment));
         dataList.add(getResources().getString(R.string.set_difference_replenishment));
         dataList.add(getResources().getString(R.string.set_urgent_replenishment));
@@ -143,37 +146,40 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                 hiddenAlertMsg();
                 switch (position) {
                 case 0:
-                    setReplenishment();
+                	setIntelReplenishment();
                     break;
                 case 1:
-                    setDifferenceReplenishment();
+                    setReplenishment();
                     break;
                 case 2:
-                    setUrgentReplenishment();
+                    setDifferenceReplenishment();
                     break;
                 case 3:
-                    setInventory();
+                    setUrgentReplenishment();
                     break;
                 case 4:
+                    setInventory();
+                    break;
+                case 5:
 //                    setReturnsForward();
                     setReturnForwardList();
                     break;
-                case 5:
+                case 6:
                     setReturnsReverse();
                     break;
-                case 6:
+                case 7:
                     setPickTest();
                     break;
-                case 7:
+                case 8:
                     setSynchronousStock();
                     break;
-                case 8:
+                case 9:
                     setSynchronous();
                     break;
-                case 9:
+                case 10:
                     setInit();
                     break;
-                case 10:
+                case 11:
                     setFinishApp();
                     break;
 //                case 11:
@@ -238,7 +244,15 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         });
         downLoadData.start();
     }
-
+    /**
+     * 二代机补货方法
+     */
+    private void setIntelReplenishment() {
+        startLoading();
+        Intent intent = new Intent();
+        intent.setClass(MC_SettingActivity.this, MC_WeightPickActivity.class);
+        startActivity(intent);
+    }
     /**
      * handler 回调处理
      */

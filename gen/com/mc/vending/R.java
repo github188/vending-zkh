@@ -215,7 +215,7 @@ public final class R {
         public static final int btn_init_system=0x7f050006;
         /** 领料测试 
          */
-        public static final int btn_test=0x7f050035;
+        public static final int btn_test=0x7f050036;
         public static final int card_pwd=0x7f05001c;
         public static final int card_pwd_set=0x7f05001d;
         /**  一般领料 
@@ -228,8 +228,8 @@ public final class R {
         public static final int init_server_url=0x7f050002;
         /** 盘点 
          */
-        public static final int inventory_number=0x7f05003d;
-        public static final int inventory_order_id=0x7f050038;
+        public static final int inventory_number=0x7f05003e;
+        public static final int inventory_order_id=0x7f050039;
         public static final int operate_back=0x7f050027;
         /** 组合领料 
          */
@@ -244,30 +244,31 @@ public final class R {
         public static final int placeholder_vend_db=0x7f050005;
         /** 差异补货 
          */
-        public static final int replenishment_number=0x7f050036;
-        public static final int replenishment_number1=0x7f050037;
-        public static final int replenishment_order_id=0x7f05003a;
-        public static final int returns_number=0x7f05003c;
-        public static final int returns_order_id=0x7f05003b;
-        public static final int set_difference_replenishment=0x7f05002a;
-        public static final int set_finish=0x7f050034;
-        public static final int set_init=0x7f050033;
-        public static final int set_inventory=0x7f05002c;
-        public static final int set_pick_test=0x7f050030;
-        public static final int set_replenishment=0x7f050029;
-        public static final int set_returns_forward=0x7f05002d;
-        public static final int set_returns_forward_list=0x7f05002e;
-        public static final int set_returns_reverse=0x7f05002f;
-        public static final int set_synchronous=0x7f050032;
-        public static final int set_synchronous_stock=0x7f050031;
-        public static final int set_urgent_replenishment=0x7f05002b;
+        public static final int replenishment_number=0x7f050037;
+        public static final int replenishment_number1=0x7f050038;
+        public static final int replenishment_order_id=0x7f05003b;
+        public static final int returns_number=0x7f05003d;
+        public static final int returns_order_id=0x7f05003c;
+        public static final int set_difference_replenishment=0x7f05002b;
+        public static final int set_finish=0x7f050035;
+        public static final int set_init=0x7f050034;
+        public static final int set_intel_replenishment=0x7f050029;
+        public static final int set_inventory=0x7f05002d;
+        public static final int set_pick_test=0x7f050031;
+        public static final int set_replenishment=0x7f05002a;
+        public static final int set_returns_forward=0x7f05002e;
+        public static final int set_returns_forward_list=0x7f05002f;
+        public static final int set_returns_reverse=0x7f050030;
+        public static final int set_synchronous=0x7f050033;
+        public static final int set_synchronous_stock=0x7f050032;
+        public static final int set_urgent_replenishment=0x7f05002c;
         /** 设置 
          */
         public static final int set_vending_number=0x7f050028;
         public static final int sku_name=0x7f050022;
         public static final int sku_number=0x7f050023;
         public static final int sku_number_title=0x7f050024;
-        public static final int urgent_replenishment_order_id=0x7f050039;
+        public static final int urgent_replenishment_order_id=0x7f05003a;
     }
     public static final class style {
         /** 

@@ -382,6 +382,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
 			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
+				//检查是不是管理员卡，是则跳转到管理员界面
 				if (!setValidate(value)) {
 					handler.sendMessage(msg);
 				} else {
