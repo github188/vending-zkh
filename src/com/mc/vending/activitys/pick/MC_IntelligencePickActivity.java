@@ -124,8 +124,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private int stockCount; // 库存数量
 	private AsyncImageLoader asyncImageLoader;
 
-	// private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
-	// private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
 	private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
 	private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
 	private int imagePlayerTimeOut;
@@ -382,7 +380,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
 			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
-				//检查是不是管理员卡，是则跳转到管理员界面
+				// 检查是不是管理员卡，是则跳转到管理员界面
 				if (!setValidate(value)) {
 					handler.sendMessage(msg);
 				} else {
@@ -524,7 +522,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				openAllFW();
 				break;
-			case MC_IntelligencePickActivity.MESSAGE_Image_player:
+			case MESSAGE_Image_player:
 				goImagePlayerAcitvity();
 
 			default:
@@ -970,7 +968,13 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			}
 			int preCount = 0;
 			if (!isReturnMaterial) {
-				preCount = ConvertHelper.toInt(DISTANCECOUNTLIST.get(pId), 0);
+				// preCount = ConvertHelper.toInt(DISTANCECOUNTLIST.get(pId),
+				// 0);
+				preCount = GeneralMaterialService.getInstance().getVendingChnStock(vendingChn.getVc1Vd1Id(), pId);
+				if (preCount < 0) {
+					preCount = 0;
+					ZillionLog.i(this.getClass().getName(), "货道库存异常，为负数：" + preCount);
+				}
 			} else {
 				preCount = ConvertHelper.toInt(DISTANCECHNCOUNTLIST.get(pId), 0);
 			}
@@ -981,6 +985,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (afterCount != 0) {
 				afterCount = LengthCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
+				if (difCount > preCount) {
+					difCount = preCount;
+				}
 			}
 			if (isReturnMaterial) {
 				// 将变化的个数更新该ID对应的显示个数
@@ -1231,7 +1238,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				// execute the task
 				InitList();
 				InitView();
-				
+
 			}
 		}, 10000);
 	}
@@ -1369,7 +1376,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 *            模块读取到的重量数值
 	 */
 	private void SaveSharedPreferencesForFW(int pId, String pWeight) {
-		if (VendingChnNumList.contains(pId)) {
+		if (VendingChnNumList.contains(pId+"")) {
 			final SharedPreferences sp = getSharedPreferences(FWWeightDataList, MODE_PRIVATE);
 			// 获取之前该id内存储的重量
 			String preWeight = sp.getString(pId + "", "0");
@@ -1387,8 +1394,8 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					}
 				} else {
 					UpdateMaterialList(pId + "", different);
-					if (ListOfCheckIfFWCanShow.contains(pId)) {
-						ListOfCheckIfFWCanShow.remove(pId);
+					if (ListOfCheckIfFWCanShow.contains(pId+"")) {
+						ListOfCheckIfFWCanShow.remove(pId+"");
 					}
 				}
 			}
@@ -1405,7 +1412,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		try {
 			if (VendingChnNumList.isEmpty()) {
 				for (VendingChnData vendingChnData : VendingChnDataList) {
-					VendingChnNumList.add(vendingChnData.getVc1Code());
+					VendingChnNumList.add(vendingChnData.getVc1Code().trim());
 				}
 			} else {
 				for (String i : VendingChnNumList) {

@@ -575,6 +575,7 @@ public class SerialTools {
 	 */
 	public void closeRD() throws SerialPortException {
 		try {
+			isLockerOperiting = true;
 			if (mRD.isOpened()) {
 				mRD.closePort();
 			}
