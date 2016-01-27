@@ -223,7 +223,7 @@ public class ReplenishmentService extends BasicService {
                     stockTransactionList.add(stockTransaction);
 
                     VendingChnStockData vendingChnStockData = this.buildVendingChnStock(vendingId,
-                            vendingChnCode, skuId, differentiaQty);
+                    		   vendingChnCode, skuId, differentiaQty);
                     if (vendingChnStockMap.get(vendingChnCode) != null) {
                         updateChnStockList.add(vendingChnStockData);
                     } else {

@@ -51,8 +51,8 @@ public final class R {
     public static final class id {
         public static final int alert_msg=0x7f070014;
         public static final int alert_msg_title=0x7f070013;
-        public static final int arrow=0x7f070063;
-        public static final int back=0x7f07006b;
+        public static final int arrow=0x7f070062;
+        public static final int back=0x7f07006a;
         public static final int btn_clear_distance_vendingchn=0x7f07003b;
         public static final int btn_clear_vendingchn=0x7f07005d;
         public static final int btn_clearlist=0x7f070052;
@@ -80,13 +80,13 @@ public final class R {
         public static final int btn_setting_lock=0x7f07005b;
         public static final int btn_setting_unit_zero=0x7f07005a;
         public static final int btn_setting_unlock=0x7f070059;
-        public static final int btn_sub=0x7f070065;
-        public static final int btn_sum=0x7f070067;
+        public static final int btn_sub=0x7f070064;
+        public static final int btn_sum=0x7f070066;
         public static final int btn_version=0x7f070016;
         public static final int channle_number=0x7f070022;
-        public static final int combination_name=0x7f070064;
-        public static final int combination_number=0x7f070062;
-        public static final int difference_number=0x7f070066;
+        public static final int combination_name=0x7f070063;
+        public static final int combination_number=0x7f070061;
+        public static final int difference_number=0x7f070065;
         public static final int distance_listview_datalist=0x7f070026;
         public static final int distance_listview_vendingchnlist=0x7f07003a;
         public static final int et_card_password=0x7f07000e;
@@ -124,17 +124,17 @@ public final class R {
         public static final int layout_title=0x7f07001f;
         public static final int layout_top=0x7f070000;
         public static final int listView=0x7f07001b;
-        public static final int logo=0x7f07006d;
-        public static final int operate=0x7f07006c;
-        public static final int progress=0x7f07006f;
-        public static final int progressNum=0x7f070070;
+        public static final int logo=0x7f07006c;
+        public static final int operate=0x7f07006b;
+        public static final int progress=0x7f07006e;
+        public static final int progressNum=0x7f07006f;
         public static final int relativelayout_intelli_pick=0x7f07003e;
         public static final int relout_weight_show=0x7f070025;
         public static final int replenishment_number=0x7f070023;
-        public static final int replenishment_order_number=0x7f070068;
+        public static final int replenishment_order_number=0x7f070067;
         public static final int set_difference_replenishment=0x7f070024;
-        public static final int set_icon=0x7f070069;
-        public static final int set_name=0x7f07006a;
+        public static final int set_icon=0x7f070068;
+        public static final int set_name=0x7f070069;
         public static final int sku_name=0x7f070020;
         public static final int sku_number=0x7f070021;
         public static final int top=0x7f070017;
@@ -159,9 +159,8 @@ public final class R {
         public static final int txt_weight_a=0x7f070054;
         public static final int txt_weight_b=0x7f070056;
         public static final int txt_weight_c=0x7f070058;
-        public static final int vermsg=0x7f07006e;
-        public static final int weight_listview_datalist=0x7f070060;
-        public static final int weight_listview_vendingchnlist=0x7f070061;
+        public static final int vermsg=0x7f07006d;
+        public static final int weight_listview_vendingchnlist=0x7f070060;
     }
     public static final class layout {
         public static final int acticity_normal_pick=0x7f030000;
