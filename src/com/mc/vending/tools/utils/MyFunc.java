@@ -173,7 +173,7 @@ public class MyFunc {
 //        String strHex = "02 30 30 30 36 38 38 30 33 35 38 0D 0A 03";
 //        System.out.println(getIDSerialNo("02 30 30 30 36 38 38 30 33 35 38 0D 0A 03"));
         
-        System.out.println(cmdOpenVender(1, 1));
+        System.out.println(cmdOpenVender(1,3));
     }
 
     //生成售货机控制指令，参数为命令字加数据包

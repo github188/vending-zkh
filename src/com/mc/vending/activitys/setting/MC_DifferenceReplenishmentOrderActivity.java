@@ -88,7 +88,7 @@ public class MC_DifferenceReplenishmentOrderActivity extends BaseActivity {
         Thread downLoadData = new Thread(new Runnable() {
             public void run() {
                 ServiceResult<List<ReplenishmentHeadData>> result = ReplenishmentService
-                    .getInstance().getReplenishmentHead();
+                    .getInstance().getReplenishmentHead(ReplenishmentHeadData.RH_TYPE_PLAN);
                 if (!result.isSuccess()) {
                     //todo...
                     return;

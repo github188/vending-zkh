@@ -45,7 +45,7 @@ public class StockTransactionDbOper {
     }
 
     public void clearStockTransaction(String startDate) {
-        String updateSql = "delete StockTransaction where TS1_UploadStatus='"
+        String updateSql = "delete from StockTransaction where TS1_UploadStatus='"
                 + StockTransactionData.UPLOAD_LOAD + "' and substr(TS1_createtime,0,11) <= ?";
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
 

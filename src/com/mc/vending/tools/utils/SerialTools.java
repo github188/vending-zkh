@@ -1,6 +1,8 @@
 package com.mc.vending.tools.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
@@ -9,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.mc.vending.activitys.pick.MC_CombinationPickDetailActivity;
+import com.mc.vending.config.Constant;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.tools.ZillionLog;
 import com.zillion.evm.jssc.SerialPort;
@@ -20,16 +23,18 @@ public class SerialTools {
     private MC_SerialToolsListener     toolsListener;
     private static Map<String, String> keymap                    = null;
 
-    private static final String        TAG                       = "MainActivity";
-    private static final String        PortName_mVender          = "/dev/ttyS0";          // 售货机
-    private static final String        PortName_mRFIDReader      = "/dev/ttyS1";          // 读卡器
-    private static final String        PortName_mKeyBoard        = "/dev/ttyS2";          // 键盘
-    private static final String        PortName_mStore           = "/dev/ttyS4";          // 格子机
+    private static final String        TAG                       = SerialTools.class.getName();
+   //老
+//    private static final String        PortName_mVender          = "/dev/ttyS0";          // 售货机
+//    private static final String        PortName_mRFIDReader      = "/dev/ttyS1";          // 读卡器
+//    private static final String        PortName_mKeyBoard        = "/dev/ttyS2";          // 键盘
+//    private static final String        PortName_mStore           = "/dev/ttyS4";          // 格子机
 
-//    private static final String        PortName_mVender          = "/dev/ttyO2";          // 售货机
-//    private static final String        PortName_mRFIDReader      = "/dev/ttyO6";          // 读卡器
-//    private static final String        PortName_mKeyBoard        = "/dev/ttyO7";          // 键盘
-//    private static final String        PortName_mStore           = "/dev/ttyO5";          // 格子机
+    //新
+    private static final String        PortName_mVender          = Constant.SerialToolsPortName[0];          // 售货机
+    private static final String        PortName_mRFIDReader      = Constant.SerialToolsPortName[1];          // 读卡器
+    private static final String        PortName_mKeyBoard        = Constant.SerialToolsPortName[2];          // 键盘
+    private static final String        PortName_mStore           = Constant.SerialToolsPortName[3];          // 格子机
 
     
     public static final int            MESSAGE_LOG_mKeyBoard     = 1;                     // 键盘
@@ -172,6 +177,7 @@ public class SerialTools {
 
                 VendingDbOper vendingDbOper = new VendingDbOper();
                 String cardtype = vendingDbOper.getVending().getVd1CardType();
+//                ZillionLog.i(TAG, "getVd1CardType ： " + cardtype);
                 if (cardtype.equals("1")) {
                     mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
                     if (mSendThread == null) {
@@ -196,16 +202,20 @@ public class SerialTools {
      * @throws SerialPortException
      */
     public void closeRFIDReader() throws SerialPortException {
+//        ZillionLog.i(TAG,"closeRFIDReader");
         try {
-            if (!mSendThread.isInterrupted()) {
+            if (mSendThread!=null && !mSendThread.isInterrupted()) {
+//            if (!mSendThread.isInterrupted()) {
                 mSendThread.setSuspendFlag(); // 线程暂停
                 // mSendThread.interrupt();
             }
+//            ZillionLog.i(TAG,"mRFIDReader.isOpened:"+mRFIDReader.isOpened());
+
             if (mRFIDReader.isOpened()) {
                 mRFIDReader.closePort();
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 
@@ -220,7 +230,7 @@ public class SerialTools {
      *            门号
      */
     public void openStore(int a, int b, int c) {
-        ZillionLog.i("格子机开门：", a + " " + b + " " + c);
+        ZillionLog.i(TAG,"格子机开门："+ a + " " + b + " " + c);
         try {
             if (mStore.isOpened() || mStore.openPort()) {
                 try {
@@ -232,11 +242,11 @@ public class SerialTools {
                 mStore.setCheckB(b);
                 mStore.setRequestMethod(SerialTools.MESSAGE_LOG_mStore);
                 mStore.setParams(38400, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+                
                 sendPortData(mStore, MyFunc.cmdOpenStoreDoor(a, b, c), true); // 参数:设备类型，编号，门号
-//                ZillionLog.i("sendPortData", MyFunc.cmdOpenStoreDoor(a, b, c));
             }
         } catch (SerialPortException e) {
-            ZillionLog.e("格子机开门：", a + " " + b + " " + c + e.getMessage(),e);
+            ZillionLog.e(TAG, a + " " + b + " " + c + e.getMessage(),e);
             e.printStackTrace();
         }
     }
@@ -249,6 +259,7 @@ public class SerialTools {
      * @param c
      */
     public void checkStore(int a, int b) {
+        ZillionLog.i(TAG,"检查格子机状态： "+a+b);
         try {
             if (mStore.isOpened()) {
                 try {
@@ -261,7 +272,6 @@ public class SerialTools {
                 mStore.setRequestMethod(SerialTools.MESSAGE_LOG_mStore_check);
                 mStore.setParams(38400, 8, 1, 0); // 波特率、数据位、停止位、奇偶
                 sendPortData(mStore, MyFunc.cmdCheckStoreDoor(a, b), true); // 参数:设备类型，编号，门号
-                Log.i(TAG, MyFunc.cmdCheckStoreDoor(a, b));
             }
         } catch (SerialPortException e) {
             e.printStackTrace();
@@ -319,6 +329,7 @@ public class SerialTools {
      *            行
      */
     public void checkVender(int a, int b, Object mUserInfo) {
+        ZillionLog.i(TAG,"checkVender mUserInfo:"+a+","+b);
         this.userInfo = mUserInfo;
         try {
             if (mVender.isOpened() || mVender.openPort()) {
@@ -360,8 +371,10 @@ public class SerialTools {
                 mVender.setRequestMethod(SerialTools.MESSAGE_LOG_mVender);
                 mVender.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
                 // sendPortData(mVender, "0002000100010001010006", true);
+                String c = MyFunc.cmdOpenVender(a, b);
                 sendPortData(mVender, MyFunc.cmdOpenVender(a, b), true); // 参数:设备类型，编号，门号
-                Log.d(TAG, MyFunc.cmdOpenVender(a, b));
+//                ZillionLog.i(TAG,"openVender:"+a+","+b+","+c);
+//                Log.d(TAG, MyFunc.cmdOpenVender(a, b));
             }
         } catch (SerialPortException e) {
             e.printStackTrace();
@@ -389,8 +402,10 @@ public class SerialTools {
                 mVender.setRequestMethod(SerialTools.MESSAGE_LOG_mVender_check);
                 mVender.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
                 // sendPortData(mVender, "0002000100010001010006", true);
+                String c = MyFunc.cmdCheckVender(a, b);
                 sendPortData(mVender, MyFunc.cmdCheckVender(a, b), true); // 参数:设备类型，编号，门号
-                Log.d(TAG, MyFunc.cmdCheckVender(a, b));
+//                ZillionLog.i(TAG,"checkVender:"+a+","+b+","+c);
+//                Log.d(TAG, MyFunc.cmdCheckVender(a, b));
             }
         } catch (SerialPortException e) {
             e.printStackTrace();
@@ -446,15 +461,16 @@ public class SerialTools {
                                                                      obtain = SerialTools.MESSAGE_LOG_mVender;
                                                                      data = mVender.readHexString(event
                                                                              .getEventValue());
-                                                                     Log.i(TAG, "Receive " + data.length()
-                                                                             + " Bytes: " + data);
+//                                                                     ZillionLog.i(TAG,"listener MESSAGE_LOG_mVender:"+data);
+//                                                                     Log.i(TAG, "Receive " + data.length()
+//                                                                             + " Bytes: " + data);
                                                                  } else if (PortName_mStore.equals(event
                                                                          .getPortName())) {
                                                                      obtain = SerialTools.MESSAGE_LOG_mStore;
                                                                      data = mStore.readHexString(event
                                                                              .getEventValue());
-                                                                     Log.i(TAG, "Receive " + data.length()
-                                                                             + " Bytes: " + data);
+//                                                                     Log.i("MESSAGE_LOG_mStore listener", "Receive " + data.length()
+//                                                                             + " Bytes: " + data);
                                                                  }
                                                                  Message m = Message.obtain(mHandler, obtain);
                                                                  m.obj = data;
@@ -470,6 +486,7 @@ public class SerialTools {
                                                  }
                                              };
 
+    public static List<String> storeMsg = new ArrayList<String>();
     /**
      * 端口返回数据handler
      */
@@ -535,6 +552,7 @@ public class SerialTools {
                                                          break;
                                                      case SerialTools.MESSAGE_LOG_mStore:
                                                          if (mStore.getRequestMethod() == SerialTools.MESSAGE_LOG_mStore) {
+                                                             storeMsg = new ArrayList<String>();
                                                              for (int i = 0; i < 5; i++) {
                                                                  checkStore(mStore.getCheckA(),
                                                                          mStore.getCheckB());
@@ -543,6 +561,9 @@ public class SerialTools {
                                                                  } catch (InterruptedException e) {
                                                                  }
                                                              }
+
+                                                             //将返回收集起来
+                                                             storeMsg.add((String) msg.obj);
 
                                                          } else {
                                                              msg.what = mStore.getRequestMethod();
@@ -553,6 +574,9 @@ public class SerialTools {
 
                                                              } else {
                                                                  if (toolsListener != null) {
+                                                                   //将返回收集起来
+                                                                     storeMsg.add((String) msg.obj);
+//                                                                     ZillionLog.i(TAG,"格子机开门返回收集："+storeMsg);
                                                                      toolsListener.serialReturn(
                                                                              (String) msg.obj, msg.what);
                                                                  }
@@ -565,11 +589,11 @@ public class SerialTools {
                                              };
 
     /**
-     * rfid 线程监听线程
-     * 
-     * @author apple
-     *
-     */
+         * rfid 线程监听线程
+         * 
+         * @author apple
+         *
+         */
     private class SendThread extends Thread {
         public boolean suspendFlag = true; // 控制线程的执行
 

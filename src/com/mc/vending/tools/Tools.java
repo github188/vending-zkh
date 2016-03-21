@@ -33,10 +33,14 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Random;
 
+import com.mc.vending.application.CustomApplication;
+import com.mc.vending.config.Constant;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -1047,7 +1051,7 @@ public class Tools {
     /**
      * 获得字体文件
      * 
-     * @param a
+     * @param sendCount
      * @return
      */
     public static Typeface getFonts(Context ac) {
@@ -1131,4 +1135,27 @@ public class Tools {
         }
         return result.toString();
     }
+
+    /**
+     * 读取本地VEND_CODE
+     * 
+     * @return
+     */
+    public static String getVendCode() {
+        Context context = CustomApplication.getContext();
+        final SharedPreferences shared = context.getSharedPreferences(Constant.SHARED_VEND_CODE_KEY,
+                Context.MODE_PRIVATE);
+        return shared.getString(Constant.SHARED_VEND_CODE, "");
+    }
+    /**
+     * 读取本地URL
+     * 
+     * @return
+     */
+    public static String getConfigUrl() {
+        Context context = CustomApplication.getContext();
+        final SharedPreferences shared = context.getSharedPreferences(Constant.SHARED_CONFIG, Context.MODE_PRIVATE);
+        return shared.getString(Constant.SHARED_CONFIG_URL, "");
+    }
+    
 }

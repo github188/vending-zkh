@@ -1,8 +1,5 @@
 package com.mc.vending.service;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import android.util.Log;
-
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.CardData;
 import com.mc.vending.data.CusEmpCardPowerData;
 import com.mc.vending.data.CustomerEmpLinkData;
+import com.mc.vending.data.ReplenishmentDetailData;
+import com.mc.vending.data.ReplenishmentHeadData;
 import com.mc.vending.data.StockTransactionData;
 import com.mc.vending.data.SupplierData;
 import com.mc.vending.data.VendingCardPowerData;
@@ -40,7 +37,6 @@ import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.SystemException;
-import com.mc.vending.tools.Tools;
 import com.mc.vending.tools.ZillionLog;
 
 public class BasicService {
@@ -125,12 +121,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vendingCardPowerWrapper);
         } catch (BusinessException be) {
-            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(),be);
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(), be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(),e);
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(), e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障!>>检查检查卡/密码权限发生异常!");
@@ -156,12 +152,12 @@ public class BasicService {
             result.setSuccess(true);
             result.setResult(vendingCardPowerWrapper);
         } catch (BusinessException be) {
-            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(),be);
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + be.getMessage(), be);
             result.setMessage(be.getMessage());
             result.setCode("1");
             result.setSuccess(false);
         } catch (Exception e) {
-            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(),e);
+            ZillionLog.e(this.getClass().toString(), "======>>>>检查检查卡/密码权限发生异常!" + e.getMessage(), e);
             result.setSuccess(false);
             result.setCode("0");
             result.setMessage("售货机系统故障>>检查检查卡/密码权限发生异常!");
@@ -456,7 +452,7 @@ public class BasicService {
             List<String> a = new ArrayList<String>();
             System.out.println(a.get(1));
         } catch (Exception e) {
-            
+
             for (Object string : e.getStackTrace()) {
 //                System.out.println(string);
             }
@@ -621,6 +617,19 @@ public class BasicService {
 
     }
 
+    /**
+     * 构建库存交易对象
+     * @param qty
+     * @param billType
+     * @param billCode
+     * @param vendingId
+     * @param vendingChnCode
+     * @param skuId
+     * @param saleType
+     * @param supplierId
+     * @param vendingCardPowerWrapper
+     * @return
+     */
     public StockTransactionData buildStockTransaction(int qty, String billType, String billCode,
             String vendingId, String vendingChnCode, String skuId, String saleType, String supplierId,
             VendingCardPowerWrapperData vendingCardPowerWrapper) {
@@ -736,6 +745,81 @@ public class BasicService {
         stockData.setVs1ModifyTime(DateHelper.format(currentDate, "yyyy-MM-dd HH:mm:ss"));
         stockData.setVs1RowVersion(currentDate.getTime() + "");
         return stockData;
+    }
+
+    /**
+     * 构建补货单主表对象
+     * @param rhCode
+     * @param vendingId
+     * @return
+     */
+    public ReplenishmentHeadData buildReplenishmentHead(String rhCode,String vendingId) {
+        ReplenishmentHeadData data = new ReplenishmentHeadData();
+        data.setRh1Id(UUID.randomUUID().toString());
+        data.setRh1M02Id("");
+        data.setRh1Rhcode(rhCode);
+        data.setRh1RhType(ReplenishmentHeadData.RH_TYPE_All);
+        data.setRh1Cu1Id("");
+
+        data.setRh1Vd1Id(vendingId);
+        data.setRh1Wh1Id("");
+        data.setRh1Ce1IdPh("");
+        data.setRh1DistributionRemark("");
+        data.setRh1St1Id("");
+
+        data.setRh1Ce1IdBh("");
+        data.setRh1ReplenishRemark("");
+        data.setRh1ReplenishReason("");
+        data.setRh1OrderStatus(ReplenishmentHeadData.ORDERSTATUS_FINISHED);
+        data.setRh1DownloadStatus(ReplenishmentHeadData.DOWNLOAD_DOWN);
+        data.setLogVersion("");
+        data.setRh1UploadStatus(ReplenishmentHeadData.UPLOAD_LOAD);
+
+        Date currentDate = DateHelper.currentDateTime();
+
+        data.setRh1CreateUser("System");
+        data.setRh1CreateTime(DateHelper.format(currentDate, "yyyy-MM-dd HH:mm:ss"));
+        data.setRh1ModifyUser("System");
+        data.setRh1ModifyTime(DateHelper.format(currentDate, "yyyy-MM-dd HH:mm:ss"));
+        data.setRh1RowVersion(currentDate.getTime() + "");
+
+        return data;
+    }
+
+    /**
+     * 构建补货单从表对象
+     * @param rh1Id
+     * @param vc1Code
+     * @param pd1Id
+     * @param saleType
+     * @param actualQty
+     * @param differentiaQty
+     * @return
+     */
+    public ReplenishmentDetailData buildReplenishmentDetail(String rh1Id, String vc1Code, String pd1Id,
+            String saleType, Integer actualQty, Integer differentiaQty) {
+
+        ReplenishmentDetailData detail = new ReplenishmentDetailData();
+        detail.setRh2Id(UUID.randomUUID().toString());
+        detail.setRh2M02Id("");
+        detail.setRh2Rh1Id(rh1Id);
+        detail.setRh2Vc1Code(vc1Code);
+        detail.setRh2Pd1Id(pd1Id);
+        detail.setRh2SaleType(saleType);
+        detail.setRh2Sp1Id("");
+        detail.setRh2ActualQty(actualQty);
+        detail.setRh2DifferentiaQty(differentiaQty);
+        detail.setRh2Rp1Id("");
+        detail.setRh2UploadStatus(ReplenishmentDetailData.UPLOAD_LOAD);
+
+        Date currentDate = DateHelper.currentDateTime();
+        detail.setRh2CreateUser("System");
+        detail.setRh2CreateTime(DateHelper.format(currentDate, "yyyy-MM-dd HH:mm:ss"));
+        detail.setRh2ModifyUser("System");
+        detail.setRh2ModifyTime(DateHelper.format(currentDate, "yyyy-MM-dd HH:mm:ss"));
+        detail.setRh2RowVersion(currentDate.getTime() + "");
+
+        return detail;
     }
 
     /**

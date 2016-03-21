@@ -172,26 +172,49 @@ public class ReplenishmentHeadData extends BaseParseData implements Serializable
     /**
      * Comment for <code>serialVersionUID</code>
      */
-    private static final long  serialVersionUID     = 2701126889875907490L;
+    private static final long serialVersionUID = 2701126889875907490L;
 
     // 定义订单状态
-    public static final String ORDERSTATUS_CREATED  = "0";                 // 创建
-    public static final String ORDERSTATUS_FINISHED = "1";                 // 已完成
-    public static final String ORDERSTATUS_CLOSED   = "2";                 // 关闭
+    /** //创建 */
+    public static final String ORDERSTATUS_CREATED = "0";
+    /** 
+     * // 已完成
+     */
+    public static final String ORDERSTATUS_FINISHED = "1";
+    /**
+     * // 关闭
+     */
+    public static final String ORDERSTATUS_CLOSED = "2"; 
 
     // 定义下载状态
-    public static final String DOWNLOAD_UNDOWN      = "0";                 // 未下载
-    public static final String DOWNLOAD_DOWN        = "1";                 // 已下载
+    /**
+     * // 未下载
+     */
+    public static final String DOWNLOAD_UNDOWN = "0"; 
+    /**
+     * // 已下载
+     */
+    public static final String DOWNLOAD_DOWN = "1"; 
 
     // 定义上传状态
-    public static final String UPLOAD_UNLOAD        = "0";                 // 未上传
-    public static final String UPLOAD_LOAD          = "1";                 // 已上传
+    /**
+     * // 未上传
+     */
+    public static final String UPLOAD_UNLOAD = "0"; 
+    /**
+     * // 已上传
+     */
+    public static final String UPLOAD_LOAD = "1"; 
 
-    // 定义下载状态
-    public static final String RH_TYPE_PLAN         = "1";                 // 计划补货
-    public static final String RH_TYPE_EMERGENCY    = "2";                 // 紧急补货
+    // 定义表单类型
+    /** 计划补货 */
+    public static final String RH_TYPE_PLAN = "0";
+    /** 紧急补货 */
+    public static final String RH_TYPE_EMERGENCY = "1";
+    /** 一键补满 */
+    public static final String RH_TYPE_All = "3";
 
-    private String             rh1Id;
+    private String rh1Id;
 
     public String getRh1Id() {
         return this.rh1Id;

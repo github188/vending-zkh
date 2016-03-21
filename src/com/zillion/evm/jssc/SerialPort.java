@@ -27,6 +27,8 @@ package com.zillion.evm.jssc;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 
+import com.mc.vending.tools.ZillionLog;
+
 /**
  *
  * @author scream3r
@@ -979,6 +981,7 @@ public class SerialPort {
      * @throws SerialPortException
      */
     private void checkPortOpened(String methodName) throws SerialPortException {
+//        ZillionLog.i("checkPortOpened:"+portOpened+"==portName:"+portName+"==methodName:"+methodName);
         if (!portOpened) {
             throw new SerialPortException(portName, methodName, SerialPortException.TYPE_PORT_NOT_OPENED);
         }
@@ -1201,6 +1204,7 @@ public class SerialPort {
             removeEventListener();
         }
         boolean returnValue = serialInterface.closePort(portHandle);
+//        ZillionLog.i("returnValue:"+returnValue);
         if (returnValue) {
             maskAssigned = false;
             portOpened = false;

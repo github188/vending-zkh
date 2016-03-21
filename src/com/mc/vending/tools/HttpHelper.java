@@ -83,6 +83,12 @@ public class HttpHelper {
         // "=================================param end  ==================================");
         postData.add(new BasicNameValuePair(Constant.BODY_XML_INPUT, json.toString()));
         System.setProperty("http.keepAlive", "false");
+        
+        if(Constant.SERVER_URL == null || Constant.SERVER_URL.equals("")){
+
+            ZillionLog.i("SERVER_URL NULL",Constant.SERVER_URL);
+            Constant.SERVER_URL = Tools.getConfigUrl();
+        }
         HttpPost httpPost = new HttpPost(Constant.SERVER_URL);
         httpPost.setHeader(Constant.HEADER_KEY_CONTENT_TYPE,
                 HttpHelper.getHeaderMap().get(Constant.HEADER_KEY_CONTENT_TYPE));
@@ -132,8 +138,8 @@ public class HttpHelper {
             if (baseData.getRequestURL().equals(Constant.METHOD_WSID_STOCKTRANSACTION)) {
                 StockTransactionDataParse.getInstance().isSync = false;
             }
-            ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
-            ZillionLog.e("HttpHelp", e.getMessage(),e);
+            ZillionLog.i("SERVER_URL1",Constant.SERVER_URL);
+            ZillionLog.e("HttpHelp1", e.getMessage(),e);
             baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_SERVER_ERROR;
         }
 
@@ -171,8 +177,8 @@ public class HttpHelper {
                 if (baseData.getRequestURL().equals(Constant.METHOD_WSID_STOCKTRANSACTION)) {
                     StockTransactionDataParse.getInstance().isSync = false;
                 }
-                ZillionLog.i("SERVER_URL",Constant.SERVER_URL);
-                ZillionLog.e("HttpHelp", e.getMessage(),e);
+                ZillionLog.i("SERVER_URL2",Constant.SERVER_URL);
+                ZillionLog.e("HttpHelp2", e.getMessage(),e);
                 baseData.HTTP_STATUS = HttpHelper.HTTP_STATUS_PRASE_ERROR;
             }
         }

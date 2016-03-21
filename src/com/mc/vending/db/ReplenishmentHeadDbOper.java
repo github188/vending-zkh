@@ -158,7 +158,7 @@ public class ReplenishmentHeadDbOper {
      * @param orderStatus
      * @return
      */
-    public List<ReplenishmentHeadData> findReplenishmentHeadByOrderStatus(String orderStatus) {
+    public List<ReplenishmentHeadData> findReplenishmentHeadByOrderStatus(String orderStatus,String rhType) {
         List<ReplenishmentHeadData> list = new ArrayList<ReplenishmentHeadData>();
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         Date currentDate = DateHelper.currentDateTime();
@@ -166,9 +166,9 @@ public class ReplenishmentHeadDbOper {
         String queryDate = DateHelper.format(date, "yyyy-MM-dd HH:mm:ss");
         Cursor c = db
                 .rawQuery(
-                        "SELECT head.* FROM ReplenishmentHead head JOIN (SELECT RH2_RH1_ID,SUM(RH2_DifferentiaQty) FROM ReplenishmentDetail GROUP BY RH2_RH1_ID HAVING SUM(RH2_DifferentiaQty)=0 ) tmp "
-                                + "ON head.RH1_ID = tmp.RH2_RH1_ID WHERE head.RH1_OrderStatus = ? and head.RH1_CreateTime >= ? ORDER BY RH1_RHCODE DESC",
-                        new String[] { orderStatus, queryDate });
+                        "SELECT head.* FROM ReplenishmentHead head JOIN (SELECT RH2_RH1_ID,SUM(abs(RH2_DifferentiaQty)) FROM ReplenishmentDetail GROUP BY RH2_RH1_ID HAVING SUM(abs(RH2_DifferentiaQty))=0 ) tmp "
+                                + "ON head.RH1_ID = tmp.RH2_RH1_ID WHERE head.RH1_OrderStatus = ? and head.RH1_CreateTime >= ? and head.RH1_RhType = ? ORDER BY RH1_RHCODE DESC",
+                        new String[] { orderStatus, queryDate ,rhType});
         while (c.moveToNext()) {
             ReplenishmentHeadData replenishmentHead = new ReplenishmentHeadData();
             replenishmentHead.setRh1Id(c.getString(c.getColumnIndex("RH1_ID")));

@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.data.VendingChnProductWrapperData;
+import com.mc.vending.tools.ZillionLog;
 
 public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
 
@@ -45,6 +46,8 @@ public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHodler = new ViewHodler();
             convertView = inflater.inflate(R.layout.urgent_replenishment_item, parent, false);
+
+            
             viewHodler.channle_number = (TextView) convertView.findViewById(R.id.channle_number);
             viewHodler.sku_name = (TextView) convertView.findViewById(R.id.sku_name);
             viewHodler.replenishment_number = (EditText) convertView
@@ -54,15 +57,17 @@ public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
         } else {
             viewHodler = (ViewHodler) convertView.getTag();
         }
+        
         VendingChnProductWrapperData data = (VendingChnProductWrapperData) getItem(position);
         viewHodler.channle_number.setText(data.getVendingChn().getVc1Code());
         viewHodler.sku_name.setText(data.getProductName());
-        viewHodler.replenishment_number.setText("0");
+        viewHodler.replenishment_number.setText(String.valueOf(data.getActQty()));
         viewHodler.btn_sub.setTag(position);
         viewHodler.btn_sum.setTag(100 + position);
 
         convertView.setTag(viewHodler);
         viewMap.put(String.valueOf(position), viewHodler);
+        ZillionLog.i(viewMap);
         return convertView;
     }
 
@@ -95,6 +100,13 @@ public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
         EditText replenishment_number;
         Button   btn_sub;
         Button   btn_sum;
+        @Override
+        public String toString() {
+            return "ViewHodler [channle_number=" + channle_number + ", sku_name=" + sku_name
+                    + ", replenishment_number=" + replenishment_number + ", btn_sub=" + btn_sub
+                    + ", btn_sum=" + btn_sum + "]";
+        }
+        
     }
 
 }

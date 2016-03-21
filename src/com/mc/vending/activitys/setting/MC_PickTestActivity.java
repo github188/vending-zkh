@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
+import com.mc.vending.data.VendingCardPowerWrapperData;
 import com.mc.vending.data.VendingChnData;
 import com.mc.vending.service.TestMaterialService;
 import com.mc.vending.tools.ActivityManagerTool;
@@ -27,16 +28,17 @@ import com.zillion.evm.jssc.SerialPortException;
  *
  */
 public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsListener {
-    private Button         back;
-    private Button         operate;
-    private TextView       tv_public_title;  // 公共头部标题
-    private RelativeLayout layout_step1;     // 步骤1布局
+    private Button back;
+    private Button operate;
+    private TextView tv_public_title; // 公共头部标题
+    private RelativeLayout layout_step1; // 步骤1布局
 
-    private EditText       et_channle_number; // 步骤1输入框
+    private EditText et_channle_number; // 步骤1输入框
 
-    private TextView       alert_msg_title;  // 提示标题
-    private TextView       alert_msg;        // 提示内容
-    private VendingChnData vendingChn;       // 售货机货道
+    private TextView alert_msg_title; // 提示标题
+    private TextView alert_msg; // 提示内容
+    private VendingChnData vendingChn; // 售货机货道
+    private VendingCardPowerWrapperData wrapperData; //卡密码权限对象
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,15 @@ public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsL
         ActivityManagerTool.getActivityManager().add(this);
         initComponents();
         initObject();
+        getParam();
         stopLoading();
+    }
+
+    /**
+     * 获取参数
+     */
+    private void getParam() {
+        wrapperData = (VendingCardPowerWrapperData) getIntent().getSerializableExtra("wrapperData");
     }
 
     /**
@@ -103,7 +113,7 @@ public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsL
             SerialTools.getInstance().closeKeyBoard();
             SerialTools.getInstance().addToolsListener(this);
         } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
     }
@@ -217,19 +227,26 @@ public class MC_PickTestActivity extends BaseActivity implements MC_SerialToolsL
             resetAlertMsg(result.getMessage());
             return;
         }
+
         vendingChn = result.getResult();
         // 出货todo...
         // 步骤三确认，进行后续判断,发起领料动作，
         if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_VENDING)) {
+            ZillionLog.i("售货机领料测试",
+                    "vendingChn:" + et_channle_number.getText().toString()
+                    + "==CusEmpId:" + wrapperData.getCusEmpId()
+                    + "==Vc2Cd1Id:" + wrapperData.getVendingCardPowerData().getVc2Cd1Id());
             // 售货机
-            ZillionLog.i("售货机领料测试" + vendingChn.getVc1Code());
             SerialTools.getInstance().openVender(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0));
 
             // SerialTools.getInstance().openVender(3, 1);
         } else {
             // 格子机器
-            ZillionLog.i("格子机领料测试" + vendingChn.getVc1Code());
+            ZillionLog.i("格子机领料测试",
+                    "vendingChn:" + et_channle_number.getText().toString()
+                    + "==CusEmpId:" + wrapperData.getCusEmpId()
+                    + "==Vc2Cd1Id:" + wrapperData.getVendingCardPowerData().getVc2Cd1Id());
             SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1Height(), 0));

@@ -1,5 +1,6 @@
 package com.mc.vending.activitys.pick;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,40 +72,43 @@ import com.zillion.evm.jssc.SerialPortException;
  */
 public class MC_NormalPickActivity extends BaseActivity implements MC_SerialToolsListener,
         RequestDataFinishListener, DataParseRequestListener {
-    public DataServices                 dataServices;
-    private ImageView                   iv_sku;                          // 商品图片
-    private RelativeLayout              layout_step1;                    // 步骤1布局
-    private RelativeLayout              layout_step2;                    // 步骤2布局
-    private RelativeLayout              layout_step3;                    // 步骤3布局
-    private RelativeLayout              layout_step_set;                 // 进入设置步骤
-    private EditText                    password;                        // 密码输入框
-    private EditText                    et_channle_number;               // 步骤1输入框
-    private EditText                    et_pick_number;                  // 步骤2输入框
-    private EditText                    et_card_password;                // 步骤3输入框
-    private EditText                    et_card_password_set;            // 步骤3输入框
 
-    private TextView                    alert_msg_title;                 // 提示标题
-    private TextView                    alert_msg;                       // 提示内容
-    private Button                      btn_out;                         // 隐藏按钮
-    private Button                      btn_version;                     // 更新按钮
-    private OPERATE_STEP                operateStep;                     // 操作步骤。默认为0
-    private VendingData                 vendData;                        // 售货机对象
-    private VendingChnData              vendingChn;                      // 售货机货道对象
-    private VendingCardPowerWrapperData wrapperData;                     // 卡密码权限对象
-    private int                         stockCount;                      // 库存数量
-    private boolean                     isRFID;                          // 是否rfid操作
-    private AsyncImageLoader            asyncImageLoader;
-    private String                      vendCode;                        // 售货机编号
+    private static final String TAG = MC_NormalPickActivity.class.getName();
 
-    private Timer                       timer;
-    private final int                   imagePlayerTimer     = 1000;     // 进入待机界面心跳。每秒钟执行一次
-    private final int                   imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
-    private int                         imagePlayerTimeOut;
+    public DataServices dataServices;
+    private ImageView iv_sku; // 商品图片
+    private RelativeLayout layout_step1; // 步骤1布局
+    private RelativeLayout layout_step2; // 步骤2布局
+    private RelativeLayout layout_step3; // 步骤3布局
+    private RelativeLayout layout_step_set; // 进入设置步骤
+    private EditText password; // 密码输入框
+    private EditText et_channle_number; // 步骤1输入框
+    private EditText et_pick_number; // 步骤2输入框
+    private EditText et_card_password; // 步骤3输入框
+    private EditText et_card_password_set; // 步骤3输入框
 
-    private TimerTask                   mTimerTask;
-    private final static int            MESSAGE_Image_player = 99;       // 跳转到待机
-    boolean                             isOperating          = false;    // 是否再操作中
-    private boolean                     isStoreChecked;                  // 格子机验证返回
+    private TextView alert_msg_title; // 提示标题
+    private TextView alert_msg; // 提示内容
+    private Button btn_out; // 隐藏按钮
+    private Button btn_version; // 更新按钮
+    private OPERATE_STEP operateStep; // 操作步骤。默认为0
+    private VendingData vendData; // 售货机对象
+    private VendingChnData vendingChn; // 售货机货道对象
+    private VendingCardPowerWrapperData wrapperData; // 卡密码权限对象
+    private int stockCount; // 库存数量
+    private boolean isRFID; // 是否rfid操作
+    private AsyncImageLoader asyncImageLoader;
+    private String vendCode; // 售货机编号
+
+    private Timer timer;
+    private final int imagePlayerTimer = 1000; // 进入待机界面心跳。每秒钟执行一次
+    private final int imagePlayerTimeCount = 1000 * 60; // 默认待机默认跳转时间1分钟
+    private int imagePlayerTimeOut;
+
+    private TimerTask mTimerTask;
+    private final static int MESSAGE_Image_player = 99; // 跳转到待机
+    boolean isOperating = false; // 是否再操作中
+    private boolean isStoreChecked; // 格子机验证返回
 
     private enum OPERATE_STEP {
         OPERATE_STEP_1, OPERATE_STEP_2, OPERATE_STEP_3, OPERATE_STEP_SET
@@ -123,7 +127,6 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
         initObject();
         resetViews();
         startService();
-
     }
 
     private void requestGetClientVersionServer() {
@@ -145,26 +148,26 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 String version = versionData.getVersion().replace(".", "");
                 String locaVersion = Constant.HEADER_VALUE_CLIENTVER.replace(".", "");
                 if (Integer.parseInt(version) > Integer.parseInt(locaVersion)) {
-//                    resetAlertMsg("有新版本，请更新！");
+                    //                    resetAlertMsg("有新版本，请更新！");
                     Intent intent = new Intent(MC_NormalPickActivity.this, VersionActivity.class);
                     intent.putExtra("url", versionData.getDownloadURL());
                     intent.putExtra("vermsg", versionData.getVersion() + "");
                     startActivity(intent);
                     finish();
-//                    
-//                    btn_version.setVisibility(View.VISIBLE);
-//                    btn_version.setOnClickListener(new OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//
-//                            ZillionLog.e("btn_version.setOnClickListener");
-//                            Intent intent = new Intent(MC_NormalPickActivity.this, VersionActivity.class);
-//                            intent.putExtra("url", versionData.getDownloadURL());
-//                            intent.putExtra("vermsg", versionData.getVersion() + "");
-//                            startActivity(intent);
-//                            finish();
-//                        }
-//                    });
+                    //                    
+                    //                    btn_version.setVisibility(View.VISIBLE);
+                    //                    btn_version.setOnClickListener(new OnClickListener() {
+                    //                        @Override
+                    //                        public void onClick(View v) {
+                    //
+                    //                            ZillionLog.e("btn_version.setOnClickListener");
+                    //                            Intent intent = new Intent(MC_NormalPickActivity.this, VersionActivity.class);
+                    //                            intent.putExtra("url", versionData.getDownloadURL());
+                    //                            intent.putExtra("vermsg", versionData.getVersion() + "");
+                    //                            startActivity(intent);
+                    //                            finish();
+                    //                        }
+                    //                    });
                 } else {
                     btn_version.setVisibility(View.INVISIBLE);
                 }
@@ -213,21 +216,21 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
     }
 
     private ServiceConnection conn = new ServiceConnection() {
-                                       /** 获取服务对象时的操作 */
-                                       @Override
-                                       public void onServiceConnected(ComponentName name, IBinder service) {
-                                           dataServices = ((DataServices.ServiceBinder) service).getService();
-                                           ZillionLog.i(this.getClass().getName(), "onServiceConnected");
-                                           resetVendStatus();
-                                       }
+        /** 获取服务对象时的操作 */
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            dataServices = ((DataServices.ServiceBinder) service).getService();
+            ZillionLog.i(this.getClass().getName(), "onServiceConnected");
+            resetVendStatus();
+        }
 
-                                       /** 无法获取到服务对象时的操作 */
-                                       @Override
-                                       public void onServiceDisconnected(ComponentName name) {
-                                           dataServices = null;
-                                       }
+        /** 无法获取到服务对象时的操作 */
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            dataServices = null;
+        }
 
-                                   };
+    };
 
     /**
      * 重置累计轮训时间
@@ -331,20 +334,23 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
             SerialTools.getInstance().addToolsListener(this);
             SerialTools.getInstance().closeKeyBoard();
         } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
     }
 
     private void openRFID() {
+//        ZillionLog.i(TAG, "openRFID");
         SerialTools.getInstance().openRFIDReader();
     }
 
     private void closeRFID() {
         try {
+//            ZillionLog.i(TAG, "closeRFID");
             SerialTools.getInstance().closeRFIDReader();
         } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+//            ZillionLog.i(TAG, "closeRFID exception");
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
     }
@@ -353,7 +359,7 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
         try {
             SerialTools.getInstance().closeVender();
         } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
     }
@@ -362,7 +368,7 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
         try {
             SerialTools.getInstance().closeStore();
         } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
             e.printStackTrace();
         }
     }
@@ -508,6 +514,7 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
             isRFID = false;
             break;
         case SerialTools.MESSAGE_LOG_mRFIDReader:
+//            ZillionLog.i(TAG, "RFID return value="+value);
             value = MyFunc.getRFIDSerialNo(value);
             if (!StringHelper.isEmpty(value, true)) {
                 resetTimer();
@@ -516,6 +523,7 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 closeRFID(); // rfid读取完成关闭rfid
                 handler.sendMessage(msg);
             }
+//            closeRFID();
             break;
         case SerialTools.MESSAGE_LOG_mVender:
             // resetTimer();
@@ -537,46 +545,47 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
     }
 
     Handler handler = new Handler() {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            super.handleMessage(msg);
-                            switch (msg.what) {
-                            case SerialTools.MESSAGE_LOG_mKeyBoard:
-                                hiddenAlertMsg();
-                                keyBoardReturn((String) msg.obj, msg.what);
-                                break;
-                            case SerialTools.MESSAGE_LOG_mRFIDReader:
-                                hiddenAlertMsg();
-                                if (operateStep == OPERATE_STEP.OPERATE_STEP_3) {
-                                    cardPasswordValidate();
-                                } else if (operateStep == OPERATE_STEP.OPERATE_STEP_SET) {
-                                    setValidate();
-                                }
-                                break;
-                            case SerialTools.MESSAGE_LOG_mVender:
-                                // hiddenAlertMsg();
-                                // openVender((String) msg.obj);
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+            case SerialTools.MESSAGE_LOG_mKeyBoard:
+                hiddenAlertMsg();
+                keyBoardReturn((String) msg.obj, msg.what);
+                break;
+            case SerialTools.MESSAGE_LOG_mRFIDReader:
+                hiddenAlertMsg();
+                if (operateStep == OPERATE_STEP.OPERATE_STEP_3) {
+                    cardPasswordValidate();
+                } else if (operateStep == OPERATE_STEP.OPERATE_STEP_SET) {
+                    setValidate();
+                }
+                break;
+            case SerialTools.MESSAGE_LOG_mVender:
+                // hiddenAlertMsg();
+                // openVender((String) msg.obj);
 
-                                break;
-                            case SerialTools.MESSAGE_LOG_mVender_check:
-                                openVender((String) msg.obj);
+                break;
+            case SerialTools.MESSAGE_LOG_mVender_check:
+//                ZillionLog.i(TAG, "handler MESSAGE_LOG_mVender_check:" + (String) msg.obj);
+                openVender((String) msg.obj);
 
-                                break;
-                            case SerialTools.MESSAGE_LOG_mStore:
-                                // checkStore();
-                                // hiddenAlertMsg();
-                                // openStore((String) msg.obj);
-                                break;
-                            case SerialTools.MESSAGE_LOG_mStore_check:
-                                openedStore((String) msg.obj);
-                                break;
-                            case MC_NormalPickActivity.MESSAGE_Image_player:
-                                goImagePlayerAcitvity();
-                            default:
-                                break;
-                            }
-                        }
-                    };
+                break;
+            case SerialTools.MESSAGE_LOG_mStore:
+                // checkStore();
+                // hiddenAlertMsg();
+                // openStore((String) msg.obj);
+                break;
+            case SerialTools.MESSAGE_LOG_mStore_check:
+                openedStore((String) msg.obj);
+                break;
+            case MC_NormalPickActivity.MESSAGE_Image_player:
+                goImagePlayerAcitvity();
+            default:
+                break;
+            }
+        }
+    };
 
     /**
      * 键盘按下判断方法
@@ -827,6 +836,9 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 return;
             }
             wrapperData = result.getResult();
+            if (wrapperData == null) {
+                ZillionLog.i(TAG, "pickSuccess:wrapperData:is null--02");
+            }
             // 查询领料权限
             ServiceResult<Boolean> materialResult = GeneralMaterialService.getInstance()
                     .checkProductMaterialPower(vendingChn.getVc1Vd1Id(), vendingChn.getVc1Pd1Id(),
@@ -847,19 +859,40 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 // 售货机
                 vendingChn.setInputQty(ConvertHelper.toInt(et_pick_number.getText().toString(), 0));
                 isOperating = true;
+//                ZillionLog.i(TAG, "cardPasswordValidate start first open vender");
                 openVender(null);
 
             } else {
                 // 格子机器
                 isStoreChecked = false;
+                ZillionLog.i("格子机领料",
+                    "vendingChn:" + et_channle_number.getText().toString()
+                    + "==CusEmpId:" + wrapperData.getCusEmpId()
+                    + "==Vc2Cd1Id:" + wrapperData.getVendingCardPowerData().getVc2Cd1Id());
                 SerialTools.getInstance().addToolsListener(this);
                 SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
-                // SerialTools.getInstance().openStore(2, 1, 1);
+                
+                //不判断返回信号，直接打开格子机
+                openStoreDirect();
             }
         }
+    }
+    
+    /**
+     * 直接打开格子机
+     */
+    private void openStoreDirect() {
 
+        pickSuccess(stockCount, vendingChn);
+        resetInputStatus();
+        ZillionLog.i("格子机领料", "成功");
+        resetAlertMsg("领料成功！");
+        stockCount = 0;
+        isStoreChecked = true;
+
+        isOperating = false;
     }
 
     /**
@@ -868,12 +901,16 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
      * @param status
      */
     private void openVender(String status) {
+
+        int q = vendingChn == null ? 0 : vendingChn.getInputQty();
+//        ZillionLog.i(TAG, "openVender:================InputQty:" + q + ":status:" + (status == null ? "null" : status));
         if (status == null || status.contains("31") || status.contains("32")) {
             if (status != null && (status.contains("31") || status.contains("32"))) {
                 if (status.contains("31")) {
                     pickSuccess(1, vendingChn);// 每次成功－1
                 } else {
                     vendingChn.setFailureQty(vendingChn.getFailureQty() + 1);
+//                    ZillionLog.i(TAG, "openVender:FailureQty:" + vendingChn.getFailureQty() + ":InputQty:" + vendingChn.getInputQty());
                 }
                 vendingChn.setInputQty(vendingChn.getInputQty() - 1);
 
@@ -892,15 +929,19 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                     stockCount = 0;
 
                     isRFID = false;
+                    if (wrapperData == null) {
+                        ZillionLog.i(TAG, "pickSuccess:wrapperData:is null--00");
+                    }
                     return;
                 }
             }
+//            ZillionLog.i(TAG, "openVender:openVender:售货机转动：status="+status);
             SerialTools.getInstance().openVender(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                     ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0));
             try {
                 Thread.sleep(Constant.TIME_INTERNAL);
             } catch (InterruptedException e) {
-                ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+                ZillionLog.e(TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
         }
@@ -937,23 +978,64 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
      * @param input
      */
     private void openedStore(String input) {
-        if (input != null && !isStoreChecked) {
-            String[] array = input.split(" ");
-            if (array.length > 7 && array.length >= ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7) {
-                if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
-                    pickSuccess(stockCount, vendingChn);
-                    resetInputStatus();
-                    resetAlertMsg("领料成功！");
-                    stockCount = 0;
-                    isStoreChecked = true;
-                } else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
-                    resetInputStatus();
-                    resetAlertMsg("领料失败！");
-                }
-                isOperating = false;
-            }
 
-        }
+//        boolean success = false;
+//        List<String> storeMsgList = SerialTools.getInstance().storeMsg;
+//        String [] storeMsg = storeMsgList.toString().replace("[", "").replace("]", "").replace(",", "").split(" ");
+////        00 02 00 01 A1 01 00 A5 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6
+//        ZillionLog.i(storeMsgList);
+//        
+//        if (storeMsgList != null && storeMsgList.size() > 0 && (storeMsg.length - 8) % 27 == 0) {
+//            for (int i = 0; i < (storeMsg.length - 8) / 27; i++) {
+//                String[] arrayB = Arrays.copyOfRange(storeMsg, 8 + 27 * i, 8 + 27 * (i + 1));
+//                ZillionLog.i(TAG, "i=" + i + " " + Arrays.asList(arrayB).toString());
+//                if (vendingChn == null) {
+//                    ZillionLog.i(TAG,"vendingChn null");
+//                    return;
+//                }
+//                success = arrayB[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00");
+//                if (success) {
+//                  pickSuccess(stockCount, vendingChn);
+//                  resetInputStatus();
+//                  ZillionLog.i("格子机领料","成功");
+//                  resetAlertMsg("领料成功！");
+//                  stockCount = 0;
+//                  isStoreChecked = true;
+//                  
+//                  isOperating = false;
+//                }
+//            }
+//        }
+//
+//        if (!success) {
+//          resetInputStatus();
+//          ZillionLog.i("格子机领料","失败");
+//          resetAlertMsg("领料失败！");
+//          
+//          isOperating = false;
+//        }
+////        
+////        if (input != null && !isStoreChecked) {
+////            String[] array = input.split(" ");
+////            if (array.length > 7 && array.length >= ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7) {
+////                if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
+////                    pickSuccess(stockCount, vendingChn);
+////                    resetInputStatus();
+////                    ZillionLog.i("格子机领料","成功");
+////                    resetAlertMsg("领料成功！");
+////                    stockCount = 0;
+////                    isStoreChecked = true;
+////                } else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
+////                    resetInputStatus();
+////                    ZillionLog.i("格子机领料","失败");
+////                    resetAlertMsg("领料失败！");
+////                }
+////                isOperating = false;
+////            }
+////
+////        }
     }
 
     /**
@@ -980,6 +1062,9 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
             }
             wrapperData = result.getResult();
 
+            if (wrapperData == null) {
+                ZillionLog.i(TAG, "pickSuccess:wrapperData:is null--03");
+            }
             hiddenAlertMsg();
 
             Intent intent = new Intent();
@@ -990,9 +1075,10 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
 
             intent.putExtras(bundle);
             intent.setClass(MC_NormalPickActivity.this, MC_SettingActivity.class);
+            
+            ZillionLog.i("管理员进入","manager setting:"+et_card_password_set.getText().toString());
             startActivityForResult(intent, 1000);
             // startActivity(intent);
-
         }
     }
 
@@ -1002,7 +1088,11 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
     private void pickSuccess(int count, VendingChnData vendingChn) {
         // 保存领料数据
         isStoreChecked = false;
-        GeneralMaterialService.getInstance().saveStockTransaction(count, vendingChn, wrapperData);
+        if (wrapperData == null) {
+            ZillionLog.i(TAG, "pickSuccess:wrapperData:is null--01");
+        }else {
+            GeneralMaterialService.getInstance().saveStockTransaction(count, vendingChn, wrapperData);
+        }
         // 恢复默认状态
     }
 

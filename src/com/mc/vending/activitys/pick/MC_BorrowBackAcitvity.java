@@ -1,5 +1,8 @@
 package com.mc.vending.activitys.pick;
 
+import java.util.Arrays;
+import java.util.List;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,6 +35,8 @@ import com.zillion.evm.jssc.SerialPortException;
  *
  */
 public class MC_BorrowBackAcitvity extends BaseActivity implements MC_SerialToolsListener {
+
+    private static final String        TAG                       = MC_BorrowBackAcitvity.class.getName();
     private enum OPERATE_STEP {
         OPERATE_STEP_1, OPERATE_STEP_2
     }
@@ -215,7 +220,7 @@ public class MC_BorrowBackAcitvity extends BaseActivity implements MC_SerialTool
             SerialTools.getInstance().closeRFIDReader();
         } catch (SerialPortException e) {
 //            e.printStackTrace();
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            ZillionLog.e(TAG,e.getMessage(),e);
         }
     }
 
@@ -286,7 +291,6 @@ public class MC_BorrowBackAcitvity extends BaseActivity implements MC_SerialTool
 
                             case SerialTools.MESSAGE_LOG_mStore_check:
                                 openedStore((String) msg.obj);
-
                                 break;
                             default:
                                 break;
@@ -449,9 +453,27 @@ public class MC_BorrowBackAcitvity extends BaseActivity implements MC_SerialTool
                 SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
                         ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
+                //不判断返回信号直接开门
+                openStoreDirect();
             }
 
         }
+    }
+    
+    /**
+     * 不判断返回信号直接开门
+     */
+    private void openStoreDirect() {
+        pickSuccess();
+        resetInputStatus();
+        if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
+            resetAlertMsg("借料成功！");
+        } else {
+            resetAlertMsg("还料成功！");
+        }
+        isStoreChecked = true;
+        successBack();
+        return;
     }
 
     /**
@@ -460,33 +482,67 @@ public class MC_BorrowBackAcitvity extends BaseActivity implements MC_SerialTool
      * @param input
      */
     private void openedStore(String input) {
-        // System.out.println("openedStore==========" + input);
-        // 04-18 11:09:45.240: W/System.err(3838): openedStore=====00 02 00 01
-        // A2 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 00 00 00 B6
-        if (input != null && !isStoreChecked) {
-            String[] array = input.split(" ");
-            if (array.length > 7 && array.length >= (ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7)) {
-                if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00")) {
-                    pickSuccess();
-                    resetInputStatus();
-                    if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
-                        resetAlertMsg("借料成功！");
-                    } else {
-                        resetAlertMsg("还料成功！");
-                    }
-                    isStoreChecked = true;
-                    successBack();
-                } else if (array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01")) {
-                    resetInputStatus();
-                    if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
-                        resetAlertMsg("借料失败！");
-                    } else {
-                        resetAlertMsg("还料失败！");
-                    }
-                }
-
-            }
-        }
+//        // System.out.println("openedStore==========" + input);
+//        // 04-18 11:09:45.240: W/System.err(3838): openedStore=====00 02 00 01
+//        // A2 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 00 00 00 B6
+////        ZillionLog.i(TAG,"storeMsg:"+SerialTools.getInstance().storeMsg.toString().replace("[", "").replace("]", "").replace(",", ""));
+//        
+//        boolean success = false;
+//        List<String> storeMsgList = SerialTools.getInstance().storeMsg;
+//        String [] storeMsg = storeMsgList.toString().replace("[", "").replace("]", "").replace(",", "").split(" ");
+////        00 02 00 01 A1 01 00 A5 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 
+////        00 02 00 01 A2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6
+//        
+//        if (storeMsgList != null && storeMsgList.size() > 0 && (storeMsg.length - 8) % 27 == 0) {
+//            for (int i = 0; i < (storeMsg.length - 8) / 27; i++) {
+//                String[] arrayB = Arrays.copyOfRange(storeMsg, 8 + 27 * i, 8 + 27 * (i + 1));
+//                ZillionLog.i(TAG, "i=" + i + " " + Arrays.asList(arrayB).toString());
+//                if (vendingChn == null) {
+//                    ZillionLog.i(TAG,"vendingChn null");
+//                    return;
+//                }
+//                success = arrayB[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00");
+//                if (success) {
+//                    pickSuccess();
+//                    resetInputStatus();
+//                    if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
+//                        resetAlertMsg("借料成功！");
+//                    } else {
+//                        resetAlertMsg("还料成功！");
+//                    }
+//                    isStoreChecked = true;
+//                    successBack();
+//                    return;
+//                }
+//            }
+//        }
+////        if (input != null && !isStoreChecked) {
+////            String[] array = input.split(" ");
+////            if (array.length > 7 && array.length >= (ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 7)) {
+////                success = array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("00");
+//////                boolean fail = array[ConvertHelper.toInt(vendingChn.getVc1Height(), 0) + 4].equals("01");
+////                if (success) {
+////                    pickSuccess();
+////                    resetInputStatus();
+////                    if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
+////                        resetAlertMsg("借料成功！");
+////                    } else {
+////                        resetAlertMsg("还料成功！");
+////                    }
+////                    isStoreChecked = true;
+////                    successBack();
+////                }
+////            }
+////        }
+//        if (!success) {
+//            resetInputStatus();
+//            if (MC_BorrowBackAcitvity.OPERATE_BORROW == operateType) {
+//                resetAlertMsg("借料失败！");
+//            } else {
+//                resetAlertMsg("还料失败！");
+//            }
+//        }
     }
 
     /**

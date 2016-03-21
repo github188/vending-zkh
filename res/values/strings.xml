@@ -58,6 +58,8 @@
     <string name="set_vending_number">售货机编号：</string>
     <string name="set_replenishment">一键补货</string>
     <string name="set_difference_replenishment">差异补货</string>
+    <string name="set_replenishAll">一键补满</string>
+    <string name="set_difference_replenishAll">补满差异</string>
     <string name="set_urgent_replenishment">紧急补货</string>
     <string name="set_inventory">盘点</string>
     <string name="set_returns_forward">退货（正向）</string>
@@ -82,6 +84,20 @@
     <string name="returns_number">退货数量</string>
     <!--盘点 -->
     <string name="inventory_number">实盘数量</string>
+    
+    
+    <string name="wsrr_server_url"></string>
+    <string name="vend_code"></string>
+    
+<!--     <string name="wsrr_server_url">http://172.16.18.202:8081/WSRR.ashx</string> -->
+<!--     <string name="vend_code">V0030</string> -->
+    
+<!--     <string name="wsrr_server_url">http://203.110.179.35:8061/wsrr.ashx</string> -->
+<!--     <string name="vend_code">E2A031V</string> -->
+    
+<!--     <string name="wsrr_server_url">http://120.26.105.241:8061/wsrr.ashx</string> -->
+<!--     <string name="vend_code">E2A031V</string> -->
+    
     
 
 </resources>

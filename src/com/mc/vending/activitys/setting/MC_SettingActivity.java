@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
-import android.R.integer;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -72,7 +71,9 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
     public static final int SET_SELECT = 998;
     public static final int SET_ERROR = 0;
     public static final int SET_replenishment = 1;
+    public static final int SET_replenishAll = 11;//一键补满
     public static final int SET_DifferenceReplenishment = 2;
+    public static final int SET_DifferenceReplenishAll = 12;
     public static final int SET_UrgentReplenishment = 3;
     public static final int SET_Inventory = 4;
     public static final int SET_ReturnsForward = 5;
@@ -127,15 +128,17 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         dataList.add(getResources().getString(R.string.set_replenishment));
         dataList.add(getResources().getString(R.string.set_difference_replenishment));
         dataList.add(getResources().getString(R.string.set_urgent_replenishment));
+        dataList.add(getResources().getString(R.string.set_replenishAll));
+        dataList.add(getResources().getString(R.string.set_difference_replenishAll));
         dataList.add(getResources().getString(R.string.set_inventory));
 //        dataList.add(getResources().getString(R.string.set_returns_forward));
         dataList.add(getResources().getString(R.string.set_returns_forward_list));
         dataList.add(getResources().getString(R.string.set_returns_reverse));
         dataList.add(getResources().getString(R.string.set_pick_test));
-        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
-        } else {
+//        if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+//        } else {
             dataList.add(getResources().getString(R.string.set_synchronous_stock));
-        }
+//        }
         dataList.add(getResources().getString(R.string.set_synchronous));
         dataList.add(getResources().getString(R.string.set_init));
         dataList.add(getResources().getString(R.string.set_finish));
@@ -161,44 +164,50 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                     setUrgentReplenishment();
                     break;
                 case 3:
-                    setInventory();
+                    setReplenishAll();
                     break;
                 case 4:
+                    setDifferenceReplenishAll();
+                    break;
+                case 5:
+                    setInventory();
+                    break;
+                case 6:
 //                    setReturnsForward();
                     setReturnForwardList();
                     break;
-                case 5:
+                case 7:
                     setReturnsReverse();
                     break;
-                case 6:
+                case 8:
                     setPickTest();
                     break;
-                case 7:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
-                        setSynchronous();
-                    }else {
-                        setSynchronousStock();
-                    }
-                    break;
-                case 8:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
-                        setInit();
-                    }else {
-                        setSynchronous();
-                    }
-                    break;
                 case 9:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
-                        setFinishApp();
-                    }else {
-                        setInit();
-                    }
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+//                        setSynchronous();
+//                    }else {
+                        setSynchronousStock();
+//                    }
                     break;
                 case 10:
-                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
-                    }else {
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+//                        setInit();
+//                    }else {
+                        setSynchronous();
+//                    }
+                    break;
+                case 11:
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+//                        setFinishApp();
+//                    }else {
+                        setInit();
+//                    }
+                    break;
+                case 12:
+//                    if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= Constant.VERSION_STOCK_SYNC) {
+//                    }else {
                         setFinishApp();
-                    }
+//                    }
                     break;
 //                case 11:
 //                    setReturnForwardList();
@@ -262,6 +271,34 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
         });
         downLoadData.start();
     }
+    /**
+     * 一键补满方法
+     */
+    private void setReplenishAll() {
+        startLoading();
+        Thread downLoadData = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                
+                ServiceResult<Boolean> result = ReplenishmentService.getInstance().oneKeyReplenishAll(
+                        wrapperData);
+                if (!result.isSuccess()) {
+                    
+                    Message msg = handler.obtainMessage();
+                    msg.obj = result.getMessage();
+                    msg.what = SET_ERROR;
+                    handler.sendMessage(msg);
+                    return;
+                }
+                Message msg = handler.obtainMessage();
+                msg.obj = "一键补满完成,补货单号：" + result.getMessage();
+                msg.what = SET_replenishAll;
+                handler.sendMessage(msg);
+                
+            }
+        });
+        downLoadData.start();
+    }
 
     /**
      * handler 回调处理
@@ -276,6 +313,10 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
                 resetAlertMsg((String) msg.obj);
                 break;
             case SET_replenishment:
+                stopLoading();
+                resetAlertMsg((String) msg.obj);
+                break;
+            case SET_replenishAll:
                 stopLoading();
                 resetAlertMsg((String) msg.obj);
                 break;
@@ -304,6 +345,16 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
 
         intent.putExtra("wrapperData", wrapperData);
         intent.setClass(MC_SettingActivity.this, MC_DifferenceReplenishmentOrderActivity.class);
+        startActivity(intent);
+    }
+    /**
+     * 补满差异方法
+     */
+    private void setDifferenceReplenishAll() {
+        Intent intent = new Intent();
+        
+        intent.putExtra("wrapperData", wrapperData);
+        intent.setClass(MC_SettingActivity.this, MC_DifferenceReplenishAllOrderActivity.class);
         startActivity(intent);
     }
 
@@ -364,6 +415,7 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
      */
     private void setPickTest() {
         Intent intent = new Intent();
+        intent.putExtra("wrapperData", wrapperData);
         intent.setClass(MC_SettingActivity.this, MC_PickTestActivity.class);
         startActivity(intent);
     }

@@ -31,9 +31,18 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.1.9";                               
-    public final static int                 VERSION_STOCK_SYNC                           = 221;                               
-
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.4";                               
+    public final static int                 VERSION_STOCK_SYNC                           = 250;         
+    //老
+//    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard0/Download/";    
+//    public final static String [] SerialToolsPortName = {"/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS4"};
+    
+    //新
+    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
+    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO5"}; //O5和蓝牙冲突
+    //public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO4"};
+    
+    
     public final static String              BODY_KEY_METHOD                              = "wsid";                                // method
     public final static String              BODY_KEY_UDID                                = "deviceid";                            // udid
     public final static String              BODY_KEY_APP                                 = "app";                                 // platform
@@ -129,6 +138,9 @@ public class Constant {
     public final static String              METHOD_WSID_PRODUCTCARDPOWER                 = "610cc826-5da6-4d94-83e2-2b839f5a0299"; // 3.41卡产品权限
     public final static String              METHOD_WSID_USEDRECORD                       = "c3d76872-6905-4231-821f-67f575cf0e07"; // 3.42卡产品领用
     public final static String              METHOD_WSID_VENDINGRUNERROR                  = "564000F1-D704-476B-8E1B-D0218668B712"; // 3.43错误日志
+    
+    public final static String              METHOD_WSID_CONVERSION                       = "B090547D-CF3A-4F71-8121-1E22C8B7D093"; //单位换算关系表    
+
     // APP接口调用返回
     // 接口返回状态
     public final static String              RETURNCODE_SUCCESS                           = "0";                                   // 成功

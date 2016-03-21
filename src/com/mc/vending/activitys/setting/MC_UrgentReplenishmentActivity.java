@@ -216,12 +216,10 @@ public class MC_UrgentReplenishmentActivity extends BaseActivity implements MC_S
                                         case MC_SettingActivity.SET_ERROR:
                                             stopLoading();
                                             resetAlertMsg((String) msg.obj);
-                                            //                                            showToast((String) msg.obj);
                                             break;
                                         case MC_SettingActivity.SET_UrgentReplenishment:
                                             stopLoading();
                                             resetAlertMsg((String) msg.obj);
-                                            //                                            showToast((String) msg.obj);
                                             successBack();
                                             break;
                                         case MC_SettingActivity.SET_SUCCESS:
