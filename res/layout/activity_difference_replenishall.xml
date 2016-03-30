@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:id="@+id/layout_top"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="80dip" >
 
         <include
@@ -19,66 +19,11 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/layout_number"
-        android:layout_width="fill_parent"
-        android:layout_height="160dip"
-        android:layout_below="@+id/layout_top"
-        android:background="@color/white" >
-
-        <Button 
-             android:id="@+id/btn_open_all_store"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-             android:layout_marginLeft="30dp"
-             android:text="打开所有格子机"
-            android:textSize="30sp"
-            />
-
-        <TextView
-            android:id="@+id/tv_number_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="30dp"
-            android:layout_below="@+id/btn_open_all_store"
-            android:textSize="30sp" />
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="270dp"
-            android:layout_height="60dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:layout_below="@+id/btn_open_all_store"
-            android:layout_toRightOf="@+id/tv_number_title"
-            android:src="@drawable/yuanjiao_btn_white" />
-
-        <EditText
-            android:id="@+id/et_order_number"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:layout_alignLeft="@+id/imageView1"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@null"
-            android:layout_below="@+id/btn_open_all_store"
-            android:editable="false"
-            android:focusable="false"
-            android:maxLength="8"
-            android:numeric="integer"
-            android:singleLine="true"
-            android:textSize="25sp" />
-    </RelativeLayout>
-
-    <RelativeLayout
         android:id="@+id/layout_title"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
-        android:layout_below="@+id/layout_number"
-        android:layout_marginTop="1dp"
+        android:layout_below="@+id/layout_top"
+        android:layout_marginTop="2dp"
         android:background="@color/white"
         android:orientation="vertical" >
 
@@ -102,7 +47,7 @@
 
         <TextView
             android:id="@+id/sku_name"
-            android:layout_width="350dp"
+            android:layout_width="250dp"
             android:layout_height="fill_parent"
             android:layout_toRightOf="@+id/channle_number"
             android:gravity="center_vertical|center_horizontal"
@@ -119,28 +64,47 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/replenishment_number"
+            android:layout_width="100dp"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:singleLine="true"
+            android:layout_toRightOf="@+id/sku_name"
+            android:text="@string/replenishment_number"
+            android:textSize="25sp" />
+
+        <LinearLayout
+            android:layout_width="1dip"
+            android:layout_height="fill_parent"
+            android:layout_toRightOf="@+id/replenishment_number"
+            android:background="@color/head_bg"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <TextView
             android:id="@+id/set_difference_replenishment"
             android:layout_width="200dp"
             android:layout_height="fill_parent"
-            android:layout_toRightOf="@+id/sku_name"
+            android:layout_toRightOf="@+id/replenishment_number"
             android:gravity="center_vertical|center_horizontal"
             android:maxLines="2"
-            android:text="@string/replenishment_number1"
+            android:text="@string/set_difference_replenishment"
             android:textSize="25sp" />
+
     </RelativeLayout>
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/layout_Bottom"
         android:layout_below="@+id/layout_title"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="1dp"
         android:background="@color/white"
+        android:layout_above="@+id/layout_Bottom"
         android:listSelector="@color/head_bg" />
-
+    
     <RelativeLayout
         android:id="@+id/layout_Bottom"
         android:layout_width="match_parent"

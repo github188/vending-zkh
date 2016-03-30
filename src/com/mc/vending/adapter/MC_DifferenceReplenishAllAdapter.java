@@ -17,21 +17,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mc.vending.R;
-import com.mc.vending.data.VendingChnProductWrapperData;
+import com.mc.vending.data.ReplenishmentDetailWrapperData;
 import com.mc.vending.tools.ZillionLog;
 
-public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
+public class MC_DifferenceReplenishAllAdapter extends BaseAdapter {
 
-    private LayoutInflater                     inflater;
-    private Map<String, ViewHodler>            viewMap;
-    private List<VendingChnProductWrapperData> dataList;
-    Activity                                   context;
+    private LayoutInflater                       inflater;
+    private Map<String, ViewHodler>              viewMap;
+    private List<ReplenishmentDetailWrapperData> dataList;
+    Activity                                     context;
 
-    public MC_UrgentReplenishmentAdapter(Context context,
-                                         List<VendingChnProductWrapperData> dataList, ListView lv) {
+    public MC_DifferenceReplenishAllAdapter(Context context,
+                                             List<ReplenishmentDetailWrapperData> dataList,
+                                             ListView lv) {
         super();
         if (dataList == null) {
-            this.dataList = new ArrayList<VendingChnProductWrapperData>();
+            this.dataList = new ArrayList<ReplenishmentDetailWrapperData>();
         } else {
             this.dataList = dataList;
         }
@@ -41,45 +42,46 @@ public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        // System.out.println("======" + position);
+        //System.out.println("======" + position);
         ViewHodler viewHodler;
         if (convertView == null) {
             viewHodler = new ViewHodler();
-            convertView = inflater.inflate(R.layout.urgent_replenishment_item, parent, false);
-
-            
+            convertView = inflater.inflate(R.layout.difference_replenishall_item, parent, false);
             viewHodler.channle_number = (TextView) convertView.findViewById(R.id.channle_number);
             viewHodler.sku_name = (TextView) convertView.findViewById(R.id.sku_name);
-            viewHodler.replenishment_number = (EditText) convertView
+            viewHodler.replenishment_number = (TextView) convertView
                 .findViewById(R.id.replenishment_number);
+            viewHodler.difference_number = (EditText) convertView
+                .findViewById(R.id.difference_number);
             viewHodler.btn_sub = (Button) convertView.findViewById(R.id.btn_sub);
-            viewHodler.btn_sum = (Button) convertView.findViewById(R.id.btn_sum);
+//            viewHodler.btn_sum = (Button) convertView.findViewById(R.id.btn_sum);
         } else {
             viewHodler = (ViewHodler) convertView.getTag();
         }
-        
-        VendingChnProductWrapperData data = (VendingChnProductWrapperData) getItem(position);
-        viewHodler.channle_number.setText(data.getVendingChn().getVc1Code());
+        ReplenishmentDetailWrapperData data = (ReplenishmentDetailWrapperData) getItem(position);
+
+        viewHodler.channle_number.setText(data.getReplenishmentDetail().getRh2Vc1Code());
         viewHodler.sku_name.setText(data.getProductName());
-        viewHodler.replenishment_number.setText(String.valueOf(data.getActQty()));
+        viewHodler.replenishment_number.setText(String.valueOf(data.getReplenishmentDetail()
+            .getRh2ActualQty()));
+
+        viewHodler.difference_number.setText(String.valueOf(data.getReplenishmentDetail().getRh2DifferentiaQty()));
         viewHodler.btn_sub.setTag(position);
-        viewHodler.btn_sum.setTag(100 + position);
+//        viewHodler.btn_sum.setTag(100 + position);
 
         convertView.setTag(viewHodler);
         viewMap.put(String.valueOf(position), viewHodler);
-//        ZillionLog.i(viewMap);
         return convertView;
     }
 
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
+
         return dataList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        // TODO Auto-generated method stub
         return dataList.get(position);
     }
 
@@ -90,23 +92,18 @@ public class MC_UrgentReplenishmentAdapter extends BaseAdapter {
 
     public void reloadViewHolder(int index) {
         ViewHodler viewHodler = viewMap.get(String.valueOf(index));
-        VendingChnProductWrapperData data = (VendingChnProductWrapperData) getItem(index);
-        viewHodler.replenishment_number.setText(String.valueOf(data.getActQty()));
+        ReplenishmentDetailWrapperData data = (ReplenishmentDetailWrapperData) getItem(index);
+        viewHodler.difference_number.setText(String.valueOf(data.getReplenishmentDetail()
+            .getRh2DifferentiaQty()));
     }
 
     class ViewHodler {
         TextView channle_number;
         TextView sku_name;
-        EditText replenishment_number;
+        TextView replenishment_number;
+        EditText difference_number;
         Button   btn_sub;
-        Button   btn_sum;
-        @Override
-        public String toString() {
-            return "ViewHodler [channle_number=" + channle_number + ", sku_name=" + sku_name
-                    + ", replenishment_number=" + replenishment_number + ", btn_sub=" + btn_sub
-                    + ", btn_sum=" + btn_sum + "]";
-        }
-        
+//        Button   btn_sum;
     }
 
 }

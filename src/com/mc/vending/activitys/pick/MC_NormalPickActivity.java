@@ -648,6 +648,7 @@ public class MC_NormalPickActivity extends BaseActivity implements MC_SerialTool
                 intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
                 startActivity(intent);
             }
+//        } else if ("20".equals(value)) {
         } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
             // 功能键－－设置
             if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {

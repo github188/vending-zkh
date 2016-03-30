@@ -35,404 +35,430 @@ import com.zillion.evm.jssc.SerialPortException;
 
 /**
  * 紧急补货
+ * 
  * @author apple
  *
  */
 public class MC_UrgentReplenishmentActivity extends BaseActivity implements MC_SerialToolsListener {
-    private TextView                           tv_public_title; //公共头部标题
-    private Button                             back;           //公共头部返回键
-    private Button                             operate;
+	private TextView tv_public_title; // 公共头部标题
+	private Button back; // 公共头部返回键
+	private Button operate;
+	private Button btn_open_all_store;
 
-    private TextView                           alert_msg_title; //提示标题
-    private TextView                           alert_msg;      //提示内容
+	private TextView alert_msg_title; // 提示标题
+	private TextView alert_msg; // 提示内容
 
-    private TextView                           tv_number_title;
-    private EditText                           et_order_number;
-    private ListView                           listView;       //列表
-    private MC_UrgentReplenishmentAdapter      adapter;
-    private List<VendingChnProductWrapperData> dataList;
-    private VendingCardPowerWrapperData        wrapperData;    //权限对象
+	private TextView tv_number_title;
+	private EditText et_order_number;
+	private ListView listView; // 列表
+	private MC_UrgentReplenishmentAdapter adapter;
+	private List<VendingChnProductWrapperData> dataList;
+	private VendingCardPowerWrapperData wrapperData; // 权限对象
 
-    private String                             orderNumber;    //补货单号r2015      盘点i2015    正向退货t2015
+	private String orderNumber; // 补货单号r2015 盘点i2015 正向退货t2015
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_urgent_replenishment);
-        ActivityManagerTool.getActivityManager().add(this);
-        getParam();
-        initComponents();
-        initObject();
-        startLoading();
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_urgent_replenishment);
+		ActivityManagerTool.getActivityManager().add(this);
+		getParam();
+		initComponents();
+		initObject();
+		startLoading();
+	}
 
-    /**
-     * 获取参数
-     */
-    private void getParam() {
-        wrapperData = (VendingCardPowerWrapperData) getIntent().getSerializableExtra("wrapperData");
-    }
+	/**
+	 * 获取参数
+	 */
+	private void getParam() {
+		wrapperData = (VendingCardPowerWrapperData) getIntent().getSerializableExtra("wrapperData");
+	}
 
-    /**
-     * 初始化组件
-     */
-    private void initComponents() {
-        tv_public_title = (TextView) this.findViewById(R.id.tv_public_title);
-        back = (Button) this.findViewById(R.id.back);
-        operate = (Button) this.findViewById(R.id.operate);
-        alert_msg_title = (TextView) this.findViewById(R.id.alert_msg_title);
-        alert_msg = (TextView) this.findViewById(R.id.alert_msg);
-        et_order_number = (EditText) this.findViewById(R.id.et_order_number);
-        tv_number_title = (TextView) this.findViewById(R.id.tv_number_title);
-        listView = (ListView) this.findViewById(R.id.listView);
-    }
+	/**
+	 * 初始化组件
+	 */
+	private void initComponents() {
+		tv_public_title = (TextView) this.findViewById(R.id.tv_public_title);
+		back = (Button) this.findViewById(R.id.back);
+		operate = (Button) this.findViewById(R.id.operate);
+		btn_open_all_store = (Button) this.findViewById(R.id.btn_open_all_store);
+		alert_msg_title = (TextView) this.findViewById(R.id.alert_msg_title);
+		alert_msg = (TextView) this.findViewById(R.id.alert_msg);
+		et_order_number = (EditText) this.findViewById(R.id.et_order_number);
+		tv_number_title = (TextView) this.findViewById(R.id.tv_number_title);
+		listView = (ListView) this.findViewById(R.id.listView);
+	}
 
-    /**
-     * 初始化数据
-     */
-    private void initObject() {
-        orderNumber = "R" + DateHelper.format(new Date(), "yyyy");
-        tv_public_title.setText(getResources().getString(R.string.set_urgent_replenishment));
-        tv_number_title.setText(getResources().getString(R.string.urgent_replenishment_order_id)
-                                + " " + orderNumber);
-        back.setVisibility(View.VISIBLE);
-        back.setEnabled(true);
-        operate.setVisibility(View.VISIBLE);
-        operate.setEnabled(true);
-        operate.setText(getResources().getString(R.string.PUBLIC_SAVE));
-        dataList = new ArrayList<VendingChnProductWrapperData>();
+	/**
+	 * 初始化数据
+	 */
+	private void initObject() {
+		orderNumber = "R" + DateHelper.format(new Date(), "yyyy");
+		tv_public_title.setText(getResources().getString(R.string.set_urgent_replenishment));
+		tv_number_title.setText(getResources().getString(R.string.urgent_replenishment_order_id) + " " + orderNumber);
+		back.setVisibility(View.VISIBLE);
+		back.setEnabled(true);
+		operate.setVisibility(View.VISIBLE);
+		operate.setEnabled(true);
+		operate.setText(getResources().getString(R.string.PUBLIC_SAVE));
+		dataList = new ArrayList<VendingChnProductWrapperData>();
 
-        et_order_number.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                // TODO Auto-generated method stub
-                InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                inputManager.showSoftInput(et_order_number, 4);
-            }
-        });
+		et_order_number.setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				// TODO Auto-generated method stub
+				InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+				inputManager.showSoftInput(et_order_number, 4);
+			}
+		});
+		btn_open_all_store.setOnClickListener(new View.OnClickListener() {
 
-        et_order_number.setOnKeyListener(onKey);
-        requestLst();
-    }
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				for (int j = 1; j < 19; j++) {
+					try {
+						SerialTools.getInstance().openStore(2, 1, j);
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 
-    private void requestLst() {
+			}
+		});
+		et_order_number.setOnKeyListener(onKey);
+		requestLst();
+	}
 
-        Thread downLoadData = new Thread(new Runnable() {
-            public void run() {
-                dataList = ReplenishmentService.getInstance().findChnCodeProductName();
-                handler.sendEmptyMessage(MC_SettingActivity.SET_SUCCESS);
-            }
-        });
-        downLoadData.start();
-    }
+	private void requestLst() {
 
-    /**
-     * 现实提示信息
-     */
-    private void resetAlertMsg(String msg) {
-        alert_msg.setText(msg);
-        alert_msg_title.setVisibility(View.VISIBLE);
-        alert_msg.setVisibility(View.VISIBLE);
-    }
+		Thread downLoadData = new Thread(new Runnable() {
+			public void run() {
+				dataList = ReplenishmentService.getInstance().findChnCodeProductName();
+				handler.sendEmptyMessage(MC_SettingActivity.SET_SUCCESS);
+			}
+		});
+		downLoadData.start();
+	}
 
-    /**
-     * 隐藏提示信息
-     */
-    private void hiddenAlertMsg() {
-        alert_msg.setText("");
-        alert_msg_title.setVisibility(View.INVISIBLE);
-        alert_msg.setVisibility(View.INVISIBLE);
-    }
+	/**
+	 * 现实提示信息
+	 */
+	private void resetAlertMsg(String msg) {
+		alert_msg.setText(msg);
+		alert_msg_title.setVisibility(View.VISIBLE);
+		alert_msg.setVisibility(View.VISIBLE);
+	}
 
-    @Override
-    protected void onPause() {
+	/**
+	 * 隐藏提示信息
+	 */
+	private void hiddenAlertMsg() {
+		alert_msg.setText("");
+		alert_msg_title.setVisibility(View.INVISIBLE);
+		alert_msg.setVisibility(View.INVISIBLE);
+	}
 
-        super.onPause();
-    }
+	@Override
+	protected void onPause() {
 
-    @Override
-    protected void onResume() {
-        openKeyBoard();
-        super.onResume();
-    }
+		super.onPause();
+	}
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
+	@Override
+	protected void onResume() {
+		openKeyBoard();
+		super.onResume();
+	}
 
-    @Override
-    protected void onDestroy() {
-        ActivityManagerTool.getActivityManager().removeActivity(this);
-        super.onDestroy();
-    }
+	@Override
+	protected void onStop() {
+		super.onStop();
+	}
 
-    public void backClicked(View view) {
-        finish();
-    }
+	@Override
+	protected void onDestroy() {
+		ActivityManagerTool.getActivityManager().removeActivity(this);
+		super.onDestroy();
+	}
 
-    /**
-     * 点击保存
-     * @param view
-     */
-    public void saveClicked(View view) {
-        hiddenKeyBoard(et_order_number);
-        if (StringHelper.isEmpty(et_order_number.getText().toString(), true)) {
-            resetAlertMsg("请输入紧急补货单号！");
-            return;
-        }
-        startLoading();
-        Thread downLoadData = new Thread(new Runnable() {
-            public void run() {
+	public void backClicked(View view) {
+		finish();
+	}
 
-                ServiceResult<Boolean> result = ReplenishmentService.getInstance()
-                    .emergencyReplenishment(
-                        orderNumber
-                                + StringHelper.autoCompletionCode(StringHelper.trim(et_order_number
-                                    .getText().toString())), dataList, wrapperData);
-                if (!result.isSuccess()) {
-                    Message msg = handler.obtainMessage();
-                    msg.obj = result.getMessage();
-                    msg.what = MC_SettingActivity.SET_ERROR;
-                    handler.sendMessage(msg);
-                    return;
-                }
-                Message msg = handler.obtainMessage();
-                msg.obj = "紧急补货完成";
-                msg.what = MC_SettingActivity.SET_UrgentReplenishment;
-                handler.sendMessage(msg);
-            }
-        });
-        downLoadData.start();
-    }
+	/**
+	 * 点击保存
+	 * 
+	 * @param view
+	 */
+	public void saveClicked(View view) {
+		hiddenKeyBoard(et_order_number);
+		if (StringHelper.isEmpty(et_order_number.getText().toString(), true)) {
+			resetAlertMsg("请输入紧急补货单号！");
+			return;
+		}
+		startLoading();
+		Thread downLoadData = new Thread(new Runnable() {
+			public void run() {
 
-    /**
-     * handler 回调处理
-     */
-    private Handler handler = new Handler() {
+				ServiceResult<Boolean> result = ReplenishmentService.getInstance().emergencyReplenishment(
+						orderNumber + StringHelper
+								.autoCompletionCode(StringHelper.trim(et_order_number.getText().toString())),
+						dataList, wrapperData);
+				if (!result.isSuccess()) {
+					Message msg = handler.obtainMessage();
+					msg.obj = result.getMessage();
+					msg.what = MC_SettingActivity.SET_ERROR;
+					handler.sendMessage(msg);
+					return;
+				}
+				Message msg = handler.obtainMessage();
+				msg.obj = "紧急补货完成";
+				msg.what = MC_SettingActivity.SET_UrgentReplenishment;
+				handler.sendMessage(msg);
+			}
+		});
+		downLoadData.start();
+	}
 
-                                public void handleMessage(Message msg) {
-                                    switch (msg.what) {
-                                        case MC_SettingActivity.SET_ERROR:
-                                            stopLoading();
-                                            resetAlertMsg((String) msg.obj);
-                                            break;
-                                        case MC_SettingActivity.SET_UrgentReplenishment:
-                                            stopLoading();
-                                            resetAlertMsg((String) msg.obj);
-                                            successBack();
-                                            break;
-                                        case MC_SettingActivity.SET_SUCCESS:
-                                            adapter = new MC_UrgentReplenishmentAdapter(
-                                                MC_UrgentReplenishmentActivity.this, dataList,
-                                                listView);
-                                            listView.setAdapter(adapter);
-                                            stopLoading();
-                                            break;
-                                        default:
-                                            break;
-                                    }
+	/**
+	 * handler 回调处理
+	 */
+	private Handler handler = new Handler() {
 
-                                }
-                            };
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MC_SettingActivity.SET_ERROR:
+				stopLoading();
+				resetAlertMsg((String) msg.obj);
+				break;
+			case MC_SettingActivity.SET_UrgentReplenishment:
+				stopLoading();
+				resetAlertMsg((String) msg.obj);
+				successBack();
+				break;
+			case MC_SettingActivity.SET_SUCCESS:
+				adapter = new MC_UrgentReplenishmentAdapter(MC_UrgentReplenishmentActivity.this, dataList, listView);
+				listView.setAdapter(adapter);
+				stopLoading();
+				break;
+			default:
+				break;
+			}
 
-    /**
-     * 加
-     * @param view
-     */
-    public void sumClicked(View view) {
-        //System.out.println("sumClicked＝＝＝" + String.valueOf(view.getTag()));
-        int index = Integer.parseInt(String.valueOf(view.getTag())) - 100;
-        //System.out.println("sumClicked" + index);
-        VendingChnProductWrapperData data = dataList.get(index);
+		}
+	};
 
-        int number = data.getActQty();
-        number += 1;
-        data.setActQty(number);
-        reloadTableWithLine(index);
-    }
+	/**
+	 * 加
+	 * 
+	 * @param view
+	 */
+	public void sumClicked(View view) {
+		// System.out.println("sumClicked＝＝＝" + String.valueOf(view.getTag()));
+		int index = Integer.parseInt(String.valueOf(view.getTag())) - 100;
+		// System.out.println("sumClicked" + index);
+		VendingChnProductWrapperData data = dataList.get(index);
 
-    /**
-     * 减
-     * @param view
-     */
-    public void subClicked(View view) {
-        //System.out.println("subClicked＝＝＝" + view.getTag());
-        int index = Integer.parseInt(String.valueOf(view.getTag()));
-        //System.out.println("subClicked" + index);
-        VendingChnProductWrapperData data = dataList.get(index);
-        int number = data.getActQty();
-        if (number > 0) {
-            number -= 1;
-        }
-        data.setActQty(number);
-        reloadTableWithLine(index);
-    }
+		int number = data.getActQty();
+		number += 1;
+		data.setActQty(number);
+		reloadTableWithLine(index);
+	}
 
-    /**
-     * 更新表格
-     * @param index
-     */
-    private void reloadTableWithLine(int index) {
-        adapter.reloadViewHolder(index);
-    }
+	/**
+	 * 减
+	 * 
+	 * @param view
+	 */
+	public void subClicked(View view) {
+		// System.out.println("subClicked＝＝＝" + view.getTag());
+		int index = Integer.parseInt(String.valueOf(view.getTag()));
+		// System.out.println("subClicked" + index);
+		VendingChnProductWrapperData data = dataList.get(index);
+		int number = data.getActQty();
+		if (number > 0) {
+			number -= 1;
+		}
+		data.setActQty(number);
+		reloadTableWithLine(index);
+	}
 
-    /**
-     * 键盘监听
-     */
-    OnKeyListener onKey = new OnKeyListener() {
-                            @Override
-                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                                    hiddenKeyBoard(et_order_number);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        };
+	/**
+	 * 更新表格
+	 * 
+	 * @param index
+	 */
+	private void reloadTableWithLine(int index) {
+		adapter.reloadViewHolder(index);
+	}
 
-    private void openKeyBoard() {
-        SerialTools.getInstance().addToolsListener(this);
-        SerialTools.getInstance().openKeyBoard();
-    }
+	/**
+	 * 键盘监听
+	 */
+	OnKeyListener onKey = new OnKeyListener() {
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			if (keyCode == KeyEvent.KEYCODE_ENTER) {
+				hiddenKeyBoard(et_order_number);
+				return true;
+			}
+			return false;
+		}
+	};
 
-    private void closeKeyBoard() {
+	private void openKeyBoard() {
+		SerialTools.getInstance().addToolsListener(this);
+		SerialTools.getInstance().openKeyBoard();
+	}
 
-        try {
-            SerialTools.getInstance().addToolsListener(this);
-            SerialTools.getInstance().closeKeyBoard();
-        } catch (SerialPortException e) {
-            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
-            e.printStackTrace();
-        }
-    }
+	private void closeKeyBoard() {
 
-    /**
-     * 串口返回
-     * @param value 返回值
-     * @param serialType 串口类型
-     */
-    @Override
-    public void serialReturn(String value, int serialType) {
+		try {
+			SerialTools.getInstance().addToolsListener(this);
+			SerialTools.getInstance().closeKeyBoard();
+		} catch (SerialPortException e) {
+			ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
+			e.printStackTrace();
+		}
+	}
 
-        Message msg = new Message();
-        msg.what = serialType;
-        msg.obj = value;
-        //判断串口类型
-        switch (serialType) {
-            case SerialTools.MESSAGE_LOG_mKeyBoard:
-                //当串口类型为键盘时，判断是否为功能键
+	/**
+	 * 串口返回
+	 * 
+	 * @param value
+	 *            返回值
+	 * @param serialType
+	 *            串口类型
+	 */
+	@Override
+	public void serialReturn(String value, int serialType) {
 
-                mhandler.sendMessage(msg);
+		Message msg = new Message();
+		msg.what = serialType;
+		msg.obj = value;
+		// 判断串口类型
+		switch (serialType) {
+		case SerialTools.MESSAGE_LOG_mKeyBoard:
+			// 当串口类型为键盘时，判断是否为功能键
 
-                break;
-            case SerialTools.MESSAGE_LOG_mRFIDReader:
-                value = MyFunc.getRFIDSerialNo(value);
+			mhandler.sendMessage(msg);
 
-                break;
-            case SerialTools.MESSAGE_LOG_mVender:
+			break;
+		case SerialTools.MESSAGE_LOG_mRFIDReader:
+			value = MyFunc.getRFIDSerialNo(value);
 
-                break;
-            case SerialTools.MESSAGE_LOG_mStore:
+			break;
+		case SerialTools.MESSAGE_LOG_mVender:
 
-                break;
-        }
+			break;
+		case SerialTools.MESSAGE_LOG_mStore:
 
-    }
+			break;
+		}
 
-    Handler mhandler = new Handler() {
-                         @Override
-                         public void handleMessage(Message msg) {
-                             super.handleMessage(msg);
-                             switch (msg.what) {
-                                 case SerialTools.MESSAGE_LOG_mKeyBoard:
-                                     //System.out.println("MESSAGE_LOG_mKeyBoard===="+ (String) msg.obj);
-                                     keyBoardReturn((String) msg.obj, msg.what);
-                                     break;
-                                 case SerialTools.MESSAGE_LOG_mRFIDReader:
+	}
 
-                                     break;
-                                 case SerialTools.MESSAGE_LOG_mVender:
+	Handler mhandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case SerialTools.MESSAGE_LOG_mKeyBoard:
+				// System.out.println("MESSAGE_LOG_mKeyBoard===="+ (String)
+				// msg.obj);
+				keyBoardReturn((String) msg.obj, msg.what);
+				break;
+			case SerialTools.MESSAGE_LOG_mRFIDReader:
 
-                                     break;
-                                 case SerialTools.MESSAGE_LOG_mStore:
+				break;
+			case SerialTools.MESSAGE_LOG_mVender:
 
-                                     break;
+				break;
+			case SerialTools.MESSAGE_LOG_mStore:
 
-                                 default:
-                                     break;
-                             }
-                         }
-                     };
+				break;
 
-    @Override
-    public void serialReturn(String value, int serialType, Object userInfo) {
-        // TODO Auto-generated method stub
+			default:
+				break;
+			}
+		}
+	};
 
-    }
+	@Override
+	public void serialReturn(String value, int serialType, Object userInfo) {
+		// TODO Auto-generated method stub
 
-    /**
-     * 键盘按下判断方法
-     * @param value
-     * @param serialType
-     */
-    private void keyBoardReturn(String value, int serialType) {
+	}
 
-        if (SerialTools.FUNCTION_KEY_COMBINATION.equals(value)) {
-            //功能键－－组合
+	/**
+	 * 键盘按下判断方法
+	 * 
+	 * @param value
+	 * @param serialType
+	 */
+	private void keyBoardReturn(String value, int serialType) {
 
-        } else if (SerialTools.FUNCTION_KEY_BORROW.equals(value)) {
-            //功能键－－借
+		if (SerialTools.FUNCTION_KEY_COMBINATION.equals(value)) {
+			// 功能键－－组合
 
-        } else if (SerialTools.FUNCTION_KEY_BACK.equals(value)) {
-            //功能键－－还
+		} else if (SerialTools.FUNCTION_KEY_BORROW.equals(value)) {
+			// 功能键－－借
 
-        } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
-            //功能键－－设置
+		} else if (SerialTools.FUNCTION_KEY_BACK.equals(value)) {
+			// 功能键－－还
 
-        } else if (SerialTools.FUNCTION_KEY_CANCEL.equals(value)) {
-            //功能键－－取消
-            et_order_number.setText("");
-        } else if (SerialTools.FUNCTION_KEY_CONFIRM.equals(value)) {
+		} else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
+			// 功能键－－设置
 
-        } else {
-            resetTextView(SerialTools.getInstance().getKeyValue(value), serialType);
-        }
+		} else if (SerialTools.FUNCTION_KEY_CANCEL.equals(value)) {
+			// 功能键－－取消
+			et_order_number.setText("");
+		} else if (SerialTools.FUNCTION_KEY_CONFIRM.equals(value)) {
 
-    }
+		} else {
+			resetTextView(SerialTools.getInstance().getKeyValue(value), serialType);
+		}
 
-    /**
-     * 重置输入框文本
-     * @param value
-     * @param serialType
-     */
-    private void resetTextView(String value, int serialType) {
-        et_order_number.setText(et_order_number.getText().toString() + value);
-    }
+	}
 
-    /**
-     * 检查格子机状态
-     */
-    private void successBack() {
-        Thread downLoadData = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
-                    e.printStackTrace();
-                }
-                closeMe();
-            }
-        });
-        downLoadData.start();
-    }
+	/**
+	 * 重置输入框文本
+	 * 
+	 * @param value
+	 * @param serialType
+	 */
+	private void resetTextView(String value, int serialType) {
+		et_order_number.setText(et_order_number.getText().toString() + value);
+	}
 
-    /**
-     * 点击返回
-     * @param view
-     */
-    public void closeMe() {
-        finish();
-    }
+	/**
+	 * 检查格子机状态
+	 */
+	private void successBack() {
+		Thread downLoadData = new Thread(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
+					e.printStackTrace();
+				}
+				closeMe();
+			}
+		});
+		downLoadData.start();
+	}
+
+	/**
+	 * 点击返回
+	 * 
+	 * @param view
+	 */
+	public void closeMe() {
+		finish();
+	}
 }
