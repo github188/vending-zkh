@@ -2,30 +2,11 @@ package com.mc.vending.activitys.setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
+import com.mc.vending.activitys.pick.MC_NormalPickActivity;
 import com.mc.vending.adapter.MC_SetAdapter;
 import com.mc.vending.config.Constant;
 import com.mc.vending.config.MC_Config;
@@ -49,6 +30,27 @@ import com.mc.vending.tools.ZillionLog;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.SerialTools;
 
+import com.mc.vending.R;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 /**
  * 设置页面
  * 
@@ -66,6 +68,13 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
     private MC_SetAdapter adapter;
     private TextView alert_msg_title; // 提示标题
     private TextView alert_msg; // 提示内容
+    
+    private TimerTask mTimerTask;
+    private final int normalPickPlayerTimer = 1000;
+    private final int normalPickTimeCount = 180000;
+    private int normalPickTimeOut;
+    private TimerTask task;
+    private Timer timer;
 
     public static final int SET_SUCCESS = 999;
     public static final int SET_SELECT = 998;
@@ -82,7 +91,6 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
     public static final int SET_SynchronousStock = 8;
     public static final int SET_Synchronous = 9;
     public static final int SET_START_LOADING = 10;
-    private TimerTask task;
     private DataServices dataServices;
 
     @Override
@@ -152,7 +160,7 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 // System.out.println(position);
                 hiddenAlertMsg();
-                
+                resetTimer();
                 switch (position) {
                 case 0:
                     setReplenishment();
@@ -567,12 +575,13 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
 
     @Override
     protected void onPause() {
-
+    	cancelImageTask();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+    	startTimerTask();
         openKeyBoard();
         super.onResume();
     }
@@ -769,5 +778,30 @@ public class MC_SettingActivity extends BaseActivity implements MC_SerialToolsLi
             }
         }
 
+    }
+    private void resetTimer()
+    {
+      this.normalPickTimeOut = 0;
+    }
+    private void startTimerTask() {
+        mTimerTask = new TimerTask() {
+
+            @Override
+            public void run() {
+                normalPickTimeOut += 1000;
+                if (normalPickTimeOut == normalPickTimeCount) {
+                	  Intent intent = new Intent();
+                      intent.setClass(MC_SettingActivity.this, MC_NormalPickActivity.class);
+                      startActivity(intent);
+                }
+            }
+        };
+        normalPickTimeOut = 0;
+        timer = new Timer();
+        timer.schedule(mTimerTask, 1, normalPickPlayerTimer);
+    }
+
+    private void cancelImageTask() {
+        mTimerTask.cancel();
     }
 }

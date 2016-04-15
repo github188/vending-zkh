@@ -48,6 +48,25 @@ public class CardDbOper {
         }
         return list;
     }
+    
+    /**
+     * 根据卡/密码表中的卡序列号查询卡/密码记录,单条记录
+     * 
+     * @param cardId
+     * @return
+     */
+    public String getCardById(String cardId) {
+        String cardSerialCode = null;
+        SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+        Cursor c = db
+                .rawQuery(
+                        "SELECT cd1_serialNo FROM Card where cd1_id=?", new String[] {
+                                cardId });
+        while (c.moveToNext()) {
+        	cardSerialCode = c.getString(c.getColumnIndex("CD1_SerialNo"));
+        }
+        return cardSerialCode;
+    }
 
     /**
      * 根据卡/密码表中的卡序列号查询卡/密码记录,单条记录

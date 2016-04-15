@@ -54,6 +54,15 @@ public class InventoryService extends BasicService {
                 VendingChnData vendingChn = vendingChnProductWrapper.getVendingChn();
                 int actQty = vendingChnProductWrapper.getActQty();
 
+
+				// 计算下来理论上能盘点的最大值
+				int calcMaxQty = calcActInventoryCount(vendingChn);
+				if (actQty > calcMaxQty || calcMaxQty == 0) {
+					actQty = calcMaxQty;// 输入的补货数量不能大于当前理论最大值
+				}
+
+				if (actQty != 0) {
+					
                 InventoryHistoryData inventoryHistory = this.buildInventoryHistory(actQty,
                     stockMap, inventoryCode, vendingChn, vendingCardPowerWrapper);
                 inventoryHistoryList.add(inventoryHistory);
@@ -79,6 +88,7 @@ public class InventoryService extends BasicService {
                     }
 
                 }
+            }
             }
             // 新增“盘点记录表”
             boolean flag = new InventoryHistoryDbOper()
@@ -164,4 +174,32 @@ public class InventoryService extends BasicService {
 
         return inventoryHistory;
     }
+    /**
+	 * 每个货道实际能盘点数的最大值
+	 * 
+	 * @param vendingChn
+	 *            货道信息对象
+	 * @return
+	 */
+	private int calcActInventoryCount(VendingChnData vendingChn) {
+		int intRtn = 0;
+		String vendingId = vendingChn.getVc1Vd1Id();
+		String vendingChnCode = vendingChn.getVc1Code();
+		// 1.获取本货道最大容量
+		int vendingChnStockCapacity = vendingChn.getVc1Capacity();
+		// 2.获取本货道库存容量
+		int stockCount = GeneralMaterialService.getInstance().getVendingChnStock(vendingId, vendingChnCode);
+		// 3.计算实际能补货的数量: 货道最大容量 - 货道库存容量
+		if (vendingChnStockCapacity < 0) {
+			vendingChnStockCapacity = 0;
+		}
+		if (stockCount < 0) {
+			stockCount = 0;
+		}
+		intRtn = vendingChnStockCapacity - stockCount;
+		if (intRtn < 0) {
+			intRtn = 0;
+		}
+		return intRtn;
+	}
 }

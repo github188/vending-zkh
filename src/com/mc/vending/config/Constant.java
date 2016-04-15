@@ -31,7 +31,7 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.4";                               
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.6";                               
     public final static int                 VERSION_STOCK_SYNC                           = 250;         
     //老
 //    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard0/Download/";    
@@ -39,7 +39,7 @@ public class Constant {
     
     //新
     public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
-    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO5"}; //O5和蓝牙冲突
+    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO3"}; //O5和蓝牙冲突
     //public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO4"};
     
     
