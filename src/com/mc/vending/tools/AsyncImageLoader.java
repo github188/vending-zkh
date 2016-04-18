@@ -26,7 +26,7 @@ public class AsyncImageLoader {
     public AsyncImageLoader() {
 
         imageCache = new HashMap<String, SoftReference<Drawable>>();
-        this.filePath = "/mnt/sdcard0/Download/";
+        this.filePath = "/mnt/sdcard/Download/";
     }
 
     public AsyncImageLoader(String filePath) {
