@@ -128,6 +128,7 @@ public class MC_NormalPickActivity extends BaseActivity
 		initObject();
 		resetViews();
 		startService();
+		
 	}
 
 	private void requestGetClientVersionServer() {
@@ -656,8 +657,8 @@ public class MC_NormalPickActivity extends BaseActivity
 				intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
 				startActivity(intent);
 			}
-		} else if ("20".equals(value)) {
-			// } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
+//		} else if ("20".equals(value)) {
+			 } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
 			// 功能键－－设置
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
 				operateStep = OPERATE_STEP.OPERATE_STEP_SET;
@@ -670,7 +671,7 @@ public class MC_NormalPickActivity extends BaseActivity
 			isTheSameStoreOpenerFlow = false;
 			switch (operateStep) {
 			case OPERATE_STEP_1:
-				
+
 				if (!StringHelper.isEmpty(et_channle_number.getText().toString(), true)) {
 					et_channle_number.setText("");
 				}
@@ -796,7 +797,7 @@ public class MC_NormalPickActivity extends BaseActivity
 						vendingChn.getVc1Code());
 				if (stockCount <= 0) {
 					isTheSameStoreOpenerFlow = true;
-					resetAlertMsg("库存为：" + stockCount + ",库存量不足,不能领料");
+					resetAlertMsg("库存为：0,库存量不足。如需继续领料请按确认键");
 					return;
 				}
 
@@ -1259,8 +1260,9 @@ public class MC_NormalPickActivity extends BaseActivity
 	private void TheSameStoreOpenerLogic() {
 
 		String cardCodeNew = MC_NormalPickActivity.this.et_card_password.getText().toString();
-		if (GeneralMaterialService.getInstance()
-				.getVendingStoreLastPicker(vendingChn.getVc1Vd1Id(), vendingChn.getVc1Code()).equals(cardCodeNew)) {
+		String cardCodeOld = GeneralMaterialService.getInstance().getVendingStoreLastPicker(vendingChn.getVc1Vd1Id(),
+				vendingChn.getVc1Code());
+		if (cardCodeOld != null && cardCodeOld.equals(cardCodeNew)) {
 			SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
