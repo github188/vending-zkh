@@ -4,6 +4,7 @@
 package com.mc.vending.activitys.pick;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.activitys.MC_ImagePlayerActivity;
 import com.mc.vending.activitys.VersionActivity;
 import com.mc.vending.activitys.setting.MC_SettingActivity;
+import com.mc.vending.adapter.MC_IntelligencePickListAdapter;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.CardData;
@@ -161,7 +163,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	private Map<String, String> DISTANCELIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器电路板返回的所有货道数据的List
 	private Map<String, String> DISTANCECHNCOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器库存个数List
 	private Map<String, String> DISTANCECOUNTLIST = new LinkedHashMap<String, String>();// 用来储存每个测距传感器领料个数List
-	private ArrayList<String> DistanceArr = new ArrayList<String>();// 领料的Array
+	// private ArrayList<String> DistanceArr = new ArrayList<String>();//
+	// 领料的Array
+	ArrayList<HashMap<String, Object>> pickItemList = new ArrayList<HashMap<String, Object>>();
 	private ArrayList<String> DistanceChnArr = new ArrayList<String>();// 库存的Array
 	/**
 	 * List中存的是待检查的称重模块编号,都查完才能显示最终领料个数
@@ -427,7 +431,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						Thread.sleep(500);
 						SerialTools.getInstance().openLocker();
 
-						 SaveSharedPreferencesForFW(71, "8000");
+						SaveSharedPreferencesForFW(71, "8000");
 
 						isNeedUpdateDataMemery = false;
 					} else {
@@ -471,9 +475,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						 SaveSharedPreferencesForRD("11", "1000");
-						
-						 SaveSharedPreferencesForFW(71, "80");
+						SaveSharedPreferencesForRD("11", "1000");
+
+						SaveSharedPreferencesForFW(71, "80");
 						// openRFID();
 						// openRD();
 						// if (isReturnMaterial) {
@@ -832,7 +836,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			// VENDINGCHNLIST.clear();
 			// } else {
 			if (ListOfCheckIfFWCanShow.isEmpty() && isNeedUpdateDataMemery == false) {
-				 SaveSharedPreferencesForRD("11", "100");
+				SaveSharedPreferencesForRD("11", "100");
 				ShowMaterialList();
 				DISTANCECOUNTLIST.clear();
 				WEIGHTLIST.clear();
@@ -995,7 +999,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			if (afterCount != 0) {
 				afterCount = LengthCountCalculator(afterCount);
 				difCount = Math.abs((int) afterCount);
-				
+
 				// if (difCount > preCount) {
 				// difCount = preCount;
 				// }
@@ -1162,7 +1166,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 * 将ChnCOUNTLIST绑定到ListView上，同时更新界面
 	 */
 	private void ShowChnMaterialList() {
-		DistanceArr.clear();
+		pickItemList.clear();
 		if (!DISTANCECHNCOUNTLIST.isEmpty() || !VENDINGCHNLIST.isEmpty()) {
 			Iterator<Entry<String, String>> it = DISTANCECHNCOUNTLIST.entrySet().iterator();
 			while (it.hasNext()) {
@@ -1170,29 +1174,42 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				// 获取显示物品列表文件
 				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 				// 获取该id在之前的显示列表内的个数，没有则为0
-				String idName = sp.getString((ConvertHelper.toInt(entry.getKey(), 61) + 60) + "", "0");
+				int stockNum = ConvertHelper.toInt(entry.getKey(), 61) + 60;
+				String idName = sp.getString(stockNum + "", "0");
 				if (idName.equals("0")) {
-					idName = entry.getKey() + "号";
+					idName = entry.getKey() + "号货道";
 				}
-				DistanceArr.add(idName + "		X" + entry.getValue());
+				// DistanceArr.add(idName + " X" + entry.getValue());
+				HashMap<String, Object> tempHashMap = new HashMap<String, Object>();
+				tempHashMap.put("stockNum", stockNum + "号货道");
+				tempHashMap.put("pdName", idName);
+				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
+				pickItemList.add(tempHashMap);
+				tempHashMap.clear();
 			}
 			it = VENDINGCHNLIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
 				// 获取显示物品列表文件
 				final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
-				String idName = sp.getString(ConvertHelper.toInt(entry.getKey(), 61) + "", "0");
+				int stockNum = ConvertHelper.toInt(entry.getKey(), 61);
+				String idName = sp.getString(stockNum + "", "0");
 				if (idName.equals("0")) {
-					idName = entry.getKey() + "号";
+					idName = entry.getKey() + "号货道";
 				}
-				DistanceArr.add(idName + "		X" + entry.getValue());
+				HashMap<String, Object> tempHashMap = new HashMap<String, Object>();
+				tempHashMap.put("stockNum", stockNum + "号货道");
+				tempHashMap.put("pdName", idName);
+				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
+				pickItemList.add(tempHashMap);
+				tempHashMap.clear();
 			}
-			if (DistanceArr != null && !DistanceArr.isEmpty()) {
+			if (pickItemList != null && !pickItemList.isEmpty()) {
 				iv_intelligence_img.setVisibility(View.GONE);
 				// tv_intelligence_dialog.setVisibility(View.GONE);
 				relativelayout_intelli_pick.setVisibility(View.VISIBLE);
-				intelligence_listview_datalist
-						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
+				MC_IntelligencePickListAdapter adapter = new MC_IntelligencePickListAdapter(this, pickItemList);
+				intelligence_listview_datalist.setAdapter(adapter);
 				isNeedUpdateDataMemery = true;
 				isReturnMaterial = false;
 			}
@@ -1205,35 +1222,47 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void ShowMaterialList() {
 		if (!DISTANCECOUNTLIST.isEmpty() || !WEIGHTLIST.isEmpty()) {
-			DistanceArr.clear();
+			pickItemList.clear();
 			Iterator<Entry<String, String>> it = DISTANCECOUNTLIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
 				// 获取显示物品列表文件
 				final SharedPreferences sp = getSharedPreferences(RDIdNameList, MODE_PRIVATE);
 				// 获取该id在之前的显示列表内的个数，没有则为0
-				String idName = sp.getString((ConvertHelper.toInt(entry.getKey(), RDstartNum)) + "", "0");
+				int stockNum = ConvertHelper.toInt(entry.getKey(), RDstartNum);
+				String idName = sp.getString(stockNum + "", "0");
 				if (idName.equals("0")) {
-					idName = entry.getKey() + "号";
+					idName = entry.getKey() + "号货道";
 				}
-				DistanceArr.add(idName + "		X" + entry.getValue());
+				HashMap<String, Object> tempHashMap = new HashMap<String, Object>();
+				tempHashMap.put("stockNum", stockNum + "号货道");
+				tempHashMap.put("pdName", idName);
+				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
+				pickItemList.add(tempHashMap);
+				tempHashMap.clear();
 			}
 			it = WEIGHTLIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
 				// 获取显示物品列表文件
 				final SharedPreferences sp = getSharedPreferences(FWShowList, MODE_PRIVATE);
-				String idName = sp.getString(ConvertHelper.toInt(entry.getKey(), FWstartNum) + "", "0");
+				int stockNum = ConvertHelper.toInt(entry.getKey(), FWstartNum);
+				String idName = sp.getString(stockNum + "", "0");
 				if (idName.equals("0")) {
 					idName = entry.getKey() + "号";
 				}
-				DistanceArr.add(idName + "		X" + entry.getValue());
+				HashMap<String, Object> tempHashMap = new HashMap<String, Object>();
+				tempHashMap.put("stockNum", stockNum + "号货道");
+				tempHashMap.put("pdName", idName);
+				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
+				pickItemList.add(tempHashMap);
+				tempHashMap.clear();
 			}
-			if (DistanceArr != null && !DistanceArr.isEmpty()) {
+			if (pickItemList != null && !pickItemList.isEmpty()) {
 				iv_intelligence_img.setVisibility(View.GONE);
 				relativelayout_intelli_pick.setVisibility(View.VISIBLE);
-				intelligence_listview_datalist
-						.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DistanceArr));
+				MC_IntelligencePickListAdapter adapter = new MC_IntelligencePickListAdapter(this, pickItemList);
+				intelligence_listview_datalist.setAdapter(adapter);
 				isNeedUpdateDataMemery = true;
 			}
 			RunningDelayTask();
