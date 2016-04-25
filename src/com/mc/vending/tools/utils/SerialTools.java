@@ -59,7 +59,10 @@ public class SerialTools {
 
 	// 循环发送时间间隔
 	private static final int iDelay = 500;
+	// RD循环发送时间间隔
+	private static final int iRdDelay = 2000;
 	private SendThread mSendThread; // 读卡器循环线程
+	private RDSendThread mRdSendThread; // 读卡器循环线程
 	private final SerialPort mKeyBoard; // 初始化键盘监听对象
 	private final SerialPort mRFIDReader; // 初始化读卡器监听对象
 	private final SerialPort mStore; // 初始化格子机监听对象
@@ -85,9 +88,10 @@ public class SerialTools {
 	public static final String FUNCTION_KEY_CONFIRM = "0D"; // 确认
 
 	public Object userInfo;
-	private boolean isLockerOperiting = false;
+	private static boolean isLockerOperiting;
 
 	static {
+		isLockerOperiting = false;
 		keymap = new HashMap<String, String>();
 		keymap.put("30", "0");
 		keymap.put("31", "1");
@@ -174,7 +178,7 @@ public class SerialTools {
 	}
 
 	/**
-	 * 关闭键盘端口
+	 * 关闭检查锁端口
 	 * 
 	 * @throws SerialPortException
 	 */
@@ -267,10 +271,14 @@ public class SerialTools {
 
 				if (cardtype.equals("1")) {
 					mRFIDReader.setParams(19200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+					if (mSendThread == null) {
+						mSendThread = new SendThread();
+						mSendThread.start();
+					}
+					mSendThread.setResume(); // 线程唤醒，开始发送
 				} else {
 					mRFIDReader.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				}
-				sendPortData(mRFIDReader, cmdGetSerialNo, true);
 			}
 		} catch (SerialPortException e) {
 			// e.printStackTrace();
@@ -503,8 +511,14 @@ public class SerialTools {
 	 * @throws SerialPortException
 	 */
 	public void openALLRD() {
-		ZillionLog.i("yjjtest", "打开测距模块：");
+		// ZillionLog.i("yjjtest", "打开测距模块：");
 		try {
+			if (isLockerOperiting) {
+				if (mRdSendThread != null) {
+					mRdSendThread.setSuspendFlag();
+				}
+				return;
+			}
 			if (mRD.isOpened() || mRD.openPort()) {
 				try {
 					mRD.addEventListener(mListener);
@@ -513,15 +527,12 @@ public class SerialTools {
 				}
 				mRD.setRequestMethod(SerialTools.MESSAGE_LOG_mRD);
 				mRD.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
-				sendPortData(mRD, MyFunc.cmdGetAllRangeDistance(), true);
 				isLockerOperiting = false;
-				ZillionLog.d("发送获所有货道距离指令" + MyFunc.cmdGetAllRangeDistance());
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if (mRdSendThread == null) {
+					mRdSendThread = new RDSendThread();
+					mRdSendThread.start();
 				}
+				mRdSendThread.setResume(); // 线程唤醒，开始发送
 			}
 
 		} catch (SerialPortException e) {
@@ -645,14 +656,8 @@ public class SerialTools {
 		@Override
 		public void serialEvent(SerialPortEvent event) {
 			// TODO Auto-generated method stub
-			if (event.isRXCHAR()) {// If
-									// data
-									// is
-									// available
+			if (event.isRXCHAR()) {
 				int obtain = 0;
-				// Log.i(TAG, "Receive " + event.getEventValue() + " Bytes: " +
-				// event.getEventValue() + "EventType:"
-				// + event.getEventType());
 				if (event.getEventValue() > 0) {
 					try {
 						String data = null;
@@ -687,8 +692,11 @@ public class SerialTools {
 								openRFIDReader();
 							}
 							obtain = SerialTools.MESSAGE_LOG_mRFIDReader;
-							ZillionLog.i("yjjtest", "RFID模块返回值：" + data);
-							ZillionLog.i("yjjtestRFID", "RFID模块返回值：" + data);
+							if (!data.equals("01 08 08")) {
+								ZillionLog.i("yjjtest", "RFID模块返回值：" + data);
+								ZillionLog.i("yjjtestRFID", "RFID模块返回值：" + data);
+							}
+
 							// Log.i(TAG, "Receive " + data.length() + " Bytes:
 							// " + data);
 							// if (data != null && data.equals("18")) {
@@ -876,6 +884,56 @@ public class SerialTools {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 测距模块 线程监听线程
+	 * 
+	 * @author apple
+	 *
+	 */
+	private class RDSendThread extends Thread {
+		public boolean suspendFlag = true; // 控制线程的执行
+
+		@Override
+		public void run() {
+			super.run();
+			while (!isInterrupted()) {
+				synchronized (this) {
+					while (suspendFlag) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+				try {
+					sendPortData(mRD, MyFunc.cmdGetAllRangeDistance(), true);
+					ZillionLog.d("发送获所有货道距离指令" + MyFunc.cmdGetAllRangeDistance());
+				} catch (SerialPortException e) {
+					e.printStackTrace();
+				}
+
+				try {
+					Thread.sleep(iRdDelay);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// 线程暂停
+		public void setSuspendFlag() {
+			this.suspendFlag = true;
+		}
+
+		// 唤醒线程
+		public synchronized void setResume() {
+			this.suspendFlag = false;
+			notify();
+		}
 	}
 
 	/**

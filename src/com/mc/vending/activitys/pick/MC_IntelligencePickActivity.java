@@ -32,6 +32,7 @@ import com.mc.vending.db.ProductDbOper;
 import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.db.VendingDbOper;
 import com.mc.vending.db.VendingPictureDbOper;
+import com.mc.vending.parse.ProductDataParse;
 import com.mc.vending.parse.VendingPictureDataParse;
 import com.mc.vending.parse.VersionDataParse;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -247,7 +248,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		InitView();
 
 		openRD();
-		openAllFW();
+		// openAllFW();
 		openRFID();
 		// startTimerTask(); // This Foo is run in OnResume()
 	}
@@ -323,6 +324,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 		startTimerTask();
+		cancelTimerTask();
 		super.onResume();
 
 	}
@@ -360,7 +362,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		cancelImageTask();
+		cancelTimerTask();
 		resetTimer();
 	}
 
@@ -382,9 +384,10 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			stopLoading();
 			value = MyFunc.getRFIDSerialNo(value);
 			msg.obj = value;
-			ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
-			ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
+
 			if (!StringHelper.isEmpty(value) && !value.equals("")) {
+				ZillionLog.i("yjjtest", "当前领料卡号：：" + value);
+				ZillionLog.i("yjjtestRFID", "当前领料卡号：：" + value);
 				// 检查是不是管理员卡，是则跳转到管理员界面
 				if (!setValidate(value)) {
 					handler.sendMessage(msg);
@@ -417,6 +420,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			switch (msg.what) {
 			case SerialTools.MESSAGE_LOG_mRFIDReader:
 				try {
+					if (VendingChnDataList == null || VendingChnDataList.isEmpty()) {
+						initObject();
+					}
 					// 将所有货道里面的产品加入查询列表
 					for (VendingChnData vendingChnData : VendingChnDataList) {
 						if (vendingChnData.getVc1Status().equals("0")) {
@@ -426,12 +432,13 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					// 过滤所有标识为不可用的货道
 					boolean validateResult = cardPasswordValidate(msg.obj.toString());
 					if (validateResult) {
+						InitList();
 						// SerialTools.getInstance().closeFW();
 						SerialTools.getInstance().closeRD();
 						Thread.sleep(500);
 						SerialTools.getInstance().openLocker();
 
-						SaveSharedPreferencesForFW(71, "8000");
+						// SaveSharedPreferencesForFW(71, "8000");
 
 						isNeedUpdateDataMemery = false;
 					} else {
@@ -445,6 +452,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
+					openRD();
 					e.printStackTrace();
 				}
 				break;
@@ -454,7 +462,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 						.split(Constant.RDSERVEHEADWITHBLANK);
 				if (portRtnStrList != null && portRtnStrList.length > 1) {
 					int result = LockerSerialPortReturnStrHandler(portRtnStrList[1]);
-					showToast("当前锁状态值是：" + result + "");
+					// showToast("当前锁状态值是：" + result + "");
 					ZillionLog.i("yjjtest", "当前锁result状态：：" + result);
 					ZillionLog.i("yjjtestLockerStatus", "当前锁result状态：：" + result);
 					isNeedUpdateDataMemery = false;
@@ -468,16 +476,18 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					}
 					// 正常关门
 					if (result == 9) {
-						showToast("当前锁状态值是：" + result + "" + "电磁锁闭合，正常关门");
+						// showToast("当前锁状态值是：" + result + "" + "电磁锁闭合，正常关门");
 						try {
 							SerialTools.getInstance().closeCheckLocker();
+							SerialTools.getInstance().openALLRD();
+							openRFID();
 						} catch (SerialPortException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						SaveSharedPreferencesForRD("11", "1000");
+						// SaveSharedPreferencesForRD("11", "1000");
 
-						SaveSharedPreferencesForFW(71, "80");
+						// SaveSharedPreferencesForFW(71, "80");
 						// openRFID();
 						// openRD();
 						// if (isReturnMaterial) {
@@ -569,11 +579,11 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		closeRFID();
 		ServiceResult<VendingData> result = CompositeMaterialService.getInstance().checkVending();
 		if (!result.isSuccess()) {
-			showToast(result.getMessage());
+			// showToast(result.getMessage());
 			return false;
 		}
 		if (StringHelper.isEmpty(cardValue, true)) {
-			showToast(getResources().getString(R.string.placeholder_card_pwd));
+			// showToast(getResources().getString(R.string.placeholder_card_pwd));
 			return false;
 		} else {
 			if (vendData == null) {
@@ -583,7 +593,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			ServiceResult<VendingCardPowerWrapperData> VendingCardPowerWrapperDataResult = ReplenishmentService
 					.getInstance().checkCardPowerInner(cardValue, vendData.getVd1Id());
 			if (!VendingCardPowerWrapperDataResult.isSuccess()) {
-				showToast(VendingCardPowerWrapperDataResult.getMessage());
+				// showToast(VendingCardPowerWrapperDataResult.getMessage());
 				return false;
 			}
 			closeRFID();
@@ -824,25 +834,17 @@ public class MC_IntelligencePickActivity extends BaseActivity
 			Iterator<Entry<String, String>> it = DISTANCELIST.entrySet().iterator();
 			while (it.hasNext()) {
 				java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
-				// ZillionLog.i("yjjportvalue", DISTANCELIST.get(i));
 				String mockDistanceV16 = DISTANCELIST.get(entry.getKey().toString()).replaceAll(" ", "");// 找到对应的距离参数，16进制
 				String mockDistanceV10 = Integer.valueOf(mockDistanceV16, 16).toString();// 转为10进制
 				float afterCount = CalcDistance(entry.getKey().toString(), mockDistanceV10);
 				ShowReturnMaterialDataList(entry.getKey().toString(), afterCount + "");
 			}
-			// if (isReturnMaterial) {
-			// ShowChnMaterialList();
-			// DISTANCECHNCOUNTLIST.clear();
-			// VENDINGCHNLIST.clear();
-			// } else {
 			if (ListOfCheckIfFWCanShow.isEmpty() && isNeedUpdateDataMemery == false) {
-				SaveSharedPreferencesForRD("11", "100");
+				// SaveSharedPreferencesForRD("11", "100");
 				ShowMaterialList();
 				DISTANCECOUNTLIST.clear();
 				WEIGHTLIST.clear();
 			}
-			// }
-			// openRD();
 		}
 	}
 
@@ -1149,7 +1151,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	}
 
 	/**
-	 * 显示补货流程
+	 * 测距模块返回值处理流程
 	 * 
 	 * @author junjie.you
 	 * @param pId
@@ -1239,7 +1241,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				tempHashMap.put("pdName", idName);
 				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
 				pickItemList.add(tempHashMap);
-				tempHashMap.clear();
 			}
 			it = WEIGHTLIST.entrySet().iterator();
 			while (it.hasNext()) {
@@ -1256,7 +1257,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				tempHashMap.put("pdName", idName);
 				tempHashMap.put("quantity", "X" + "  " + entry.getValue());
 				pickItemList.add(tempHashMap);
-				tempHashMap.clear();
 			}
 			if (pickItemList != null && !pickItemList.isEmpty()) {
 				iv_intelligence_img.setVisibility(View.GONE);
@@ -1311,7 +1311,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		timer.schedule(mTimerTask, 1, imagePlayerTimer);
 	}
 
-	private void cancelImageTask() {
+	private void cancelTimerTask() {
 		mTimerTask.cancel();
 	}
 
