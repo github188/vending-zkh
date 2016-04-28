@@ -128,7 +128,7 @@ public class MC_NormalPickActivity extends BaseActivity
 		initObject();
 		resetViews();
 		startService();
-		
+
 	}
 
 	private void requestGetClientVersionServer() {
@@ -561,6 +561,7 @@ public class MC_NormalPickActivity extends BaseActivity
 				if (operateStep == OPERATE_STEP.OPERATE_STEP_3) {
 					if (MC_NormalPickActivity.isTheSameStoreOpenerFlow) {
 						MC_NormalPickActivity.isTheSameStoreOpenerFlow = false;
+						isRFID = true;
 						TheSameStoreOpenerLogic();
 					} else {
 						cardPasswordValidate();
@@ -657,8 +658,8 @@ public class MC_NormalPickActivity extends BaseActivity
 				intent.setClass(MC_NormalPickActivity.this, MC_BorrowBackAcitvity.class);
 				startActivity(intent);
 			}
-//		} else if ("20".equals(value)) {
-			 } else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
+			// } else if ("20".equals(value)) {
+		} else if (SerialTools.FUNCTION_KEY_SET.equals(value)) {
 			// 功能键－－设置
 			if (operateStep == OPERATE_STEP.OPERATE_STEP_1) {
 				operateStep = OPERATE_STEP.OPERATE_STEP_SET;
@@ -736,6 +737,7 @@ public class MC_NormalPickActivity extends BaseActivity
 			case OPERATE_STEP_3:
 				if (isTheSameStoreOpenerFlow) {
 					isTheSameStoreOpenerFlow = false;
+					isRFID = false;
 					TheSameStoreOpenerLogic();
 				} else {
 					cardPasswordValidate();
@@ -1261,11 +1263,12 @@ public class MC_NormalPickActivity extends BaseActivity
 
 		String cardCodeNew = MC_NormalPickActivity.this.et_card_password.getText().toString();
 		String cardCodeOld = GeneralMaterialService.getInstance().getVendingStoreLastPicker(vendingChn.getVc1Vd1Id(),
-				vendingChn.getVc1Code());
+				vendingChn.getVc1Code(), isRFID);
 		if (cardCodeOld != null && cardCodeOld.equals(cardCodeNew)) {
 			SerialTools.getInstance().openStore(ConvertHelper.toInt(vendingChn.getVc1LineNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
+			resetInputStatus();
 			resetAlertMsg("验证通过，打开格子机！");
 		} else {
 			resetAlertMsg("输入的卡号或密码无权限打开该格子柜，请检查后重新输入！");

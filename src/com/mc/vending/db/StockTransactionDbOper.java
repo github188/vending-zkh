@@ -359,7 +359,7 @@ public class StockTransactionDbOper {
     	   SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
            Cursor c = db
                    .rawQuery(
-                           "SELECT ts1_cd1_id FROM StockTransaction where ts1_vd1_id=? and ts1_vc1_code=? and ts1_billtype='领料' order by ts1_createtime desc limit 1",
+                           "SELECT ts1_cd1_id FROM StockTransaction where ts1_vd1_id=? and ts1_vc1_code=? and ts1_billtype='4' order by ts1_createtime desc limit 1",
                            new String[] { vendingId,vendingChnCode });
            while (c.moveToNext()) {
         	   rtnStr=c.getString(c.getColumnIndex("TS1_CD1_ID"));

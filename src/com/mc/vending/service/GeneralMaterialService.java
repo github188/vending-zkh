@@ -569,15 +569,20 @@ public class GeneralMaterialService extends BasicService {
 		// }
 	}
 
-	public String getVendingStoreLastPicker(String vendingId, String vendingChnCode) {
+	public String getVendingStoreLastPicker(String vendingId, String vendingChnCode,boolean isRfid) {
 		// 1.通过售货机id和货道号获得最后领取的卡id
 		StockTransactionDbOper stockTransactionDb = new StockTransactionDbOper();
 		CardDbOper cardDbOper = new CardDbOper();
 		String cardId = "";
-		String cardSerialCode = "";
+		CardData cardData= null;
 		cardId = stockTransactionDb.getVendingStoreLastPicker(vendingId, vendingChnCode);
 		// 2.翻查卡id对应的卡序列号，返回
-		cardSerialCode = cardDbOper.getCardById(cardId);
-		return cardSerialCode;
+		cardData = cardDbOper.getCardById(cardId);
+		if (isRfid) {
+			return cardData.getCd1SerialNo();	
+		}else{
+			return cardData.getCd1Password();
+		}
+		
 	}
 }

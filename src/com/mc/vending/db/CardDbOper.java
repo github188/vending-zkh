@@ -55,17 +55,18 @@ public class CardDbOper {
      * @param cardId
      * @return
      */
-    public String getCardById(String cardId) {
-        String cardSerialCode = null;
+    public CardData getCardById(String cardId) {
+        CardData cardData = new CardData();
         SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
         Cursor c = db
                 .rawQuery(
-                        "SELECT cd1_serialNo FROM Card where cd1_id=?", new String[] {
+                        "SELECT cd1_serialNo,cd1_password FROM Card where cd1_id=?", new String[] {
                                 cardId });
         while (c.moveToNext()) {
-        	cardSerialCode = c.getString(c.getColumnIndex("CD1_SerialNo"));
+        	cardData.setCd1SerialNo(c.getString(c.getColumnIndex("CD1_SerialNo")));
+        	cardData.setCd1Password(c.getString(c.getColumnIndex("CD1_Password")));
         }
-        return cardSerialCode;
+        return cardData;
     }
 
     /**
