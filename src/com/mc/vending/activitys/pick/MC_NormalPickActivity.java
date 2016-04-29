@@ -798,8 +798,16 @@ public class MC_NormalPickActivity extends BaseActivity
 				stockCount = GeneralMaterialService.getInstance().getVendingChnStock(vendingChn.getVc1Vd1Id(),
 						vendingChn.getVc1Code());
 				if (stockCount <= 0) {
-					isTheSameStoreOpenerFlow = true;
-					resetAlertMsg("库存为：0,库存量不足。如需继续领料请按确认键");
+					String rtnStr = "";
+					if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
+						isTheSameStoreOpenerFlow = true;
+						rtnStr="库存为：0,库存量不足。如需继续领料请按确认键";
+					}else
+					{
+						rtnStr="库存为：0,库存量不足。如需继续领料请按确认键";
+					}
+					
+					resetAlertMsg(rtnStr);
 					return;
 				}
 
