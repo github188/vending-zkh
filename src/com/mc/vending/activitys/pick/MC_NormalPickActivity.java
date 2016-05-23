@@ -678,6 +678,7 @@ public class MC_NormalPickActivity extends BaseActivity
 				}
 				break;
 			case OPERATE_STEP_2:
+				isTheSameStoreOpenerFlow = false;
 				if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
 					// 如果货到类型为格子机，点击取消，直接返回上一步
 					operateStep = OPERATE_STEP.OPERATE_STEP_1;
@@ -693,7 +694,6 @@ public class MC_NormalPickActivity extends BaseActivity
 
 				break;
 			case OPERATE_STEP_3:
-				isTheSameStoreOpenerFlow = true;
 				if (!StringHelper.isEmpty(et_card_password.getText().toString(), true)) {
 					et_card_password.setText("");
 					openRFID(); // 进入步骤3，打开rfid
@@ -804,7 +804,7 @@ public class MC_NormalPickActivity extends BaseActivity
 						rtnStr="库存为：0,库存量不足。如需继续领料请按确认键";
 					}else
 					{
-						rtnStr="库存为：0,库存量不足。如需继续领料请按确认键";
+						rtnStr="库存为：0,库存量不足,不能领料";
 					}
 					
 					resetAlertMsg(rtnStr);
