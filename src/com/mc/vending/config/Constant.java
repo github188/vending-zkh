@@ -39,8 +39,8 @@ public class Constant {
     
     //新
     public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard/Download/";                               
-    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO5"}; //O5和蓝牙冲突
-    //public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO4"};
+//    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO5"}; //O5和蓝牙冲突
+    public final static String [] SerialToolsPortName = {"/dev/ttyO2","/dev/ttyO6","/dev/ttyO7","/dev/ttyO4"};
     
     
     public final static String              BODY_KEY_METHOD                              = "wsid";                                // method
