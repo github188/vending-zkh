@@ -128,7 +128,7 @@ public class MyFunc {
                     if (checkBCC(arrHex) && (arrHex[0] == 0x05)) {
                         String str = Str.substring(4, 12);
                         String tmp = "";
-                        for (int i = str.length() - 2; i >= 0; i = i - 2) {
+                        for (int i = str.length() - 4; i >= 0; i = i - 2) {
                             tmp += str.substring(i, i + 2);
                         }
                         result = new BigInteger(tmp, 16).toString();
