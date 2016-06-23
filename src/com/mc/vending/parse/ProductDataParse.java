@@ -138,10 +138,8 @@ public class ProductDataParse implements DataParseListener {
 				data.setPd1ManufactureModel(jsonObj.getString("PD1_ManufactureModel"));
 				data.setPd1Size(jsonObj.getString("PD1_Size"));
 				data.setPd1Brand(jsonObj.getString("PD1_Brand"));
-				if (Integer.valueOf(Constant.HEADER_VALUE_CLIENTVER.replace(".", "")) >= 400) {
-					data.setPd1Length(jsonObj.getString("PD1_Length"));
-					data.setPd1Weight(jsonObj.getString("PD1_Weight"));
-				}
+				data.setPd1Length(jsonObj.getString("PD1_Length"));
+				data.setPd1Weight(jsonObj.getString("PD1_Weight"));
 				data.setPd1Package(jsonObj.getString("PD1_Package"));
 				data.setPd1Unit(jsonObj.getString("PD1_Unit"));
 				data.setPd1LastImportTime(jsonObj.getString("PD1_LastImportTime"));
