@@ -151,6 +151,39 @@ public class MyFunc {
 		}
 		return result;
 	}
+	
+	// 检查模块是否校验通过
+		public static Boolean CheckBccHandler(String strHex) {
+			Boolean result = true;
+			try {
+				byte[] arrHex;
+				String Str = strHex.replaceAll("\\s*", "");
+				arrHex = HexToByteArr(Str);
+				// 返回值不完整
+				if (arrHex.length != 7) {
+					result = false;
+				} else {
+					// 帧长度错误
+					if (arrHex[0] != arrHex.length - 2) {
+						result = false;
+					} else {
+						if (checkBCC(arrHex) && (arrHex[0] == 0x05)) {
+							result = true;
+						}
+					}
+				}
+
+				if (result == null) {
+					result =false;
+				}
+
+			} catch (Exception e) {
+				result = null;
+				ZillionLog.e("getRFIDSerialNo", e.getMessage());
+			}
+			return result;
+		}
+	
 
 	public static String getIDSerialNo(String strHex) {
 		// 02 30 30 ** ** ** ** 38 35 30 30 0D 0A 03
@@ -211,11 +244,19 @@ public class MyFunc {
 
 	// 生成称重模块控制指令，参数为命令字加数据包
 	public static String getFWCommand(String cmd) {
-		String cmdString = "FF" + BlankStr + cmd;
+		String cmdString = "FF" + BlankStr +cmd;
 		String noBlankCMD = cmdString.replaceAll(" ", "");
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
 		return (noBlankCMD + bcc).toUpperCase();
 	}
+	
+	// 生成称重模块控制指令，参数为命令字加数据包
+		public static String getFWCommand2OpenAll() {
+			String cmdString = "F1 06 02 F5"  ;
+			String noBlankCMD = cmdString.replaceAll(" ", "");
+			String bcc = Integer.toHexString(getBCC(noBlankCMD));
+			return (Constant.FWHOSTHEAD + noBlankCMD + bcc + Constant.FWHOSTTAIL);
+		}
 	
 	// 生成测距模块控制指令，参数为命令字加数据包
 	public static String getRDCommand(String cmd) {
@@ -237,6 +278,7 @@ public class MyFunc {
 		cmdString = cmdString + BlankStr + String.format("%02x", pId);
 		return getFWCommand(cmdString);
 	}
+	
 
 	/**
 	 * 生成去皮称重模块指令
