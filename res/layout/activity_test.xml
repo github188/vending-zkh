@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:text="智能售货机测试程序"
+        android:textAlignment="gravity"
+        android:textSize="30sp" >
+    </TextView>
+
+    
+    <TextView
+        android:id="@+id/test_title_vending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:text="货道测试部分："
+        android:textAlignment="gravity"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/test_btn_rollAllVending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:text="点我转所有货道"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/test_subtitle_vending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:text="单独转货道："
+        android:textAlignment="gravity"
+        android:textSize="10sp" />
+
+    <EditText
+        android:id="@+id/test_et_rollSingleVending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:hint="输入或拖动下方进度条以设置货道号"
+        android:textSize="10sp" />
+
+    <SeekBar
+        android:id="@+id/test_sb_seekbar1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+         android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:maxHeight="4dp"
+        android:minHeight="4dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp" />
+
+    <Button
+        android:id="@+id/test_btn_rollSingleVending"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:text="点我转货道"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/test_title_store"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:text="格子机测试部分："
+        android:textAlignment="gravity"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/test_btn_openAllStore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:text="点我开所有格子机"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/test_subtitle_store"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:text="单独开门："
+        android:textAlignment="gravity"
+        android:textSize="10sp" />
+
+    <EditText
+        android:id="@+id/test_tv_openSingleStore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:hint="输入或拖动下方进度条以设置门号"
+        android:textSize="10sp" />
+
+    <SeekBar
+        android:id="@+id/test_sb_seekbar2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:focusable="true"
+        android:maxHeight="4dp"
+        android:minHeight="4dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp" >
+    </SeekBar>
+
+    <Button
+        android:id="@+id/test_btn_openSingleStore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:text="点我开门"
+        android:textSize="10dp" />
+    
+     <Button
+        android:id="@+id/test_btn_exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="10dp"
+        android:text="退出"
+        android:textSize="10dp" />
+
+</LinearLayout>

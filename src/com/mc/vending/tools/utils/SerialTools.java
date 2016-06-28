@@ -32,11 +32,11 @@ public class SerialTools {
 	// junjie.you
 
 	// private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
-	private static final String PortName_mVender = ""; // 售货机
+	private static final String PortName_mVender = "/dev/ttyO2"; // 售货机
 	private static final String PortName_mLocker = "/dev/ttyO3"; // 锁模块
 	private static final String PortName_mRFIDReader = "/dev/ttyO6"; // 读卡器
-	private static final String PortName_mKeyBoard = ""; // 键盘
-	private static final String PortName_mStore = ""; // 格子机
+	private static final String PortName_mKeyBoard = "/dev/ttyO7"; // 键盘
+	private static final String PortName_mStore = "/dev/ttyO3"; // 格子机
 	private static final String PortName_mFw = "/dev/ttyO4"; // 称重模块
 	private static final String PortName_mRD = "/dev/ttyO3"; // 测距模块
 
@@ -61,6 +61,8 @@ public class SerialTools {
 	private static final int iDelay = 500;
 	// RD循环发送时间间隔
 	private static final int iRdDelay = 2000;
+	// FW循环发送时间间隔
+		private static final int iFwDelay = 2000;
 	private SendThread mSendThread; // 读卡器循环线程
 	private RDSendThread mRdSendThread; // 读卡器循环线程
 	private final SerialPort mKeyBoard; // 初始化键盘监听对象
@@ -930,7 +932,7 @@ public class SerialTools {
 	/**
 	 * 测距模块 线程监听线程
 	 * 
-	 * @author apple
+	 * @author junjie.you
 	 *
 	 */
 	private class RDSendThread extends Thread {
@@ -959,6 +961,56 @@ public class SerialTools {
 
 				try {
 					Thread.sleep(iRdDelay);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// 线程暂停
+		public void setSuspendFlag() {
+			this.suspendFlag = true;
+		}
+
+		// 唤醒线程
+		public synchronized void setResume() {
+			this.suspendFlag = false;
+			notify();
+		}
+	}
+	
+	/**
+	 * 称重模块 线程监听线程
+	 * 
+	 * @author junjie.you
+	 *
+	 */
+	private class FWSendThread extends Thread {
+		public boolean suspendFlag = true; // 控制线程的执行
+
+		@Override
+		public void run() {
+			super.run();
+			while (!isInterrupted()) {
+				synchronized (this) {
+					while (suspendFlag) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+				try {
+					sendPortData(mFw, MyFunc.cmdGetAllRangeDistance(), true);
+					ZillionLog.d("发送获所有货道重量指令" + MyFunc.getFWCommand2OpenAll());
+				} catch (SerialPortException e) {
+					e.printStackTrace();
+				}
+
+				try {
+					Thread.sleep(iFwDelay);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

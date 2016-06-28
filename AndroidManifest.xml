@@ -24,7 +24,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.mc.vending.activitys.MainActivity"
+            android:name="com.mc.vending.activitys.pick.testActivity"
             android:label="@string/app_name"
             android:noHistory="true" >
             <intent-filter>
@@ -36,79 +36,7 @@
                 <!-- <category android:name="android.intent.category.MONKEY" /> -->
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activitys.pick.MC_IntelligencePickActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_NormalPickActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_CombinationPickActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_CombinationPickDetailActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_BorrowBackAcitvity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_SettingActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_PickTestActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_DifferenceReplenishmentOrderActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_ReturnForwardListActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_DifferenceReplenishmentActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_UrgentReplenishmentActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_ReturnsForwardActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_ReturnsReverseActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.MC_ImagePlayerActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.setting.MC_InventoryActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.VersionActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_WeightPickActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activitys.pick.MC_DistancePickActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
-
+       
         <receiver
             android:name=".receiver.LaunchReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >

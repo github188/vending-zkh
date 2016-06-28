@@ -60,7 +60,6 @@ public class BaseActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
-        AssetsDatabaseManager.initManager(this); // 初始化数据库路径
     }
 
     protected void setIsMainPage(Boolean isMainPage) {

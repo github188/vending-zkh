@@ -47,6 +47,7 @@ public class Constant {
 	public static String BODY_VALUE_UDID = "ddddddd"; // udid
 	public final static String BODY_VALUE_APP = "evmandroid"; // platform
 	public final static String BODY_VALUE_USER = ""; // platform
+	
 	public static String BODY_VALUE_PWD = "T6R4BL8D"; // platform
 
 	public static final String SHARED_PWD = "pwd"; // 存放pwdKey
