@@ -56,6 +56,7 @@ public class SerialTools {
 	public static final String cmdBeep = "030FFF00F0"; // 读卡器声音
 	public static final String cmdOpenLocker = "FFAA005501CC509D0055FFAA";// 指令打开锁
 	public static final String cmdCheckLocker = "FFAA005501CC60AD0055FFAA";// 指令检查锁
+	public static final String cmdGetFwValue = "FFAA005501CC60AD0055FFAA";// 指令打开称重模块
 
 	// 循环发送时间间隔
 	private static final int iDelay = 500;
@@ -639,6 +640,48 @@ public class SerialTools {
 		}
 	}
 
+	/**
+	 * 打开静载称重模块
+	 * 
+	 * @author junjie.you
+	 * @param pId
+	 *            称重模块ID号
+	 * @throws SerialPortException
+	 */
+	public void openAllFW(int pMethodType) {
+		ZillionLog.i("打开称重模块");
+		try {
+			if (mFw.isOpened() || mFw.openPort()) {
+				try {
+					mFw.addEventListener(mListener);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				mFw.setRequestMethod(SerialTools.MESSAGE_LOG_mFw);
+
+				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				switch (pMethodType) {
+				case Constant.FW_GET_WEIGHT:
+					sendPortData(mFw,SerialTools.cmdGetFwValue , true);
+					break;
+//				case Constant.FW_NET_WEIGHT:
+//					sendPortData(mFw, MyFunc.cmdNetWeightFW(pId), true);
+//					break;
+//				case Constant.FW_SET_ZERO:
+//					sendPortData(mFw, MyFunc.cmdSetZeroFW(pId), true);
+//					break;
+				default:
+					break;
+				}
+
+			}
+		} catch (SerialPortException e) {
+			ZillionLog.e("打开称重模块：", e.getExceptionType().toString());
+			e.printStackTrace();
+		}
+	}
+
+	
 	/**
 	 * 关闭静载称重模块
 	 * 

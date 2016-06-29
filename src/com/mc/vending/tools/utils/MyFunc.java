@@ -110,6 +110,38 @@ public class MyFunc {
 		}
 		return inBytArr[inBytArr.length - 1] == bcc;
 	}
+	// 检查模块是否校验通过
+			public static Boolean CheckBccHandler(String strHex) {
+				Boolean result = true;
+				try {
+					byte[] arrHex;
+					String Str = strHex.replaceAll("\\s*", "");
+					arrHex = HexToByteArr(Str);
+					// 返回值不完整
+					if (arrHex.length != 7) {
+						result = false;
+					} else {
+						// 帧长度错误
+						if (arrHex[0] != arrHex.length - 2) {
+							result = false;
+						} else {
+							if (checkBCC(arrHex) && (arrHex[0] == 0x05)) {
+								result = true;
+							}
+						}
+					}
+
+					if (result == null) {
+						result =false;
+					}
+
+				} catch (Exception e) {
+					result = null;
+					ZillionLog.e("getRFIDSerialNo", e.getMessage());
+				}
+				return result;
+			}
+		
 
 	// 获取RFID卡号，参数为读卡器返回值
 	public static String getRFIDSerialNo(String strHex) {

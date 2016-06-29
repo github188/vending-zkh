@@ -530,7 +530,8 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mFw:
-				portRtnStrList = ((String) msg.obj).split("FF");
+				String strWithoutHeadTail = ((String) msg.obj).replace(Constant.FWSERVETAIL, "").replace(Constant.FWSERVEHEAD, "");
+				portRtnStrList = strWithoutHeadTail.split(" ");
 				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
 					FWSerialPortReturnStrHandler(portRtnStrList[i]);
 				}
@@ -1453,24 +1454,20 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 	private void openAllFW() {
 		SerialTools.getInstance().addToolsListener(this);
-		try {
-			if (VendingChnNumList.isEmpty()) {
-				for (VendingChnData vendingChnData : VendingChnDataList) {
-					VendingChnNumList.add(vendingChnData.getVc1Code().trim());
-				}
-			} else {
-				for (String i : VendingChnNumList) {
-					int intTypeOfi = ConvertHelper.toInt(i, 0);
-					// 筛选出货道内的所有的称重传感器
-					if (intTypeOfi >= FWstartNum && intTypeOfi <= FWendNum) {
-						SerialTools.getInstance().openFW(intTypeOfi, Constant.FW_GET_WEIGHT);
-						Thread.sleep(42);
-					}
-				}
+		if (VendingChnNumList.isEmpty()) {
+			for (VendingChnData vendingChnData : VendingChnDataList) {
+				VendingChnNumList.add(vendingChnData.getVc1Code().trim());
 			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} else {
+//				for (String i : VendingChnNumList) {
+//					int intTypeOfi = ConvertHelper.toInt(i, 0);
+//					// 筛选出货道内的所有的称重传感器
+//					if (intTypeOfi >= FWstartNum && intTypeOfi <= FWendNum) {
+//						SerialTools.getInstance().openFW(intTypeOfi, Constant.FW_GET_WEIGHT);
+//						Thread.sleep(42);
+//					}
+//				}
+			SerialTools.getInstance().openAllFW(Constant.FW_GET_WEIGHT);
 		}
 	}
 

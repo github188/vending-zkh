@@ -48,6 +48,8 @@ public class Constant {
 	public final static String BODY_VALUE_APP = "evmandroid"; // platform
 	public final static String BODY_VALUE_USER = ""; // platform
 	public static String BODY_VALUE_PWD = "T6R4BL8D"; // platform
+	
+	
 
 	public static final String SHARED_PWD = "pwd"; // 存放pwdKey
 	public static final String SHARED_PWD_KEY = "pwd_key"; // 存放pwdKey
@@ -160,6 +162,11 @@ public class Constant {
 	public final static String RDHOSTTAIL = "0055FFAA";
 	public final static String RDSERVEHEADWITHBLANK = "AA FF 55 00";
 	public final static String RDSERVETAILWITHBLANK = "55 00 AA FF";
+	
+	public final static String FWHOSTHEAD = "FF00AA55";
+	public final static String FWHOSTTAIL = "AA55FF00";
+	public final static String FWSERVEHEAD = "AAFF5500";
+	public final static String FWSERVETAIL = "5500AAFF";
 
 	public final static Map<String, String> WSIDNAMEMAP = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
