@@ -56,14 +56,19 @@ public class SerialTools {
 	public static final String cmdBeep = "030FFF00F0"; // 读卡器声音
 	public static final String cmdOpenLocker = "FFAA005501CC509D0055FFAA";// 指令打开锁
 	public static final String cmdCheckLocker = "FFAA005501CC60AD0055FFAA";// 指令检查锁
-	public static final String cmdGetFwValue = "FFAA005501CC60AD0055FFAA";// 指令打开称重模块
+	public static final String cmdGetAllOneFwValue = "FF00AA55F10602F5AA55FF00";// 指令打开第一层称重模块
+	public static final String cmdGetAllTwoFwValue = "FF00AA55F20602F6AA55FF00";// 指令打开第一层称重模块
 
 	// 循环发送时间间隔
 	private static final int iDelay = 500;
 	// RD循环发送时间间隔
 	private static final int iRdDelay = 2000;
+	private static final int iFwDelay = 1500;
+	private static int AddressMaxInt = 1;
+	private static int AddressCurrentInt = 1;
 	private SendThread mSendThread; // 读卡器循环线程
-	private RDSendThread mRdSendThread; // 读卡器循环线程
+	private RDSendThread mRdSendThread; // 测距循环线程
+	private FWSendThread mFwSendThread; // 称重循环线程
 	private final SerialPort mKeyBoard; // 初始化键盘监听对象
 	private final SerialPort mRFIDReader; // 初始化读卡器监听对象
 	private final SerialPort mStore; // 初始化格子机监听对象
@@ -590,6 +595,7 @@ public class SerialTools {
 			isLockerOperiting = true;
 			if (mRD.isOpened()) {
 				mRD.closePort();
+				mRdSendThread.setSuspendFlag();
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -621,7 +627,7 @@ public class SerialTools {
 				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				switch (pMethodType) {
 				case Constant.FW_GET_WEIGHT:
-					sendPortData(mFw, MyFunc.cmdOpenFW(pId), true);
+					sendPortData(mFw, MyFunc.cmdGetOneFw(pId + ""), true);
 					break;
 				case Constant.FW_NET_WEIGHT:
 					sendPortData(mFw, MyFunc.cmdNetWeightFW(pId), true);
@@ -648,8 +654,9 @@ public class SerialTools {
 	 *            称重模块ID号
 	 * @throws SerialPortException
 	 */
-	public void openAllFW(int pMethodType) {
+	public void openAllFW(int pMethodType, int addressMaxCode) {
 		ZillionLog.i("打开称重模块");
+		AddressMaxInt = addressMaxCode;
 		try {
 			if (mFw.isOpened() || mFw.openPort()) {
 				try {
@@ -659,17 +666,22 @@ public class SerialTools {
 				}
 				mFw.setRequestMethod(SerialTools.MESSAGE_LOG_mFw);
 
-				mFw.setParams(9600, 8, 1, 0); // 波特率、数据位、停止位、奇偶
+				mFw.setParams(115200, 8, 1, 0); // 波特率、数据位、停止位、奇偶
 				switch (pMethodType) {
 				case Constant.FW_GET_WEIGHT:
-					sendPortData(mFw,SerialTools.cmdGetFwValue , true);
+					// sendPortData(mFw,SerialTools.cmdGetAllFwValue , true);
+					if (mFwSendThread == null) {
+						mFwSendThread = new FWSendThread();
+						mFwSendThread.start();
+					}
+					mFwSendThread.setResume(); // 线程唤醒，开始发送
 					break;
-//				case Constant.FW_NET_WEIGHT:
-//					sendPortData(mFw, MyFunc.cmdNetWeightFW(pId), true);
-//					break;
-//				case Constant.FW_SET_ZERO:
-//					sendPortData(mFw, MyFunc.cmdSetZeroFW(pId), true);
-//					break;
+				// case Constant.FW_NET_WEIGHT:
+				// sendPortData(mFw, MyFunc.cmdNetWeightFW(pId), true);
+				// break;
+				// case Constant.FW_SET_ZERO:
+				// sendPortData(mFw, MyFunc.cmdSetZeroFW(pId), true);
+				// break;
 				default:
 					break;
 				}
@@ -681,7 +693,6 @@ public class SerialTools {
 		}
 	}
 
-	
 	/**
 	 * 关闭静载称重模块
 	 * 
@@ -689,8 +700,15 @@ public class SerialTools {
 	 * @throws SerialPortException
 	 */
 	public void closeFW() throws SerialPortException {
-		if (mFw.isOpened()) {
-			mFw.closePort();
+		try {
+			if (mFw.isOpened()) {
+				mFw.closePort();
+				mFwSendThread.setSuspendFlag();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			ZillionLog.i("yjjtest", "关闭测距发生异常");
+			ZillionLog.i("yjjtestExeption", "关闭测距发生异常");
 		}
 	}
 
@@ -961,6 +979,59 @@ public class SerialTools {
 
 				try {
 					Thread.sleep(iRdDelay);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// 线程暂停
+		public void setSuspendFlag() {
+			this.suspendFlag = true;
+		}
+
+		// 唤醒线程
+		public synchronized void setResume() {
+			this.suspendFlag = false;
+			notify();
+		}
+	}
+
+	/**
+	 * 测距模块 线程监听线程
+	 * 
+	 * @author junjie.you
+	 *
+	 */
+	private class FWSendThread extends Thread {
+		public boolean suspendFlag = true; // 控制线程的执行
+
+		@Override
+		public void run() {
+			super.run();
+			while (!isInterrupted()) {
+				synchronized (this) {
+					while (suspendFlag) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				try {
+					sendPortData(mFw, MyFunc.cmdGetOneFw(AddressCurrentInt + ""), true);
+					ZillionLog.d("发送获当前货道称重指令" + MyFunc.cmdGetOneFw(AddressCurrentInt + ""));
+					AddressCurrentInt = (AddressCurrentInt + 1) % (AddressMaxInt + 1);
+					if (AddressCurrentInt == 0) {
+						AddressCurrentInt++;
+					}
+				} catch (SerialPortException e) {
+					e.printStackTrace();
+				}
+
+				try {
+					Thread.sleep(iFwDelay);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

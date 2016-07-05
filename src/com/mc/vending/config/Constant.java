@@ -165,8 +165,8 @@ public class Constant {
 	
 	public final static String FWHOSTHEAD = "FF00AA55";
 	public final static String FWHOSTTAIL = "AA55FF00";
-	public final static String FWSERVEHEAD = "AAFF5500";
-	public final static String FWSERVETAIL = "5500AAFF";
+	public final static String FWSERVEHEAD = "AA FF 55 00";
+	public final static String FWSERVETAIL = "55 00 AA FF";
 
 	public final static Map<String, String> WSIDNAMEMAP = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;

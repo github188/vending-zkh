@@ -3,6 +3,7 @@ package com.mc.vending.tools.utils;
 import java.math.BigInteger;
 
 import com.mc.vending.config.Constant;
+import com.mc.vending.tools.ConvertHelper;
 import com.zillionstar.tools.ZillionLog;
 
 /**
@@ -10,7 +11,7 @@ import com.zillionstar.tools.ZillionLog;
  */
 public class MyFunc {
 	public final static String BlankStr = " ";
-
+	private static final String hexString = "0123456789ABCDEF";
 
 	// -------------------------------------------------------
 	// 判断奇数或偶数，位运算，最后一位是1则为奇数，为0是偶数
@@ -93,6 +94,45 @@ public class MyFunc {
 		return result;
 	}
 
+	// -------------------------------------------------------
+	// 转hex字符串转字节数组
+	static public byte[] HexToByteArrForFw(String inHex)// hex字符串转字节数组
+	{
+		byte[] result;
+		// String Str = inHex.replaceAll("\\s*", "");
+		if (inHex.startsWith(" ")) {
+			inHex = inHex.substring(1);
+		}
+		String[] inHexArr = inHex.split(" ");
+		result = new byte[inHexArr.length];
+		for (int i = 0; i < inHexArr.length; i++) {
+			result[i] = MyFunc.HexToByte(inHexArr[i]);
+		}
+
+		// int j = 0;
+		// for (int i = 1; i <= hexlen ; i++) {
+		// result[j] = HexToByte(inHexStr[i]);
+		// j++;
+		// }
+		return result;
+	}
+
+	public static String encode(String str) {
+		// 根据默认编码获取字节数组
+		byte[] bytes = str.getBytes();
+		String strs = "";
+		// 将字节数组中每个字节拆解成2位16进制整数
+		for (int i = 0; i < bytes.length; i++) {
+			// 高四位
+			strs += hexString.charAt((bytes[i] & 0xf0) >> 4);
+			// System.out.println(i+"--"+bytes[i]+"----"+(bytes[i] &
+			// 0xf0)+"----"+hexString.charAt((bytes[i] & 0xf0) >> 4));
+			// 低四位
+			strs += hexString.charAt((bytes[i] & 0x0f) >> 0);
+		}
+		return strs;
+	}
+
 	// 计算BCC值，例如02 02 45 03 44 03
 	public static int getBCC(String cmd) {
 		int bcc = 0;
@@ -110,38 +150,33 @@ public class MyFunc {
 		}
 		return inBytArr[inBytArr.length - 1] == bcc;
 	}
+
+	// 校验返回值
+	public static boolean checkBccForFw(byte[] inBytArr) {
+		int bcc = 0;
+		for (int i = 0; i < inBytArr.length - 1; i++) {
+			bcc ^= inBytArr[i];
+		}
+		return inBytArr[inBytArr.length - 1] == bcc;
+	}
+
 	// 检查模块是否校验通过
-			public static Boolean CheckBccHandler(String strHex) {
-				Boolean result = true;
-				try {
-					byte[] arrHex;
-					String Str = strHex.replaceAll("\\s*", "");
-					arrHex = HexToByteArr(Str);
-					// 返回值不完整
-					if (arrHex.length != 7) {
-						result = false;
-					} else {
-						// 帧长度错误
-						if (arrHex[0] != arrHex.length - 2) {
-							result = false;
-						} else {
-							if (checkBCC(arrHex) && (arrHex[0] == 0x05)) {
-								result = true;
-							}
-						}
-					}
+	public static Boolean CheckBccHandler(String strHex) {
+		Boolean result = false;
+		try {
+			byte[] arrHex;
 
-					if (result == null) {
-						result =false;
-					}
-
-				} catch (Exception e) {
-					result = null;
-					ZillionLog.e("getRFIDSerialNo", e.getMessage());
-				}
-				return result;
+			arrHex = HexToByteArrForFw(strHex);
+			if (checkBccForFw(arrHex)) {
+				result = true;
 			}
-		
+
+		} catch (Exception e) {
+			result = false;
+			ZillionLog.e("getRFIDSerialNo", e.getMessage());
+		}
+		return result;
+	}
 
 	// 获取RFID卡号，参数为读卡器返回值
 	public static String getRFIDSerialNo(String strHex) {
@@ -243,31 +278,17 @@ public class MyFunc {
 
 	// 生成称重模块控制指令，参数为命令字加数据包
 	public static String getFWCommand(String cmd) {
-		String cmdString = "FF" + BlankStr + cmd;
-		String noBlankCMD = cmdString.replaceAll(" ", "");
+		// "FF00AA55F" + addressCode + "0602F5AA55FF00";
+		String noBlankCMD = "F" + cmd + "0602";
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
-		return (noBlankCMD + bcc).toUpperCase();
+		return ("FF00AA55" + noBlankCMD + bcc + "AA55FF00").toUpperCase();
 	}
-	
+
 	// 生成测距模块控制指令，参数为命令字加数据包
 	public static String getRDCommand(String cmd) {
 		String noBlankCMD = cmd.replaceAll(" ", "");
 		String bcc = Integer.toHexString(getBCC(noBlankCMD));
 		return (Constant.RDHOSTHEAD + noBlankCMD + bcc + Constant.RDHOSTTAIL);
-	}
-
-	/**
-	 * 生成打开称重模块指令
-	 * 
-	 * @author junjie.you
-	 * @param pId
-	 *            模块ID号
-	 * @return
-	 */
-	public static String cmdOpenFW(int pId) {
-		String cmdString = "57";
-		cmdString = cmdString + BlankStr + String.format("%02x", pId);
-		return getFWCommand(cmdString);
 	}
 
 	/**
@@ -311,7 +332,7 @@ public class MyFunc {
 		cmdString = cmdString + String.format("%02x", pId);
 		return getRDCommand(cmdString);
 	}
-	
+
 	/**
 	 * 生成获取全部测距模块指令
 	 * 
@@ -323,6 +344,11 @@ public class MyFunc {
 	public static String cmdGetAllRangeDistance() {
 		String cmdString = "01CC40";
 		return getRDCommand(cmdString);
+	}
+
+	public static String cmdGetOneFw(String addressCode) {
+		return getFWCommand(addressCode);
+		// return "FF00AA55F" + addressCode + "0602F5AA55FF00";
 	}
 
 	// 计算累加和值
@@ -383,6 +409,38 @@ public class MyFunc {
 
 	public static String cmdBeep() {
 		return cmdBeep;
+	}
+
+	/*
+	 * 10进制转2进制
+	 */
+	public static String Decimal2Binary(int decimal) {
+		return Integer.toBinaryString(decimal);
+	}
+
+	/*
+	 * 16进制转10进制
+	 */
+	public static String Hex2Decimal(String hex) {
+		return Integer.valueOf(hex, 16).toString();
+	}
+
+	/*
+	 * 16进制转2进制
+	 */
+	public static String Hex2Binary(String hex) {
+		return Decimal2Binary(ConvertHelper.toInt(Hex2Decimal(hex), 0));
+	}
+
+	/*
+	 * 将传入的字符串以8位输出，不足的，前面补0
+	 */
+	public static String Ensure8Length(String str) {
+		int len = str.length();
+		for (int i = 0; i < 8 - len; i++) {
+			str = "0" + str;
+		}
+		return str;
 	}
 
 }
