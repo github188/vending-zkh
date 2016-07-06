@@ -146,4 +146,32 @@ public class CusEmpCardPowerDbOper {
         }
         return flag;
     }
+    
+
+    /**
+     * 单个删除客户员工卡/密码权限记录
+     * @param CusEmpCardPowerData
+     */
+    public boolean deleteCusEmpCardPower(CusEmpCardPowerData cusEmpCardPower) {
+        boolean flag = false;
+        String deleteSql = "delete from CusEmpCardPower where ce2_id="+cusEmpCardPower.getCe2Id();
+        SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+        try {
+            //开启事务
+            db.beginTransaction();
+            SQLiteStatement stat = db.compileStatement(deleteSql);
+            stat.executeUpdateDelete();
+            //数据插入成功，设置事物成功标志  
+            db.setTransactionSuccessful();
+            //保存数据
+            db.endTransaction();
+            flag = true;
+        } catch (SQLException e) {
+            //结束事物，在这里没有设置成功标志，结束后不保存
+            ZillionLog.e(this.getClass().getName(),e.getMessage(),e);
+            db.endTransaction();
+            e.printStackTrace();
+        }
+        return flag;
+    }
 }
