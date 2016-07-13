@@ -23,6 +23,7 @@ import com.mc.vending.activitys.pick.MC_IntelligencePickActivity;
 import com.mc.vending.activitys.pick.MC_NormalPickActivity;
 import com.mc.vending.activitys.pick.MC_WeightPickActivity;
 import com.mc.vending.activitys.setting.MC_ReturnsReverseActivity;
+import com.mc.vending.activitys.setting.MC_SettingActivity;
 import com.mc.vending.config.Constant;
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.VersionData;
@@ -236,10 +237,11 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 	private void goNormalPickAcitivity() {
 		Intent intent = new Intent();
 		intent.putExtra("vendCode", vendCode);
-//		intent.setClass(MainActivity.this, MC_NormalPickActivity.class);
+		// intent.setClass(MainActivity.this, MC_NormalPickActivity.class);
 		// intent.setClass(MainActivity.this, MC_WeightPickActivity.class);
 		// intent.setClass(MainActivity.this, MC_DistancePickActivity.class);
 		intent.setClass(MainActivity.this, MC_IntelligencePickActivity.class);
+		// intent.setClass(MainActivity.this, MC_SettingActivity.class);
 		// intent.setClass(MainActivity.this, MC_ReturnsReverseActivity.class);
 		// intent.setClass(MainActivity.this, MC_ImagePlayerActivity.class);
 		startActivity(intent);

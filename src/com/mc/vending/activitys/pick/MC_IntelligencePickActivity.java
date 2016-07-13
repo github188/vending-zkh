@@ -16,6 +16,7 @@ import java.util.TimerTask;
 import com.mc.vending.R;
 import com.mc.vending.activitys.BaseActivity;
 import com.mc.vending.activitys.MC_ImagePlayerActivity;
+import com.mc.vending.activitys.MainActivity;
 import com.mc.vending.activitys.VersionActivity;
 import com.mc.vending.activitys.setting.MC_SettingActivity;
 import com.mc.vending.adapter.MC_IntelligencePickListAdapter;
@@ -248,9 +249,24 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		InitView();
 
 		openRD();
-		// openAllFW();
+		openAllFW();
 		openRFID();
 		// startTimerTask(); // This Foo is run in OnResume()
+
+		// SwitchToSettingActivity();
+	}
+
+	private void SwitchToSettingActivity() {
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+
+		intent.putExtra("wrapperData", wrapperData);
+		intent.putExtra("vendData", vendData);
+
+		intent.putExtras(bundle);
+		intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
+		startActivityForResult(intent, 1000);
+		finish();
 	}
 
 	private void requestGetClientVersionServer() {
@@ -326,7 +342,9 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		startTimerTask();
 		cancelTimerTask();
 		super.onResume();
-
+		openRD();
+		openAllFW();
+		openRFID();
 	}
 
 	/*
@@ -363,6 +381,14 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		// TODO Auto-generated method stub
 		super.onPause();
 		cancelTimerTask();
+		try {
+			SerialTools.getInstance().closeFW();
+			SerialTools.getInstance().closeRD();
+		} catch (SerialPortException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		resetTimer();
 	}
 
@@ -530,12 +556,12 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				}
 				break;
 			case SerialTools.MESSAGE_LOG_mFw:
-				String strWithoutHeadTail = ((String) msg.obj).replace(Constant.FWSERVETAIL, "").replace(Constant.FWSERVEHEAD, "");
-				portRtnStrList = strWithoutHeadTail.split(" ");
-				for (int i = 1; i <= portRtnStrList.length - 1; i++) {
-					FWSerialPortReturnStrHandler(portRtnStrList[i]);
-				}
-				openAllFW();
+				String strWithoutHeadTail = ((String) msg.obj).replace(Constant.FWSERVETAIL, "")
+						.replace(Constant.FWSERVEHEAD, "");
+				// for (int i = 1; i <= portRtnStrList.length - 1; i++) {
+				FWSerialPortReturnStrHandler(strWithoutHeadTail);
+				// }
+				// openAllFW();
 				break;
 			case MESSAGE_Image_player:
 				goImagePlayerAcitvity();
@@ -608,16 +634,7 @@ public class MC_IntelligencePickActivity extends BaseActivity
 
 			wrapperData = VendingCardPowerWrapperDataResult.getResult();
 
-			Intent intent = new Intent();
-			Bundle bundle = new Bundle();
-
-			intent.putExtra("wrapperData", wrapperData);
-			intent.putExtra("vendData", vendData);
-
-			intent.putExtras(bundle);
-			intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
-			startActivityForResult(intent, 1000);
-			// startActivity(intent);
+			SwitchToSettingActivity();
 		}
 		return true;
 	}
@@ -705,51 +722,53 @@ public class MC_IntelligencePickActivity extends BaseActivity
 				final Builder dialog = new AlertDialog.Builder(MC_IntelligencePickActivity.this).setTitle("请输入密码")
 						.setView(password).setCancelable(false)
 						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (!StringHelper.isEmpty(password.getText().toString(), true)) {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (!StringHelper.isEmpty(password.getText().toString(), true)) {
 
-							ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance().checkVending();
-							// 判断售货机状态－－验证是否可用
-							if (!vendResult.isSuccess()) {
-								showToast(vendResult.getMessage());
-								return;
+									ServiceResult<VendingData> vendResult = GeneralMaterialService.getInstance()
+											.checkVending();
+									// 判断售货机状态－－验证是否可用
+									if (!vendResult.isSuccess()) {
+										showToast(vendResult.getMessage());
+										return;
+									}
+									vendData = vendResult.getResult();
+									// 检查卡/密码-权限,进入设置只能刷卡
+									ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService
+											.getInstance()
+											.checkCardPowerInner(password.getText().toString(), vendData.getVd1Id());
+									if (!result.isSuccess()) {
+										showToast(result.getMessage());
+										return;
+									}
+									wrapperData = result.getResult();
+
+									Intent intent = new Intent();
+									Bundle bundle = new Bundle();
+
+									intent.putExtra("wrapperData", wrapperData);
+									intent.putExtra("vendData", vendData);
+
+									intent.putExtras(bundle);
+									intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
+									startActivityForResult(intent, 1000);
+									// startActivity(intent);
+
+									// VendingPasswordData data = new
+									// VendingPasswordDbOper()
+									// .getVendingPasswordByPassword(password.getText().toString());
+									// if (data == null) {
+									// showToast("密码错误");
+									// } else {
+									// ActivityManagerTool.getActivityManager().exit();
+									// finish();
+									// }
+								} else {
+									showToast("密码不能为空!");
+								}
 							}
-							vendData = vendResult.getResult();
-							// 检查卡/密码-权限,进入设置只能刷卡
-							ServiceResult<VendingCardPowerWrapperData> result = ReplenishmentService.getInstance()
-									.checkCardPowerInner(password.getText().toString(), vendData.getVd1Id());
-							if (!result.isSuccess()) {
-								showToast(result.getMessage());
-								return;
-							}
-							wrapperData = result.getResult();
-
-							Intent intent = new Intent();
-							Bundle bundle = new Bundle();
-
-							intent.putExtra("wrapperData", wrapperData);
-							intent.putExtra("vendData", vendData);
-
-							intent.putExtras(bundle);
-							intent.setClass(MC_IntelligencePickActivity.this, MC_SettingActivity.class);
-							startActivityForResult(intent, 1000);
-							// startActivity(intent);
-
-							// VendingPasswordData data = new
-							// VendingPasswordDbOper()
-							// .getVendingPasswordByPassword(password.getText().toString());
-							// if (data == null) {
-							// showToast("密码错误");
-							// } else {
-							// ActivityManagerTool.getActivityManager().exit();
-							// finish();
-							// }
-						} else {
-							showToast("密码不能为空!");
-						}
-					}
-				}).setNegativeButton("取消", null);
+						}).setNegativeButton("取消", null);
 				dialog.show();
 
 				return false;
@@ -1151,6 +1170,71 @@ public class MC_IntelligencePickActivity extends BaseActivity
 		return afterCount;
 	}
 
+	/*
+	 * 根据串口返回的高低字节计算重量
+	 * 
+	 * @author junjie.you
+	 * 
+	 * @param high
+	 * 
+	 * @param low
+	 * 
+	 * @return 计算后得出的重量int值，因为秤盘精确到1g，所以int足矣
+	 */
+	private int CalcWeight(String high, String low) {
+		int rtnInt = 0;
+		try {
+			// 处理高字节
+			int result = ConvertHelper.toInt(MyFunc.Hex2Decimal(high), 0);
+			String strResult = MyFunc.Ensure8Length(MyFunc.Decimal2Binary(result));
+			int wei[] = new int[16];
+			String signal = "";
+			// 取出每一位的值
+			for (int i = 0; i < 8; i++) {
+				int x = Integer.parseInt(strResult.toCharArray()[i] + "");
+				if (i == 0 && x == 1) {
+					signal = "-";
+				} else {
+					wei[i] = x;
+				}
+			}
+
+			// 处理低字节
+			result = ConvertHelper.toInt(MyFunc.Hex2Decimal(low), 0);
+			strResult = MyFunc.Ensure8Length(MyFunc.Decimal2Binary(result));
+			// 取出每一位的值
+			for (int i = 8; i < 16; i++) {
+				int x = Integer.parseInt(strResult.toCharArray()[i - 8] + "");
+				wei[i] = x;
+			}
+
+			// 取反
+			for (int i = 0; i < 16; i++) {
+				if (wei[i] == 1) {
+					wei[i] = 0;
+				} else {
+					wei[i] = 1;
+				}
+			}
+			// 各位相加后再加一
+			result = 0;
+			for (int i = 0; i < 16; i++) {
+				if (i == 15) {
+					continue;// 跳过符号位
+				}
+				result = result + (int) (wei[15 - i] * (Math.pow(2, i)));
+			}
+			result = 1 + result;
+			if (signal.equals("-")) {
+				result = 0 - result;
+			}
+			rtnInt = result;
+		} catch (Exception e) {
+			ZillionLog.e(e.getMessage());
+		}
+		return rtnInt;
+	}
+
 	/**
 	 * 测距模块返回值处理流程
 	 * 
@@ -1345,14 +1429,20 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private boolean FuzzyJudgmentForLength(float pNum) {
 		boolean flag = false;
-		pNum = Math.abs(pNum);
-		/*
-		 * 向上取整用Math.ceil(double a) 向下取整用Math.floor(double a)
-		 */
-		double ceil = Math.ceil(pNum);
-		double floor = Math.floor(pNum);
-		if ((pNum + lengthDeviationScalar) > ceil && ceil != floor) {
-			flag = true;
+		try {
+			pNum = Math.abs(pNum);
+			/*
+			 * 向上取整用Math.ceil(double a) 向下取整用Math.floor(double a)
+			 */
+			double ceil = Math.ceil(pNum);
+			double floor = Math.floor(pNum);
+			if ((pNum + lengthDeviationScalar) > ceil && ceil != floor) {
+				flag = true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			ZillionLog.e(e.getMessage());
+			flag = false;
 		}
 		return flag;
 	}
@@ -1370,31 +1460,37 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	 */
 	private void FWSerialPortReturnStrHandler(String pReturnString) {
 		int portId = -1;
+		if (pReturnString == null) {
+			return;
+		}
+		if (!MyFunc.CheckBccHandler(pReturnString)) {
+			return;
+		}
+		if (pReturnString.startsWith(" ")) {
+			pReturnString = pReturnString.substring(1);
+		}
+		String[] strArrayReturnHex = pReturnString.split(" ");
 
-		if (pReturnString.isEmpty()) {
-
-		} else {
-			String[] strArrayReturnHex = pReturnString.split(" ");
-			if (strArrayReturnHex.length != 0 && strArrayReturnHex != null && strArrayReturnHex.length > 2) {
-				portId = Integer.parseInt(strArrayReturnHex[1], 16);
-				// 取出“第三位”，由Hex转为二进制，并且不足8位的不足8位，例如：7位，1010000
-				String theThirdByteStr = StringHelper.HexStringToBinaryString(strArrayReturnHex[2]);
-				if (!StringHelper.isEmpty(theThirdByteStr) && strArrayReturnHex.length > 5) {
-					// 对“第三位”状态位进行解析
-					char[] theThirdByteArr = theThirdByteStr.toCharArray();
-					decimalPointPosition = Integer.valueOf(theThirdByteStr.substring(5, 7), 2);
-					isScallingError = Integer.valueOf(theThirdByteArr[4] + "", 2) == 1 ? true : false;
-					isPositive = Integer.valueOf(theThirdByteArr[3] + "", 2) == 0 ? true : false;
-					isStable = Integer.valueOf(theThirdByteArr[2] + "", 2) == 1 ? true : false;
-					isOverload = Integer.valueOf(theThirdByteArr[1] + "", 2) == 1 ? true : false;
-					// 高、中、低位重量数据
-					String weightValue = "" + (strArrayReturnHex[5] + strArrayReturnHex[4] + strArrayReturnHex[3]);
-					if (isStable && !isOverload && !isScallingError) {
-						SaveSharedPreferencesForFW(portId, weightValue);
-					}
-				}
+		int adressCode = MyFunc.HexToInt(strArrayReturnHex[0]) - 240;// 地址码0xF1~0xFF也就是241~255
+		int scaleNum = ConvertHelper.toInt(strArrayReturnHex[1], 1);
+		if (strArrayReturnHex.length == 6) {
+			// 单秤盘
+			String highValue = strArrayReturnHex[2];// 数据高字节
+			String lowValue = strArrayReturnHex[3];// 数据低字节
+			String chipTmture = strArrayReturnHex[4];// 芯片温度
+			SaveSharedPreferencesForFW(FWstartNum + (adressCode - 1) * 5 + scaleNum - 1,
+					CalcWeight(highValue, lowValue) + "");
+		} else if (strArrayReturnHex.length == 14) {
+			// 所有秤盘
+			for (int i = 1; i < 6; i++) {
+				String highValue = strArrayReturnHex[i * 2];// 数据高字节
+				String lowValue = strArrayReturnHex[i * 2 + 1];// 数据低字节
+				SaveSharedPreferencesForFW(FWstartNum + (adressCode - 1) * 5 + i - 1,
+						CalcWeight(highValue, lowValue) + "");
 			}
-			// openFW(portId);
+			String chipTmture = strArrayReturnHex[12];// 芯片温度
+		} else {
+			// TODO 数据有误
 		}
 		// if (isReturnMaterial) {
 		// ShowChnMaterialList();
@@ -1441,7 +1537,6 @@ public class MC_IntelligencePickActivity extends BaseActivity
 					if (ListOfCheckIfFWCanShow.isEmpty()) {
 						openRD();
 					}
-
 				}
 			}
 		}
@@ -1453,22 +1548,24 @@ public class MC_IntelligencePickActivity extends BaseActivity
 	}
 
 	private void openAllFW() {
+		int biggestInt = 0;
+		int tempInt = 0;
 		SerialTools.getInstance().addToolsListener(this);
 		if (VendingChnNumList.isEmpty()) {
 			for (VendingChnData vendingChnData : VendingChnDataList) {
 				VendingChnNumList.add(vendingChnData.getVc1Code().trim());
+				tempInt = ConvertHelper.toInt(vendingChnData.getVc1Code(), 0);
+				if (tempInt > biggestInt) {
+					biggestInt = tempInt;
+				}
 			}
-		} else {
-//				for (String i : VendingChnNumList) {
-//					int intTypeOfi = ConvertHelper.toInt(i, 0);
-//					// 筛选出货道内的所有的称重传感器
-//					if (intTypeOfi >= FWstartNum && intTypeOfi <= FWendNum) {
-//						SerialTools.getInstance().openFW(intTypeOfi, Constant.FW_GET_WEIGHT);
-//						Thread.sleep(42);
-//					}
-//				}
-			SerialTools.getInstance().openAllFW(Constant.FW_GET_WEIGHT);
 		}
+		int addressMaxInt = (biggestInt - FWstartNum) / 5;
+		if (addressMaxInt < 0) {
+			addressMaxInt = 1;
+		}
+		addressMaxInt++;
+		SerialTools.getInstance().openAllFW(Constant.FW_GET_WEIGHT, addressMaxInt);
 	}
 
 	/**
