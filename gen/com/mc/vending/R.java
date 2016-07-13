@@ -176,21 +176,22 @@ public final class R {
         public static final int activity_image_player=0x7f030007;
         public static final int activity_intelligence_pick=0x7f030008;
         public static final int activity_intelligence_pick_listitem=0x7f030009;
-        public static final int activity_main=0x7f03000a;
-        public static final int activity_pick_test=0x7f03000b;
-        public static final int activity_return_forward_list=0x7f03000c;
-        public static final int activity_returns_reverse=0x7f03000d;
-        public static final int activity_setting=0x7f03000e;
-        public static final int activity_urgent_replenishment=0x7f03000f;
-        public static final int activity_weight=0x7f030010;
-        public static final int combination_pick_detail_item=0x7f030011;
-        public static final int combination_pick_item=0x7f030012;
-        public static final int difference_replenishment_item=0x7f030013;
-        public static final int difference_replenishment_order_item=0x7f030014;
-        public static final int set_item=0x7f030015;
-        public static final int top_layout=0x7f030016;
-        public static final int urgent_replenishment_item=0x7f030017;
-        public static final int version=0x7f030018;
+        public static final int activity_intelligence_setting=0x7f03000a;
+        public static final int activity_main=0x7f03000b;
+        public static final int activity_pick_test=0x7f03000c;
+        public static final int activity_return_forward_list=0x7f03000d;
+        public static final int activity_returns_reverse=0x7f03000e;
+        public static final int activity_setting=0x7f03000f;
+        public static final int activity_urgent_replenishment=0x7f030010;
+        public static final int activity_weight=0x7f030011;
+        public static final int combination_pick_detail_item=0x7f030012;
+        public static final int combination_pick_item=0x7f030013;
+        public static final int difference_replenishment_item=0x7f030014;
+        public static final int difference_replenishment_order_item=0x7f030015;
+        public static final int set_item=0x7f030016;
+        public static final int top_layout=0x7f030017;
+        public static final int urgent_replenishment_item=0x7f030018;
+        public static final int version=0x7f030019;
     }
     public static final class string {
         public static final int BTN_INIT=0x7f050019;
