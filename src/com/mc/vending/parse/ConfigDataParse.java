@@ -131,6 +131,7 @@ public class ConfigDataParse implements DataParseListener {
                 data.setM03Id(jsonObj.getString("ID"));
                 data.setM03M02Id(jsonObj.getString("M03_M02_ID"));
                 data.setM03Name(jsonObj.getString("M03_Name"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setM03Target(jsonObj.getString("M03_Target"));
                 data.setM03Optype(jsonObj.getString("M03_Optype"));
                 data.setM03Remark(jsonObj.getString("M03_Remark"));

@@ -8,6 +8,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.ProductGroupPowerData;
 import com.mc.vending.tools.ZillionLog;
 
@@ -169,6 +170,34 @@ public class ProductGroupPowerDbOper {
         }
         return flag;
     }
+    
+    /**
+	 * 批量删除产品组合主表
+	 * 
+	 * @param list
+	 */
+	public boolean batchDeleteProductGroupPower(List<ProductGroupPowerData> list) {
+		boolean flag = false;
+		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+		try {
+			// 开启事务
+			db.beginTransaction();
+			for (ProductGroupPowerData productGroupPowerData : list) {
+				db.delete("ProductGroupPower", "PP1_ID=?", new String[] { productGroupPowerData.getPp1IntervalFinish() });
+			}
+			// 数据成功，设置事物成功标志
+			db.setTransactionSuccessful();
+			// 保存数据
+			db.endTransaction();
+			flag = true;
+		} catch (SQLException e) {
+			// 结束事物，在这里没有设置成功标志，结束后不保存
+			ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
+			db.endTransaction();
+			e.printStackTrace();
+		}
+		return flag;
+	}
 
     public boolean deleteAll() {
         boolean flag = false;

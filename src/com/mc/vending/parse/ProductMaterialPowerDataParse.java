@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.ProductMaterialPowerData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.ProductMaterialPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -77,22 +79,50 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
             }
             return;
         }
-        ProductMaterialPowerDbOper productMaterialPowerDbOper = new ProductMaterialPowerDbOper();
-        // 0全表时不需要删除原数据-false。1表示需要删除true
-        boolean deleteFlag = productMaterialPowerDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = productMaterialPowerDbOper.batchAddProductMaterialPower(list);
-            if (addFlag) {
-                Log.i("[productMaterialPower]:", "======>>>>>产品领料权限批量增加成功!" + "====" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[productMaterialPower]:", "==========>>>>>产品领料权限批量增加失败!");
-            }
-        }
-
-        // System.out.println(productMaterialPowerDbOper.findAll());
-
+        List<ProductMaterialPowerData> addList = new ArrayList<ProductMaterialPowerData>();
+		List<ProductMaterialPowerData> updateList = new ArrayList<ProductMaterialPowerData>();
+		List<ProductMaterialPowerData> deleteList = new ArrayList<ProductMaterialPowerData>();
+		for (ProductMaterialPowerData productMaterialPowerData : list) {
+			if (productMaterialPowerData.getCRUD().equals("D")) {
+				deleteList.add(productMaterialPowerData);
+			} else if (productMaterialPowerData.getCRUD().equals("C")) {
+				addList.add(productMaterialPowerData);
+			} else if (productMaterialPowerData.getCRUD().equals("U")) {
+				updateList.add(productMaterialPowerData);
+			}
+		}
+		ProductMaterialPowerDbOper productMaterialPowerDbOper = new ProductMaterialPowerDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = productMaterialPowerDbOper.batchAddProductMaterialPower(addList);
+			if (addFlag) {
+				Log.i("[productMaterialPower]:", "产品领料权限批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productMaterialPower]:", "产品领料权限批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = productMaterialPowerDbOper.batchDeleteProductMaterialPower(deleteList);
+			if (deleteFlag) {
+				Log.i("[productMaterialPower]:", "产品领料权限批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productMaterialPower]:", "产品领料权限批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = productMaterialPowerDbOper.batchDeleteProductMaterialPower(updateList);
+			boolean addFlag = productMaterialPowerDbOper.batchAddProductMaterialPower(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[productMaterialPower]:", "产品领料权限批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productMaterialPower]:", "产品领料权限批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -123,6 +153,7 @@ public class ProductMaterialPowerDataParse implements DataParseListener {
                 ProductMaterialPowerData data = new ProductMaterialPowerData();
                 data.setPm1Id(jsonObj.getString("ID"));
                 data.setPm1M02Id(jsonObj.getString("PM1_M02_ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setPm1Cu1Id(jsonObj.getString("PM1_CU1_ID"));
                 data.setPm1Vc2Id(jsonObj.getString("PM1_VC2_ID"));
                 data.setPm1Vp1Id(jsonObj.getString("PM1_VP1_ID"));

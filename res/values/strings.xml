@@ -86,11 +86,11 @@
     <string name="inventory_number">实盘数量</string>
     
     
-    <string name="wsrr_server_url"></string>
-    <string name="vend_code"></string>
+   <string name="wsrr_server_url">http://192.168.1.2:8080/evm-service/router</string>
+    <string name="vend_code">cs006v</string>
     
-<!--     <string name="wsrr_server_url">http://172.16.18.202:8081/WSRR.ashx</string> -->
-<!--     <string name="vend_code">V0030</string> -->
+<!-- <string name="wsrr_server_url">http://192.168.0.101:8061/WSRR.ashx</string> 
+  <string name="vend_code">e2a009v</string> -->
     
 <!--     <string name="wsrr_server_url">http://203.110.179.35:8061/wsrr.ashx</string> -->
 <!--     <string name="vend_code">E2A031V</string> -->

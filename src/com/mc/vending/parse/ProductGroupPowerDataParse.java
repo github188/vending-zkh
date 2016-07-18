@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.ProductGroupPowerData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.ProductGroupPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -77,20 +79,50 @@ public class ProductGroupPowerDataParse implements DataParseListener {
             }
             return;
         }
-        ProductGroupPowerDbOper productGroupPowerDbOper = new ProductGroupPowerDbOper();
-        boolean deleteFlag = productGroupPowerDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = productGroupPowerDbOper.batchAddProductGroupPower(list);
-            if (addFlag) {
-                Log.i("[productGroupPower]:", "==========>>>>>产品组合权限批量增加成功!" + "==========" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[productGroupPower]:", "==========>>>>>产品组合权限批量增加失败!");
-            }
-        }
-
-        // System.out.println(productGroupPowerDbOper.findAll());
+		List<ProductGroupPowerData> addList = new ArrayList<ProductGroupPowerData>();
+		List<ProductGroupPowerData> updateList = new ArrayList<ProductGroupPowerData>();
+		List<ProductGroupPowerData> deleteList = new ArrayList<ProductGroupPowerData>();
+		for (ProductGroupPowerData productGroupPowerData : list) {
+			if (productGroupPowerData.getCRUD().equals("D")) {
+				deleteList.add(productGroupPowerData);
+			} else if (productGroupPowerData.getCRUD().equals("C")) {
+				addList.add(productGroupPowerData);
+			} else if (productGroupPowerData.getCRUD().equals("U")) {
+				updateList.add(productGroupPowerData);
+			}
+		}
+		ProductGroupPowerDbOper productGroupPowerDbOper = new ProductGroupPowerDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = productGroupPowerDbOper.batchAddProductGroupPower(addList);
+			if (addFlag) {
+				Log.i("[productGroupPower]:", "产品组合权限批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productGroupPower]:", "产品组合权限批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = productGroupPowerDbOper.batchDeleteProductGroupPower(deleteList);
+			if (deleteFlag) {
+				Log.i("[productGroupPower]:", "产品组合权限批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productGroupPower]:", "产品组合权限批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = productGroupPowerDbOper.batchDeleteProductGroupPower(updateList);
+			boolean addFlag = productGroupPowerDbOper.batchAddProductGroupPower(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[productGroupPower]:", "产品组合权限批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[productGroupPower]:", "产品组合权限批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -121,6 +153,7 @@ public class ProductGroupPowerDataParse implements DataParseListener {
                 ProductGroupPowerData data = new ProductGroupPowerData();
                 data.setPp1Id(jsonObj.getString("ID"));
                 data.setPp1M02Id(jsonObj.getString("PP1_M02_ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setPp1Cu1Id(jsonObj.getString("PP1_CU1_ID"));
                 data.setPp1Pg1Id(jsonObj.getString("PP1_PG1_ID"));
                 data.setPp1Cd1Id(jsonObj.getString("PP1_CD1_ID"));

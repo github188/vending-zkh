@@ -129,6 +129,24 @@ public class ProductGroupDetailData implements Serializable {
     public void setPg2RowVersion(String value) {
         this.pg2RowVersion = value;
     }
+    private String CRUD;
+
+    /**
+	 * @author junjie.you
+	 * 星列海没有继承basedata类，按照一脉相承，手动修改添加crud
+	 * @return the cRUD
+	 */
+	public String getCRUD() {
+		return CRUD;
+	}
+
+	/**
+	 * @author junjie.you
+	 * @param cRUD the cRUD to set
+	 */
+	public void setCRUD(String cRUD) {
+		CRUD = cRUD;
+	}
 
     @Override
     public String toString() {

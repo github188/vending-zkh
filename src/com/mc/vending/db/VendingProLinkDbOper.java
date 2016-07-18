@@ -8,6 +8,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.VendingProLinkData;
 import com.mc.vending.tools.ZillionLog;
 
@@ -42,6 +43,7 @@ public class VendingProLinkDbOper {
         }
         return list;
     }
+    
 
     /**
      * 根据售货机ID与SKUID查询售货机产品记录
@@ -131,6 +133,33 @@ public class VendingProLinkDbOper {
         }
         return flag;
     }
+    /**
+	 * 批量增加卡/密码数据,用于同步数据
+	 * 
+	 * @param list
+	 */
+	public boolean batchDeleteVendingProLink(List<VendingProLinkData> list) {
+		boolean flag = false;
+		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+		try {
+			// 开启事务
+			db.beginTransaction();
+			for (VendingProLinkData vendingProLinkData : list) {
+				db.delete("VendingProLink", "VP1_ID=?", new String[] { vendingProLinkData.getVp1Id() });
+			}
+			// 数据成功，设置事物成功标志
+			db.setTransactionSuccessful();
+			// 保存数据
+			db.endTransaction();
+			flag = true;
+		} catch (SQLException e) {
+			// 结束事物，在这里没有设置成功标志，结束后不保存
+			ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
+			db.endTransaction();
+			e.printStackTrace();
+		}
+		return flag;
+	}
 
     public boolean deleteAll() {
         boolean flag = false;

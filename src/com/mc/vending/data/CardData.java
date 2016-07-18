@@ -294,7 +294,8 @@ public class CardData extends BaseParseData implements Serializable {
         this.cd1RowVersion = value;
     }
 
-    @Override
+
+	@Override
     public String toString() {
         return "CardData [cd1Id=" + cd1Id + ", cd1M02Id=" + cd1M02Id + ", cd1SerialNo=" + cd1SerialNo
                 + ", cd1Code=" + cd1Code + ", cd1Type=" + cd1Type + ", cd1Password=" + cd1Password

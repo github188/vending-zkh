@@ -9,12 +9,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.VendingPictureData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.VendingPictureDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
 import com.mc.vending.tools.ZillionLog;
+
+import android.util.Log;
 
 public class VendingPictureDataParse implements DataParseListener {
 
@@ -78,23 +82,50 @@ public class VendingPictureDataParse implements DataParseListener {
             return;
         }
 
-        VendingPictureDbOper vendingPictureDbOper = new VendingPictureDbOper();
-        // 先删除再插入
-        boolean deleteFlag = vendingPictureDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = vendingPictureDbOper.batchAddVendingPicture(list);
-            if (addFlag) {
-//                Log.i("[vendingPicture]:", "======>>>>>售货机待机图片批量增加成功!" + list.size());
-                if (list != null && list.size() > 0) {
-                    DataParseHelper parseHelper = new DataParseHelper(this);
-                    parseHelper.sendLogVersion(list.get(0).getLogVersion());
-                }
-            } else {
-                ZillionLog.e("[vendingPicture]:", "==========>>>>>售货机待机图片批量增加失败!");
-            }
-        }
-        // System.out.println(vendingPictureDbOper.findVendingPicture());
-
+		List<VendingPictureData> addList = new ArrayList<VendingPictureData>();
+		List<VendingPictureData> updateList = new ArrayList<VendingPictureData>();
+		List<VendingPictureData> deleteList = new ArrayList<VendingPictureData>();
+		for (VendingPictureData vendingPictureData : list) {
+			if (vendingPictureData.getCRUD().equals("D")) {
+				deleteList.add(vendingPictureData);
+			} else if (vendingPictureData.getCRUD().equals("C")) {
+				addList.add(vendingPictureData);
+			} else if (vendingPictureData.getCRUD().equals("U")) {
+				updateList.add(vendingPictureData);
+			}
+		}
+		VendingPictureDbOper vendingPictureDbOper = new VendingPictureDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = vendingPictureDbOper.batchAddVendingPicture(addList);
+			if (addFlag) {
+				Log.i("[vendingPicture]:", "售货机待机图片批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingPicture]:", "售货机待机图片批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = vendingPictureDbOper.batchDeleteVendingPicture(deleteList);
+			if (deleteFlag) {
+				Log.i("[vendingPicture]:", "售货机待机图片批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingPicture]:", "售货机待机图片批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = vendingPictureDbOper.batchDeleteVendingPicture(updateList);
+			boolean addFlag = vendingPictureDbOper.batchAddVendingPicture(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[vendingPicture]:", "售货机待机图片批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingPicture]:", "售货机待机图片批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -135,6 +166,7 @@ public class VendingPictureDataParse implements DataParseListener {
                 VendingPictureData data = new VendingPictureData();
                 data.setVp2Id(jsonObj.getString("ID"));
                 data.setVp2M02Id(jsonObj.getString("VP2_M02_ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setVp2Seq(jsonObj.getString("VP2_Seq"));
                 data.setVp2FilePath(jsonObj.getString("VP2_FilePath"));
                 data.setVp2RunTime(ConvertHelper.toInt(jsonObj.getString("VP2_RunTime"), 0));

@@ -98,7 +98,11 @@ public class Tools {
         val = val.replace("{&&}", "<br />");
         return val;
     }
+    public static String getMacAddress() {
+		String result = "123";
 
+		return result.trim();
+	}
     /**
      * 检测设备是不是手机号码
      * 

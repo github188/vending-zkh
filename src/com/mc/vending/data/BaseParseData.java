@@ -16,8 +16,25 @@ public class BaseParseData {
     private String ModifyUser;
     private String ModifyTime;
     private String RowVersion;
+    private String CRUD;
 
-    public String getRowVersion() {
+    /**
+	 * @author junjie.you
+	 * @return the cRUD
+	 */
+	public String getCRUD() {
+		return CRUD;
+	}
+
+	/**
+	 * @author junjie.you
+	 * @param cRUD the cRUD to set
+	 */
+	public void setCRUD(String cRUD) {
+		CRUD = cRUD;
+	}
+
+	public String getRowVersion() {
         return RowVersion;
     }
 

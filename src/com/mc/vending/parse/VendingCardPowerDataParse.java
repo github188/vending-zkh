@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.VendingCardPowerData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.VendingCardPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -76,21 +78,50 @@ public class VendingCardPowerDataParse implements DataParseListener {
             }
             return;
         }
-        VendingCardPowerDbOper vendingCardPowerDbOper = new VendingCardPowerDbOper();
-        boolean deleteFlag = vendingCardPowerDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = vendingCardPowerDbOper.batchAddVendingCardPower(list);
-            if (addFlag) {
-                Log.i("[vendingCardPower]:", "======>>>>>售货机卡/密码权限批量增加成功!" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[vendingCardPower]:", "==========>>>>>售货机卡/密码权限批量增加失败!");
-            }
-        }
-
-        // System.out.println(vendingCardPowerDbOper.findAll());
-
+		List<VendingCardPowerData> addList = new ArrayList<VendingCardPowerData>();
+		List<VendingCardPowerData> updateList = new ArrayList<VendingCardPowerData>();
+		List<VendingCardPowerData> deleteList = new ArrayList<VendingCardPowerData>();
+		for (VendingCardPowerData vendingCardPowerData : list) {
+			if (vendingCardPowerData.getCRUD().equals("D")) {
+				deleteList.add(vendingCardPowerData);
+			} else if (vendingCardPowerData.getCRUD().equals("C")) {
+				addList.add(vendingCardPowerData);
+			} else if (vendingCardPowerData.getCRUD().equals("U")) {
+				updateList.add(vendingCardPowerData);
+			}
+		}
+		VendingCardPowerDbOper vendingCardPowerDbOper = new VendingCardPowerDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = vendingCardPowerDbOper.batchAddVendingCardPower(addList);
+			if (addFlag) {
+				Log.i("[vendingCardPower]:", "售货机卡/密码权限批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingCardPower]:", "售货机卡/密码权限批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = vendingCardPowerDbOper.batchDeleteVendingCardPower(deleteList);
+			if (deleteFlag) {
+				Log.i("[card]:", "售货机卡/密码权限批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingCardPower]:", "售货机卡/密码权限批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = vendingCardPowerDbOper.batchDeleteVendingCardPower(updateList);
+			boolean addFlag = vendingCardPowerDbOper.batchAddVendingCardPower(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[card]:", "售货机卡/密码权限批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingCardPower]:", "售货机卡/密码权限批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -121,6 +152,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
                 VendingCardPowerData data = new VendingCardPowerData();
                 data.setVc2Id(jsonObj.getString("ID"));
                 data.setVc2M02Id(jsonObj.getString("VC2_M02_ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setVc2Cu1Id(jsonObj.getString("VC2_CU1_ID"));
                 data.setVc2Vd1Id(jsonObj.getString("VC2_VD1_ID"));
                 data.setVc2Cd1Id(jsonObj.getString("VC2_CD1_ID"));

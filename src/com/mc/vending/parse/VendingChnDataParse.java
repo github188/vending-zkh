@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.VendingChnData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.VendingChnDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -77,22 +79,50 @@ public class VendingChnDataParse implements DataParseListener {
             }
             return;
         }
-        VendingChnDbOper vendingChnDbOper = new VendingChnDbOper();
-        boolean deleteFlag = vendingChnDbOper.deleteAll();
-        if (deleteFlag) {
-            // 批量增加售货机货道记录与售货机货道库存记录
-            boolean addflag = vendingChnDbOper.batchAddVendingChn(list);
-            if (addflag) {
-                Log.i("[vendingChn]:", "======>>>>>售货机货道批量增加成功!" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[vendingChn]:", "==========>>>>>售货机货道批量增加失败!");
-            }
-        }
-        // System.out.println(vendingChnDbOper.findAll());
-        // System.out.println(new VendingChnStockDbOper().findAll());
-
+        List<VendingChnData> addList = new ArrayList<VendingChnData>();
+		List<VendingChnData> updateList = new ArrayList<VendingChnData>();
+		List<VendingChnData> deleteList = new ArrayList<VendingChnData>();
+		for (VendingChnData vendingChnData : list) {
+			if (vendingChnData.getCRUD().equals("D")) {
+				deleteList.add(vendingChnData);
+			} else if (vendingChnData.getCRUD().equals("C")) {
+				addList.add(vendingChnData);
+			} else if (vendingChnData.getCRUD().equals("U")) {
+				updateList.add(vendingChnData);
+			}
+		}
+		VendingChnDbOper vendingChnDbOper = new VendingChnDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = vendingChnDbOper.batchAddVendingChn(addList);
+			if (addFlag) {
+				Log.i("[vendingChn]:", "售货机货道批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingChn]:", "售货机货道批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = vendingChnDbOper.batchDeleteVendingChn(deleteList);
+			if (deleteFlag) {
+				Log.i("[vendingChn]:", "售货机货道批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingChn]:", "售货机货道批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = vendingChnDbOper.batchDeleteVendingChn(updateList);
+			boolean addFlag = vendingChnDbOper.batchAddVendingChn(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[vendingChn]:", "售货机货道批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingChn]:", "售货机货道批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -121,6 +151,7 @@ public class VendingChnDataParse implements DataParseListener {
                 data.setVc1Vd1Id(jsonObj.getString("VC1_VD1_ID"));
                 data.setVc1Code(jsonObj.getString("VC1_CODE"));
                 data.setVc1Type(jsonObj.getString("VC1_Type"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setVc1Capacity(ConvertHelper.toInt(jsonObj.getString("VC1_Capacity"), 0));
                 data.setVc1ThreadSize(jsonObj.getString("VC1_ThreadSize"));
                 data.setVc1Pd1Id(jsonObj.getString("VC1_PD1_ID"));

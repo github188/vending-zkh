@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.CusEmpCardPowerData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.CusEmpCardPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -76,19 +78,50 @@ public class CusEmpCardPowerDataParse implements DataParseListener {
             }
             return;
         }
-        CusEmpCardPowerDbOper cusEmpCardPowerDbOper = new CusEmpCardPowerDbOper();
-        boolean deleteFlag = cusEmpCardPowerDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = cusEmpCardPowerDbOper.batchAddCusEmpCardPower(list);
-            if (addFlag) {
-                Log.i("[cusEmpCardPower]:", "客户员工卡/密码权限批量增加成功!" + "======" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[cusEmpCardPower]:", "客户员工卡/密码权限批量增加失败!");
-            }
-        }
-        // System.out.println(cusEmpCardPowerDbOper.findAll());
+        List<CusEmpCardPowerData> addList = new ArrayList<CusEmpCardPowerData>();
+		List<CusEmpCardPowerData> updateList = new ArrayList<CusEmpCardPowerData>();
+		List<CusEmpCardPowerData> deleteList = new ArrayList<CusEmpCardPowerData>();
+		for (CusEmpCardPowerData cusEmpCardPowerData : list) {
+			if (cusEmpCardPowerData.getCRUD().equals("D")) {
+				deleteList.add(cusEmpCardPowerData);
+			} else if (cusEmpCardPowerData.getCRUD().equals("C")) {
+				addList.add(cusEmpCardPowerData);
+			} else if (cusEmpCardPowerData.getCRUD().equals("U")) {
+				updateList.add(cusEmpCardPowerData);
+			}
+		}
+		CusEmpCardPowerDbOper cusEmpCardPowerDbOper = new CusEmpCardPowerDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = cusEmpCardPowerDbOper.batchAddCusEmpCardPower(addList);
+			if (addFlag) {
+				Log.i("[cusEmpCardPower]:", "客户员工卡/密码权限批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[cusEmpCardPower]:", "客户员工卡/密码权限批量增加成功!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = cusEmpCardPowerDbOper.batchDeleteCusEmpCardPower(deleteList);
+			if (deleteFlag) {
+				Log.i("[cusEmpCardPower]:", "客户员工卡/密码权限批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[cusEmpCardPower]:", "客户员工卡/密码权限批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = cusEmpCardPowerDbOper.batchDeleteCusEmpCardPower(updateList);
+			boolean addFlag = cusEmpCardPowerDbOper.batchAddCusEmpCardPower(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[cusEmpCardPower]:", "客户员工卡/密码权限批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[cusEmpCardPower]:", "客户员工卡/密码权限批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -118,6 +151,7 @@ public class CusEmpCardPowerDataParse implements DataParseListener {
                 CusEmpCardPowerData data = new CusEmpCardPowerData();
 
                 data.setCe2Id(jsonObj.getString("ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setCe2M02Id(jsonObj.getString("CE2_M02_ID"));
                 data.setCe2Ce1Id(jsonObj.getString("CE2_CE1_ID"));
                 data.setCe2Cd1Id(jsonObj.getString("CE2_CD1_ID"));

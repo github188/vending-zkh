@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.VendingProLinkData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.VendingProLinkDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -77,21 +79,50 @@ public class VendingProLinkDataParse implements DataParseListener {
             }
             return;
         }
-        // 批量增加售货机产品
-        VendingProLinkDbOper vendingProLinkDbOper = new VendingProLinkDbOper();
-        // 先删除再插入
-        boolean deleteFlag = vendingProLinkDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean flag = vendingProLinkDbOper.batchAddVendingProLink(list);
-            if (flag) {
-                Log.i("[vendingProLink]:", "======>>>>>售货机产品批量增加成功!" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[vendingProLink]:", "==========>>>>>售货机产品批量增加失败!");
-            }
-        }
-        // System.out.println(vendingProLinkDbOper.findAll());
+		List<VendingProLinkData> addList = new ArrayList<VendingProLinkData>();
+		List<VendingProLinkData> updateList = new ArrayList<VendingProLinkData>();
+		List<VendingProLinkData> deleteList = new ArrayList<VendingProLinkData>();
+		for (VendingProLinkData vendingProLinkData : list) {
+			if (vendingProLinkData.getCRUD().equals("D")) {
+				deleteList.add(vendingProLinkData);
+			} else if (vendingProLinkData.getCRUD().equals("C")) {
+				addList.add(vendingProLinkData);
+			} else if (vendingProLinkData.getCRUD().equals("U")) {
+				updateList.add(vendingProLinkData);
+			}
+		}
+		VendingProLinkDbOper vendingProLinkDbOper = new VendingProLinkDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = vendingProLinkDbOper.batchAddVendingProLink(addList);
+			if (addFlag) {
+				Log.i("[vendingProLink]:", "售货机产品批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingProLink]:", "售货机产品批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = vendingProLinkDbOper.batchDeleteVendingProLink(deleteList);
+			if (deleteFlag) {
+				Log.i("[vendingProLink]:", "售货机产品批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingProLink]:", "售货机产品批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = vendingProLinkDbOper.batchDeleteVendingProLink(updateList);
+			boolean addFlag = vendingProLinkDbOper.batchAddVendingProLink(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[vendingProLink]:", "售货机产品批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[vendingProLink]:", "售货机产品批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -122,6 +153,7 @@ public class VendingProLinkDataParse implements DataParseListener {
 
                 VendingProLinkData data = new VendingProLinkData();
                 data.setVp1Id(jsonObj.getString("ID"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setVp1M02Id(jsonObj.getString("VP1_M02_ID"));
                 data.setVp1Vd1Id(jsonObj.getString("VP1_VD1_ID"));
                 data.setVp1Pd1Id(jsonObj.getString("VP1_PD1_ID"));

@@ -31,7 +31,7 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.6";                               
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.7";                               
     public final static int                 VERSION_STOCK_SYNC                           = 250;         
     //老
 //    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard0/Download/";    
@@ -133,7 +133,7 @@ public class Constant {
                                                                                                                                    // 库存交易记录
     public final static String              METHOD_WSID_SYN_STOCK                        = "b7e4d092-5c3c-4f73-b793-caf197826340"; // 3。38
                                                                                                                                    // 同步库存
-    public final static String              METHOD_WSID_SYN_LOGVERSION                   = "c7aff256-e10b-4ee1-bd2e-f3670208aed1"; // 3.39
+   // public final static String              METHOD_WSID_SYN_LOGVERSION                   = "c7aff256-e10b-4ee1-bd2e-f3670208aed1"; // 3.39
                                                                                                                                    // APP接口调用返回
     public final static String              METHOD_WSID_RETURNS_FORWARD                  = "ae0ffec0-8af0-468f-9e11-2ec7bd95cc3c"; // 3.40退货单
     public final static String              METHOD_WSID_PRODUCTCARDPOWER                 = "610cc826-5da6-4d94-83e2-2b839f5a0299"; // 3.41卡产品权限
@@ -217,8 +217,8 @@ public class Constant {
                                                                                                          "3.27库存交易记录");
                                                                                                  put("b7e4d092-5c3c-4f73-b793-caf197826340",
                                                                                                          "3.38同步库存");
-                                                                                                 put("c7aff256-e10b-4ee1-bd2e-f3670208aed1",
-                                                                                                         "3.39APP接口调用返回");
+//                                                                                                 put("c7aff256-e10b-4ee1-bd2e-f3670208aed1",
+//                                                                                                         "3.39APP接口调用返回");
                                                                                                  put(METHOD_WSID_RETURNS_FORWARD,
                                                                                                          "3.40退货单接口");
                                                                                                  put(METHOD_WSID_USEDRECORD,

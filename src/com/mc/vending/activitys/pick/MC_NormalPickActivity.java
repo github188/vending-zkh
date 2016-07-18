@@ -1,6 +1,7 @@
 package com.mc.vending.activitys.pick;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,9 +57,11 @@ import com.mc.vending.service.ReplenishmentService;
 import com.mc.vending.tools.ActivityManagerTool;
 import com.mc.vending.tools.AsyncImageLoader;
 import com.mc.vending.tools.ConvertHelper;
+import com.mc.vending.tools.DateHelper;
 import com.mc.vending.tools.ServiceResult;
 import com.mc.vending.tools.StringHelper;
 import com.mc.vending.tools.ZillionLog;
+import com.mc.vending.tools.utils.DES;
 import com.mc.vending.tools.utils.MC_SerialToolsListener;
 import com.mc.vending.tools.utils.MyFunc;
 import com.mc.vending.tools.utils.SerialTools;
@@ -128,7 +131,17 @@ public class MC_NormalPickActivity extends BaseActivity
 		initObject();
 		resetViews();
 		startService();
+		// foo();
+	}
 
+	private void foo() {
+		try {
+			String temp = DES.Encrypt(DateHelper.format(new Date(), "yyyy-MM-dd HH:mm:ss.SSS"), "ZKH12345", "zxW/Ln/i");
+			System.out.print(temp);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void requestGetClientVersionServer() {
@@ -273,20 +286,20 @@ public class MC_NormalPickActivity extends BaseActivity
 				final Builder dialog = new AlertDialog.Builder(MC_NormalPickActivity.this).setTitle("请输入密码")
 						.setView(password).setCancelable(false)
 						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (!StringHelper.isEmpty(password.getText().toString(), true)) {
-							VendingPasswordData data = new VendingPasswordDbOper()
-									.getVendingPasswordByPassword(password.getText().toString());
-							if (data == null) {
-								resetAlertMsg("密码错误");
-							} else {
-								ActivityManagerTool.getActivityManager().exit();
-								finish();
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (!StringHelper.isEmpty(password.getText().toString(), true)) {
+									VendingPasswordData data = new VendingPasswordDbOper()
+											.getVendingPasswordByPassword(password.getText().toString());
+									if (data == null) {
+										resetAlertMsg("密码错误");
+									} else {
+										ActivityManagerTool.getActivityManager().exit();
+										finish();
+									}
+								}
 							}
-						}
-					}
-				}).setNegativeButton("取消", null);
+						}).setNegativeButton("取消", null);
 				dialog.show();
 
 				return false;
@@ -669,16 +682,14 @@ public class MC_NormalPickActivity extends BaseActivity
 		} else if (SerialTools.FUNCTION_KEY_CANCEL.equals(value)) {
 			// 功能键－－取消
 			hiddenAlertMsg();
-			isTheSameStoreOpenerFlow = false;
 			switch (operateStep) {
 			case OPERATE_STEP_1:
-
+				isTheSameStoreOpenerFlow = false;
 				if (!StringHelper.isEmpty(et_channle_number.getText().toString(), true)) {
 					et_channle_number.setText("");
 				}
 				break;
 			case OPERATE_STEP_2:
-				isTheSameStoreOpenerFlow = false;
 				if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
 					// 如果货到类型为格子机，点击取消，直接返回上一步
 					operateStep = OPERATE_STEP.OPERATE_STEP_1;
@@ -736,7 +747,7 @@ public class MC_NormalPickActivity extends BaseActivity
 				break;
 			case OPERATE_STEP_3:
 				if (isTheSameStoreOpenerFlow) {
-					isTheSameStoreOpenerFlow = false;
+
 					isRFID = false;
 					TheSameStoreOpenerLogic();
 				} else {
@@ -801,12 +812,11 @@ public class MC_NormalPickActivity extends BaseActivity
 					String rtnStr = "";
 					if (vendingChn.getVc1Type().equals(VendingChnData.VENDINGCHN_TYPE_CELL)) {
 						isTheSameStoreOpenerFlow = true;
-						rtnStr="库存为：0,库存量不足。如需继续领料请按确认键";
-					}else
-					{
-						rtnStr="库存为：0,库存量不足,不能领料";
+						rtnStr = "库存为：0,库存量不足。如需继续领料请按确认键";
+					} else {
+						rtnStr = "库存为：0,库存量不足,不能领料";
 					}
-					
+
 					resetAlertMsg(rtnStr);
 					return;
 				}
@@ -1277,6 +1287,7 @@ public class MC_NormalPickActivity extends BaseActivity
 					ConvertHelper.toInt(vendingChn.getVc1ColumnNum(), 0),
 					ConvertHelper.toInt(vendingChn.getVc1Height(), 0));
 			resetInputStatus();
+			isTheSameStoreOpenerFlow = false;
 			resetAlertMsg("验证通过，打开格子机！");
 		} else {
 			resetAlertMsg("输入的卡号或密码无权限打开该格子柜，请检查后重新输入！");

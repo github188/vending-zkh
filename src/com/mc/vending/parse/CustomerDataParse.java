@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.mc.vending.data.BaseData;
+import com.mc.vending.data.CardData;
 import com.mc.vending.data.CustomerData;
+import com.mc.vending.db.CardDbOper;
 import com.mc.vending.db.CustomerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
@@ -76,19 +78,50 @@ public class CustomerDataParse implements DataParseListener {
             }
             return;
         }
-        CustomerDbOper customerDbOper = new CustomerDbOper();
-        boolean deleteFlag = customerDbOper.deleteAll();
-        if (deleteFlag) {
-            boolean addFlag = customerDbOper.batchAddCustomer(list);
-            if (addFlag) {
-                Log.i("[customer]:", "客户批量增加成功!" + "======" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[customer]:", "客户批量增加失败!");
-            }
-        }
-        // System.out.println(customerDbOper.findAll());
+        List<CustomerData> addList = new ArrayList<CustomerData>();
+		List<CustomerData> updateList = new ArrayList<CustomerData>();
+		List<CustomerData> deleteList = new ArrayList<CustomerData>();
+		for (CustomerData customerData : list) {
+			if (customerData.getCRUD().equals("D")) {
+				deleteList.add(customerData);
+			} else if (customerData.getCRUD().equals("C")) {
+				addList.add(customerData);
+			} else if (customerData.getCRUD().equals("U")) {
+				updateList.add(customerData);
+			}
+		}
+		CustomerDbOper customerDbOper = new CustomerDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = customerDbOper.batchAddCustomer(addList);
+			if (addFlag) {
+				Log.i("[customer]:", "客户批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[customer]:", "客户批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = customerDbOper.batchDeleteCustomer(deleteList);
+			if (deleteFlag) {
+				Log.i("[customer]:", "客户批量删除成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[customer]:", "客户批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = customerDbOper.batchDeleteCustomer(updateList);
+			boolean addFlag = customerDbOper.batchAddCustomer(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[customer]:", "客户批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[customer]:", "客户批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }
@@ -121,6 +154,7 @@ public class CustomerDataParse implements DataParseListener {
                 data.setCu1M02Id(jsonObj.getString("CU1_M02_ID"));
                 data.setCu1Code(jsonObj.getString("CU1_CODE"));
                 data.setCu1Name(jsonObj.getString("CU1_Name"));
+                data.setCRUD(jsonObj.getString("CRUD"));
                 data.setCu1Relation(jsonObj.getString("CU1_Relation"));
                 data.setCu1RelationPhone(jsonObj.getString("CU1_RelationPhone"));
                 data.setCu1Saler(jsonObj.getString("CU1_Saler"));

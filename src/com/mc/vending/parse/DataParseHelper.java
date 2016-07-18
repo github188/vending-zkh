@@ -189,7 +189,7 @@ public class DataParseHelper {
         JSONObject json = new JSONObject();
         try {
             json.put("LogVersionID", logVersion);
-            requestSubmitServer("Update", json, Constant.METHOD_WSID_SYN_LOGVERSION);
+            //requestSubmitServer("Update", json, Constant.METHOD_WSID_SYN_LOGVERSION);
         } catch (Exception e) {
             e.printStackTrace();
             ZillionLog.e(this.getClass().toString(), "======>>>>>sendLogVersion请求数据异常!");
