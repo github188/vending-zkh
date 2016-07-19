@@ -11,7 +11,9 @@ import android.util.Log;
 
 import com.mc.vending.data.BaseData;
 import com.mc.vending.data.InterfaceData;
+import com.mc.vending.data.VendingCardPowerData;
 import com.mc.vending.db.InterfaceDbOper;
+import com.mc.vending.db.VendingCardPowerDbOper;
 import com.mc.vending.parse.listener.DataParseListener;
 import com.mc.vending.parse.listener.DataParseRequestListener;
 import com.mc.vending.tools.ConvertHelper;
@@ -64,21 +66,50 @@ public class ConfigDataParse implements DataParseListener {
             return;
         }
 
-        InterfaceDbOper interfaceDbOper = new InterfaceDbOper();
-        boolean deleteFlag = interfaceDbOper.deleteAll();
-        if (deleteFlag) {
-            //批量增加接口配置表记录
-            boolean addFlag = interfaceDbOper.batchAddInterface(list);
-            if (addFlag) {
-                Log.i("[interface]:", "接口配置批量增加成功!" + "======" + list.size());
-                DataParseHelper parseHelper = new DataParseHelper(this);
-                parseHelper.sendLogVersion(list.get(0).getLogVersion());
-            } else {
-                ZillionLog.e("[interface]:", "接口配置批量增加失败!");
-            }
-        }
-
-        //System.out.println(interfaceDbOper.findAll());
+		List<InterfaceData> addList = new ArrayList<InterfaceData>();
+		List<InterfaceData> updateList = new ArrayList<InterfaceData>();
+		List<InterfaceData> deleteList = new ArrayList<InterfaceData>();
+		for (InterfaceData interfaceData : list) {
+			if (interfaceData.getCRUD().equals("D")) {
+				deleteList.add(interfaceData);
+			} else if (interfaceData.getCRUD().equals("C")) {
+				addList.add(interfaceData);
+			} else if (interfaceData.getCRUD().equals("U")) {
+				updateList.add(interfaceData);
+			}
+		}
+		InterfaceDbOper interfaceDbOper = new InterfaceDbOper();
+		if (!addList.isEmpty()) {
+			boolean addFlag = interfaceDbOper.batchAddInterface(addList);
+			if (addFlag) {
+				Log.i("[interface]:", "接口配置批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[interface]:", "接口配置批量增加失败!");
+			}
+		}
+		if (!deleteList.isEmpty()) {
+			boolean deleteFlag = interfaceDbOper.batchDeleteInterface(deleteList);
+			if (deleteFlag) {
+				Log.i("[interface]:", "接口配置批量增加成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[interface]:", "接口配置批量删除失败!");
+			}
+		}
+		if (!updateList.isEmpty()) {
+			boolean deleteFlag = interfaceDbOper.batchDeleteInterface(updateList);
+			boolean addFlag = interfaceDbOper.batchAddInterface(updateList);
+			if (deleteFlag && addFlag) {
+				Log.i("[interface]:", "接口配置批量修改成功!" + "======" + list.size());
+				DataParseHelper parseHelper = new DataParseHelper(this);
+				parseHelper.sendLogVersion(list.get(0).getLogVersion());
+			} else {
+				ZillionLog.e("[interface]:", "接口配置批量修改失败!");
+			}
+		}
         if (this.listener != null) {
             this.listener.parseRequestFinised(baseData);
         }

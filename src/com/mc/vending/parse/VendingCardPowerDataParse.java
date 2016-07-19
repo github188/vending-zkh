@@ -104,7 +104,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
 		if (!deleteList.isEmpty()) {
 			boolean deleteFlag = vendingCardPowerDbOper.batchDeleteVendingCardPower(deleteList);
 			if (deleteFlag) {
-				Log.i("[card]:", "售货机卡/密码权限批量删除成功!" + "======" + list.size());
+				Log.i("[vendingCardPower]:", "售货机卡/密码权限批量删除成功!" + "======" + list.size());
 				DataParseHelper parseHelper = new DataParseHelper(this);
 				parseHelper.sendLogVersion(list.get(0).getLogVersion());
 			} else {
@@ -115,7 +115,7 @@ public class VendingCardPowerDataParse implements DataParseListener {
 			boolean deleteFlag = vendingCardPowerDbOper.batchDeleteVendingCardPower(updateList);
 			boolean addFlag = vendingCardPowerDbOper.batchAddVendingCardPower(updateList);
 			if (deleteFlag && addFlag) {
-				Log.i("[card]:", "售货机卡/密码权限批量修改成功!" + "======" + list.size());
+				Log.i("[vendingCardPower]:", "售货机卡/密码权限批量修改成功!" + "======" + list.size());
 				DataParseHelper parseHelper = new DataParseHelper(this);
 				parseHelper.sendLogVersion(list.get(0).getLogVersion());
 			} else {

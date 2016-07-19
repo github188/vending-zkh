@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.mc.vending.data.InterfaceData;
+import com.mc.vending.data.VendingCardPowerData;
 import com.mc.vending.tools.ZillionLog;
 
 public class InterfaceDbOper {
@@ -86,6 +87,30 @@ public class InterfaceDbOper {
         }
         return flag;
     }
+    
+    
+   	public boolean batchDeleteInterface(List<InterfaceData> list) {
+   		boolean flag = false;
+   		SQLiteDatabase db = AssetsDatabaseManager.getManager().getDatabase();
+   		try {
+   			// 开启事务
+   			db.beginTransaction();
+   			for (InterfaceData interfaceData : list) {
+   				db.delete("Interface", "M03_ID=?", new String[] { interfaceData.getM03Id() });
+   			}
+   			// 数据成功，设置事物成功标志
+   			db.setTransactionSuccessful();
+   			// 保存数据
+   			db.endTransaction();
+   			flag = true;
+   		} catch (SQLException e) {
+   			// 结束事物，在这里没有设置成功标志，结束后不保存
+   			ZillionLog.e(this.getClass().getName(), e.getMessage(), e);
+   			db.endTransaction();
+   			e.printStackTrace();
+   		}
+   		return flag;
+   	}
 
     /**
     * 删除整表数据
