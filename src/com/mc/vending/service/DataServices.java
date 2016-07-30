@@ -872,8 +872,15 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "initConfigTask start..");
-				InterfaceData configConfig = configMap
-						.get(Constant.METHOD_WSID_CONFIG + "_" + Constant.HTTP_OPERATE_TYPE_GETDATA);
+				InterfaceData configConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_CONFIG)) {
+						configConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(configConfig);
 				if (flag) {
 					Message message = new Message();
@@ -896,8 +903,15 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "vendingStatusTask start..");
-				InterfaceData vendingStatusConfig = configMap
-						.get(Constant.METHOD_WSID_VENDING_STSATUS + "_" + Constant.HTTP_OPERATE_TYPE_UPDATESTATUS);
+				InterfaceData vendingStatusConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_VENDING_STSATUS)) {
+						vendingStatusConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(vendingStatusConfig);
 				if (flag) {
 					Message message = new Message();
@@ -914,8 +928,15 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "replenishmentStatusTask start..");
-				InterfaceData replenishmentStatusConfig = configMap
-						.get(Constant.METHOD_WSID_REPLENISHMENT_STATUS + "_" + Constant.HTTP_OPERATE_TYPE_UPDATESTATUS);
+				InterfaceData replenishmentStatusConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_REPLENISHMENT_STATUS)) {
+						replenishmentStatusConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(replenishmentStatusConfig);
 				if (flag) {
 					Message message = new Message();
@@ -932,8 +953,15 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "replenishmentDiffTask start..");
-				InterfaceData replenishmentDiffConfig = configMap.get(Constant.METHOD_WSID_REPLENISHMENT_DIFF + "_"
-						+ Constant.HTTP_OPERATE_TYPE_UPDATEDETAILDIFFERENTIAQTY);
+				InterfaceData replenishmentDiffConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_REPLENISHMENT_DIFF)) {
+						replenishmentDiffConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(replenishmentDiffConfig);
 				if (flag) {
 					Message message = new Message();
@@ -949,8 +977,16 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "inventoryTask start..");
-				InterfaceData inventoryConfig = configMap
-						.get(Constant.METHOD_WSID_INVENTORY + "_" + Constant.HTTP_OPERATE_TYPE_INSERT);
+				
+				InterfaceData inventoryConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_INVENTORY)) {
+						inventoryConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(inventoryConfig);
 				if (flag) {
 					Message message = new Message();
@@ -966,8 +1002,16 @@ public class DataServices extends Service implements DataParseRequestListener, S
 			@Override
 			public void run() {
 				ZillionLog.i("vendingTask", "stockTransactionTask start..");
-				InterfaceData stockTransactionConfig = configMap
-						.get(Constant.METHOD_WSID_STOCKTRANSACTION + "_" + Constant.HTTP_OPERATE_TYPE_INSERT);
+				
+				InterfaceData stockTransactionConfig = new InterfaceData();
+				List<InterfaceData> configList = new InterfaceDbOper().findAll();
+				for (InterfaceData config : configList) {
+					String wsid = config.getM03Target().trim();
+					if (wsid.equals(Constant.METHOD_WSID_STOCKTRANSACTION)) {
+						stockTransactionConfig = config;
+						break;
+					}
+				}
 				boolean flag = DataServices.isTaskStart(stockTransactionConfig);
 				if (flag) {
 					Message message = new Message();

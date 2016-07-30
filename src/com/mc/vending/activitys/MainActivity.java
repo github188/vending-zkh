@@ -414,7 +414,11 @@ public class MainActivity extends Activity implements DataParseRequestListener {
 		if (Constant.METHOD_WSID_VERSION.equals(baseData.getRequestURL())) {
 			initConfigURL();
 		} else if (Constant.METHOD_WSID_AUTHER.equals(baseData.getRequestURL())) {
-			resetAlertMsg("认证连接异常，请检查网络连接或服务器地址是否正确！");
+			if (baseData.getReturnMessage().equals("")) {
+				resetAlertMsg("认证连接异常，请检查网络连接或服务器地址是否正确！当前设备IP为:"+Tools.getLocalIpAddress());
+			} else {
+				resetAlertMsg(baseData.getReturnMessage());
+			}
 		} else if (Constant.METHOD_WSID_VENDING.equals(baseData.getRequestURL())) {
 			// if (baseData.getData() == null || baseData.getData().length() ==
 			// 0) {

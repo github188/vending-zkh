@@ -31,7 +31,7 @@ public class Constant {
 
     public final static String              HEADER_KEY_CLIENTVER                         = "client_version";                      
     //版本号，同时修改AndroidManifest.xml，注意保持3位数的版本号
-    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.7";                               
+    public final static String              HEADER_VALUE_CLIENTVER                       = "2.4.6";                               
     public final static int                 VERSION_STOCK_SYNC                           = 250;         
     //老
 //    public final static String              DOWNLOAD_URL                                 = "/mnt/sdcard0/Download/";    
@@ -54,7 +54,7 @@ public class Constant {
     public final static String              BODY_XML_INPUT                               = "data";                                // data
 
     public final static String              BODY_VALUE_METHOD                            = "";                                    // method
-    public static String                    BODY_VALUE_UDID                              = "ddddddd";                             // udid
+    public static String                    BODY_VALUE_UDID                              = "";                             // udid
     public final static String              BODY_VALUE_APP                               = "evmandroid";                          // platform
     public final static String              BODY_VALUE_USER                              = "";                                    // platform
     public static String                    BODY_VALUE_PWD                               = "T6R4BL8D";                            // platform

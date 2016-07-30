@@ -54,7 +54,7 @@ public class StockTransactionDataParse implements DataParseListener {
             for (StockTransactionData data : datas) {
                 JSONObject json = new JSONObject();
                 json.put("ID", data.getTs1Id());
-                json.put("TS1_M02_ID", data.getTs1M02Id());
+                json.put("TS1_M02_ID", null);
                 json.put("TS1_BillType", data.getTs1BillType());
                 json.put("TS1_BillCode", data.getTs1BillCode());
                 json.put("TS1_CD1_ID", data.getTs1Cd1Id());
@@ -104,7 +104,7 @@ public class StockTransactionDataParse implements DataParseListener {
             for (StockTransactionData data : datas) {
                 JSONObject json = new JSONObject();
                 json.put("ID", data.getTs1Id());
-                json.put("TS1_M02_ID", data.getTs1M02Id());
+                json.put("TS1_M02_ID", null);
                 json.put("TS1_BillType", data.getTs1BillType());
                 json.put("TS1_BillCode", data.getTs1BillCode());
                 json.put("TS1_CD1_ID", data.getTs1Cd1Id());
